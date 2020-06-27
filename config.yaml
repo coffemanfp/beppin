@@ -4,7 +4,7 @@ database:
     port: 5444
     name: beppin
     user: beppin
-    password: 99b72ca2a166e5f6b0a99e7bd788a6e158130273f6786f83311e87e1fa6f1a04
+    password: b26edb839ea81fe0801f9d47f17aaeaac2e1162fe28a3487f51a3ee7716d1ef7
     host: localhost
 
 # Max elements quantity per pagination.
