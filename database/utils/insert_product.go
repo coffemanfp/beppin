@@ -13,13 +13,15 @@ func InsertProduct(db *sql.DB, product models.Product) (err error) {
 		INSERT INTO
 			products(user_id, name, description)
 		VALUES
-			(?, ?, ?)
+			($1, $2, $3)
 	`
 
 	stmt, err := db.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the insert product statement:\n%s", err)
+		return
 	}
+	defer stmt.Close()
 
 	_, err = stmt.Exec(
 		product.UserID,

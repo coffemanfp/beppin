@@ -72,11 +72,6 @@ func SetSettingsByFile(filePath string) (err error) {
 		return
 	}
 
-	settings.Database.Host = fmt.Sprintf(
-		"%s:%d",
-		settings.Database.Host,
-		settings.Database.Port,
-	)
 	return
 }
 

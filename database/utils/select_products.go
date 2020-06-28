@@ -16,14 +16,18 @@ func SelectProducts(db *sql.DB, limit int, offset int) (products models.Products
 		FROM
 			products
 		LIMIT
-			?
+			$1
 		OFFSET
-			?
-			
+			$2
 	`
 
+	settings, err := config.GetSettings()
+	if err != nil {
+		return
+	}
+
 	if limit == 0 {
-		limit = config.MaxElementsPerPagination
+		limit = settings.MaxElementsPerPagination
 	}
 
 	stmt, err := db.Prepare(query)
@@ -58,5 +62,5 @@ func SelectProducts(db *sql.DB, limit int, offset int) (products models.Products
 		products = append(products, product)
 	}
 
-	return products
+	return
 }

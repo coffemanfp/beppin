@@ -10,6 +10,8 @@ type Offer struct {
 	Type        string    `json:"type,omitempty"`
 	Value       string    `json:"value,omitempty"`
 	ExpiratedAt time.Time `json:"expirated_at,omitempty"`
+	CreatedAt   time.Time `json:"created_at,omitempty"`
+	UpdatedAt   time.Time `json:"updated_at,omitempty"`
 }
 
 // Offers - Alias for a offer array.
