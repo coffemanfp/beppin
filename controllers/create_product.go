@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/coffemanfp/beppin-server/database"
@@ -16,7 +15,7 @@ func CreateProduct(c echo.Context) (err error) {
 	var product models.Product
 
 	if err = c.Bind(&product); err != nil {
-		m.Error = errors.New("invalid body")
+		m.Error = "invalid body"
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}

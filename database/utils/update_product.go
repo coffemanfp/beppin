@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/models"
 	"github.com/lib/pq"
 )
@@ -17,7 +18,7 @@ func UpdateProduct(db *sql.DB, productID int, product models.Product) (err error
 	}
 
 	if !exists {
-		err = errors.New("non-existent object")
+		err = errors.New(errs.ErrNotExistentObject)
 		return
 	}
 

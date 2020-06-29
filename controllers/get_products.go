@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/coffemanfp/beppin-server/database"
@@ -22,14 +21,14 @@ func GetProducts(c echo.Context) (err error) {
 
 	limit, err = utils.Atoi(limitParam)
 	if err != nil {
-		m.Error = errors.New("limit param not valid")
+		m.Error = "limit param not valid"
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
 	offset, err = utils.Atoi(offsetParam)
 	if err != nil {
-		m.Error = errors.New("offset param not valid")
+		m.Error = "offset param not valid"
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
