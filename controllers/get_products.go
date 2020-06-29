@@ -3,11 +3,11 @@ package controllers
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
 	"github.com/coffemanfp/beppin-server/database"
 	dbu "github.com/coffemanfp/beppin-server/database/utils"
 	"github.com/coffemanfp/beppin-server/models"
+	"github.com/coffemanfp/beppin-server/utils"
 	"github.com/labstack/echo"
 )
 
@@ -16,24 +16,19 @@ func GetProducts(c echo.Context) (err error) {
 	limitParam := c.QueryParam("limit")
 	offsetParam := c.QueryParam("offset")
 
-	m := models.ResponseMessage{}
+	var m models.ResponseMessage
 
 	var limit, offset int
 
-	if limitParam == "" {
-		limitParam = "0"
-	}
-	if offsetParam == "" {
-		offsetParam = "0"
-	}
-
-	if limit, err = strconv.Atoi(limitParam); err != nil {
+	limit, err = utils.Atoi(limitParam)
+	if err != nil {
 		m.Error = errors.New("limit param not valid")
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	if offset, err = strconv.Atoi(offsetParam); err != nil {
+	offset, err = utils.Atoi(offsetParam)
+	if err != nil {
 		m.Error = errors.New("offset param not valid")
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)

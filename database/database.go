@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/coffemanfp/beppin-server/config"
 	_ "github.com/lib/pq"
@@ -35,8 +34,6 @@ func OpenConn() (dbConn *sql.DB, err error) {
 		return
 	}
 
-	log.Println(settings.Database)
-
 	if !settings.ValidateDatabase() {
 		err = errors.New(fmt.Sprint("database settings are not populated", settings))
 		return
@@ -50,15 +47,6 @@ func OpenConn() (dbConn *sql.DB, err error) {
 		settings.Database.Host,
 		settings.Database.Port,
 	))
-
-	// dbConn, err = sql.Open("postgres", fmt.Sprintf(
-	// 	"user=%s password=%s dbname=%s host=%s port=%d sslmode=disable",
-	// 	"beppin",
-	// 	"b26edb839ea81fe0801f9d47f17aaeaac2e1162fe28a3487f51a3ee7716d1ef7",
-	// 	"beppin",
-	// 	"localhost",
-	// 	5432,
-	// ))
 
 	if err != nil {
 		err = fmt.Errorf("error opening a database connection:\n%s", err)

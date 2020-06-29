@@ -1,40 +1,59 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
-	"net/http"
 
 	"github.com/coffemanfp/beppin-server/config"
-	"github.com/coffemanfp/beppin-server/controllers"
 	"github.com/coffemanfp/beppin-server/database"
+	"github.com/coffemanfp/beppin-server/router"
 	"github.com/labstack/echo"
 )
 
-func main() {
-	err := config.SetSettingsByFile("config.yaml")
-	if err != nil {
-		log.Fatal("failed to load settings:\n%s", err)
-	}
+var (
+	configFile    string
+	configFileDef string = "config.yaml"
+)
 
+func main() {
 	settings, err := config.GetSettings()
 	if err != nil {
-		log.Fatal("failed to get settings:\n%s", err)
+		log.Fatalf("failed to get settings:\n%s", err)
 	}
 
-	_, err = database.OpenConn()
+	e := echo.New()
+
+	router.NewRouter(e)
+	err = config.NewLogger(e, "logs/server.log")
 	if err != nil {
-		log.Fatal("failed to init database:\n%s", err)
+		log.Fatalf("failed to set logger:\n%s", err)
 	}
 
-	r := echo.New()
+	log.Println(e.Start(fmt.Sprintf(":%d", settings.Port)))
+}
 
-	r.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hola mundo")
-	})
+func init() {
+	initSettings()
+	initDatabase()
+}
 
-	r.GET("/products", controllers.GetProducts)
-	r.POST("/products", controllers.CreateProduct)
+func initSettings() {
+	err := config.SetSettingsByFile(configFileDef)
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
 
-	log.Println(r.Start(fmt.Sprintf(":%d", settings.Port)))
+func initDatabase() {
+	_, err := database.OpenConn()
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func initFlags() {
+	flag.StringVar(&configFile, "config-file", configFileDef, "Config file for the server settings.")
+
+	flag.Parse()
 }

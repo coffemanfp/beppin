@@ -15,7 +15,7 @@ END$$;
 CREATE TABLE IF NOT EXISTS languages (
     id SERIAL,
 
-    code VARCHAR(4),
+    code VARCHAR(5),
     status LANGUAGE_STATUS DEFAULT 'unavailable',
 
     created_at TIMESTAMP NOT NULl DEFAULT NOW(),
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS products (
-    id SERIAL,
+    id SERIAL NOT NULL UNIQUE,
     user_id INTEGER,
 
     name VARCHAR(80) NOT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS products (
     updated_at TIMESTAMP,
 
     PRIMARY KEY (id),
-    FOREIGN KEY (id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS offers (
