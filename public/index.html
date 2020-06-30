@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <ul class="products">
+    </ul>
+    <button id="getProducts">Get Products</button>
+    <script text="javascript">
+        document.querySelector('#getProducts').addEventListener('click', () => {
+            fetch('http://localhost:8080/products')
+            .then(response => {
+                return response.json()
+            })
+            .then(products => {
+                console.log(products);
+            })
+        })
+
+    </script>
+</body>
+</html>

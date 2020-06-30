@@ -2,13 +2,25 @@ package utils
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
-	"github.com/coffemanfp/beppin-server/models"
+	"github.com/coffemanfp/beppin-server/database/models"
+	errs "github.com/coffemanfp/beppin-server/errors"
 )
 
 // InsertProduct - Insert a product.
 func InsertProduct(db *sql.DB, product models.Product) (err error) {
+	exists, err := ExistsUser(db, product.UserID, "")
+	if err != nil {
+		return
+	}
+
+	if !exists {
+		err = errors.New(errs.ErrNotExistentObject)
+		return
+	}
+
 	query := `
 		INSERT INTO
 			products(user_id, name, description)

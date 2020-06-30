@@ -7,4 +7,6 @@ package errors
 // Common errors
 const (
 	ErrNotExistentObject = "non-existent object"
+	ErrExistentObject    = "existent object"
+	ErrNotSupportedType  = "not-supported type"
 )

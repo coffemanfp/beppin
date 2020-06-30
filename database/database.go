@@ -53,7 +53,7 @@ func OpenConn() (dbConn *sql.DB, err error) {
 		return
 	}
 
-	dbConn.SetMaxIdleConns(1)
+	dbConn.SetMaxOpenConns(1)
 
 	db = dbConn
 

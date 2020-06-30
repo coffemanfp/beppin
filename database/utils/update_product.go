@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/coffemanfp/beppin-server/database/models"
 	errs "github.com/coffemanfp/beppin-server/errors"
-	"github.com/coffemanfp/beppin-server/models"
 	"github.com/lib/pq"
 )
 
@@ -27,7 +27,7 @@ func UpdateProduct(db *sql.DB, productID int, product models.Product) (err error
 		return
 	}
 
-	product = fillEmptyField(product, previosProductData)
+	product = fillProductEmptyFields(product, previosProductData)
 
 	query := `
 		UPDATE
@@ -35,7 +35,8 @@ func UpdateProduct(db *sql.DB, productID int, product models.Product) (err error
 		SET
 			name = $1,
 			description = $2,
-			categories = $3
+			categories = $3,
+			updated_at = NOW()
 		WHERE 
 			id =  $4
 	`
@@ -59,7 +60,7 @@ func UpdateProduct(db *sql.DB, productID int, product models.Product) (err error
 	return
 }
 
-func fillEmptyField(product models.Product, previousProductData models.Product) models.Product {
+func fillProductEmptyFields(product models.Product, previousProductData models.Product) models.Product {
 
 	switch "" {
 	case product.Name:

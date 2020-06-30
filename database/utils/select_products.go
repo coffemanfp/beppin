@@ -5,14 +5,15 @@ import (
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/config"
-	"github.com/coffemanfp/beppin-server/models"
+	"github.com/coffemanfp/beppin-server/database/models"
+	"github.com/lib/pq"
 )
 
 // SelectProducts - Select a products list.
 func SelectProducts(db *sql.DB, limit int, offset int) (products models.Products, err error) {
 	query := `
 		SELECT
-			id, user_id, name, description, created_at, updated_at
+			id, user_id, name, description, categories, created_at, updated_at
 		FROM
 			products
 		LIMIT
@@ -47,12 +48,13 @@ func SelectProducts(db *sql.DB, limit int, offset int) (products models.Products
 
 	for rows.Next() {
 		err = rows.Scan(
-			product.ID,
-			product.UserID,
-			product.Name,
-			product.Description,
-			product.CreatedAt,
-			product.UpdatedAt,
+			&product.ID,
+			&product.UserID,
+			&product.Name,
+			&product.Description,
+			pq.Array(&product.Categories),
+			&product.CreatedAt,
+			&product.UpdatedAt,
 		)
 		if err != nil {
 			err = fmt.Errorf("failed to scan a product:\n%s", err)

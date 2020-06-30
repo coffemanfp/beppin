@@ -3,8 +3,8 @@ package database_test
 import (
 	"testing"
 
-	"github.com/coffemanfp/bepping-server/config"
-	"github.com/coffemanfp/bepping-server/database"
+	"github.com/coffemanfp/beppin-server/config"
+	"github.com/coffemanfp/beppin-server/database"
 )
 
 func TestGet(t *testing.T) {
@@ -37,7 +37,7 @@ func TestMaxConns(t *testing.T) {
 	}
 	defer database.CloseConn()
 
-	maxConns := dbConn.MaxIdleConns()
+	maxConns := dbConn.Stats().MaxOpenConnections
 
 	if maxConns != 1 {
 		t.Errorf("max connections (%d) invalid, expected (%d)", maxConns, 1)

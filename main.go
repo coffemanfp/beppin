@@ -9,6 +9,7 @@ import (
 	"github.com/coffemanfp/beppin-server/database"
 	"github.com/coffemanfp/beppin-server/router"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 var (
@@ -24,12 +25,20 @@ func main() {
 
 	e := echo.New()
 
+	e.Pre(middleware.RemoveTrailingSlash())
+
+	// CORS
+	e.Use(middleware.CORS())
+	// Create routes
 	router.NewRouter(e)
+
+	// Config logger
 	err = config.NewLogger(e, "logs/server.log")
 	if err != nil {
 		log.Fatalf("failed to set logger:\n%s", err)
 	}
 
+	// Run server and print if fails.
 	log.Println(e.Start(fmt.Sprintf(":%d", settings.Port)))
 }
 

@@ -35,6 +35,9 @@ CREATE TABLE IF NOT EXISTS users (
     birthday TIMESTAMP NOT NULL,
     theme VARCHAR DEFAULT 'light',
 
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP,
+
     PRIMARY KEY (id),
     FOREIGN KEY (language_id) REFERENCES languages(id)
 );
@@ -75,6 +78,8 @@ CREATE TABLE IF NOT EXISTS categories (
 
     name VARCHAR(25) UNIQUE,
     related_categories VARCHAR[],
+
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
 
     PRIMARY KEY (id)
 );

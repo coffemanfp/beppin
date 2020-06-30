@@ -4,43 +4,25 @@ import (
 	"net/http"
 
 	"github.com/coffemanfp/beppin-server/database"
-	dbm "github.com/coffemanfp/beppin-server/database/models"
 	dbu "github.com/coffemanfp/beppin-server/database/utils"
 	"github.com/coffemanfp/beppin-server/errors"
-	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
 	"github.com/coffemanfp/beppin-server/utils"
 	"github.com/labstack/echo"
 )
 
-// UpdateProduct - Updates a product.
-func UpdateProduct(c echo.Context) (err error) {
-	productIDParam := c.Param("id")
+// DeleteProduct - Delete a product.
+func DeleteProduct(c echo.Context) (err error) {
 	var m models.ResponseMessage
+	var productID int
 
-	productID, err := utils.Atoi(productIDParam)
-	if err != nil || productID == 0 {
+	productIDParam := c.Param("id")
+
+	if productID, err = utils.Atoi(productIDParam); err != nil || productID == 0 {
 		m.Error = "id param not valid"
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
-
-	var product models.Product
-
-	if err = c.Bind(&product); err != nil {
-		m.Error = "invalid body"
-
-		return echo.NewHTTPError(http.StatusBadRequest, m)
-	}
-
-	dbProductI, err := helpers.ParseModelToDBModel(product)
-	if err != nil {
-		c.Logger().Error(err)
-
-		return echo.ErrInternalServerError
-	}
-
-	dbProduct := dbProductI.(dbm.Product)
 
 	db, err := database.Get()
 	if err != nil {
@@ -49,7 +31,7 @@ func UpdateProduct(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	err = dbu.UpdateProduct(db, productID, dbProduct)
+	err = dbu.DeleteProduct(db, productID)
 	if err != nil {
 		if err.Error() == errors.ErrNotExistentObject {
 			m.Error = err.Error() + " (product)"
@@ -60,7 +42,7 @@ func UpdateProduct(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	m.Message = "Updated."
+	m.Message = "Deleted."
 
 	return c.JSON(http.StatusOK, m)
 }

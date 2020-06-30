@@ -4,23 +4,23 @@ import "time"
 
 // Product - Product for the app.
 type Product struct {
-	ID     int   `json:"id"`
-	UserID int   `json:"userId"`
-	Offer  Offer `json:"offer"`
+	ID     int    `json:"id,omitempty"`
+	UserID int    `json:"userId,omitempty"`
+	Offer  *Offer `json:"offer,omitempty"`
 
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	Categories  []string `json:"categories"`
+	Name        string   `json:"name,omitempty"`
+	Description string   `json:"description,omitempty"`
+	Categories  []string `json:"categories,omitempty"`
 
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
 }
 
 // Products - Alias for a product array.
 type Products []Product
 
-// ValidateUpdate - Validates a product for update.
-func (p Product) ValidateUpdate() (valid bool) {
+// Validate - Validates a product.
+func (p Product) Validate() (valid bool) {
 	valid = true
 
 	switch "" {
@@ -28,15 +28,6 @@ func (p Product) ValidateUpdate() (valid bool) {
 	case p.Description:
 		valid = false
 	}
-
-	return
-}
-
-// Validate - Validates a product.
-func (p Product) Validate() (valid bool) {
-	valid = true
-
-	valid = p.ValidateUpdate()
 
 	if p.UserID == 0 {
 		valid = false
