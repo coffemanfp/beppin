@@ -5,8 +5,8 @@ import (
 	"fmt"
 )
 
-// Existslanguage - Checks if exists a language.
-func Existslanguage(db *sql.DB, languageID int, languageCode string) (exists bool, err error) {
+// ExistsLanguage - Checks if exists a language.
+func ExistsLanguage(db *sql.DB, languageID int, languageCode string) (exists bool, err error) {
 	query := `
 		SELECT
 			EXISTS(
