@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/coffemanfp/shachat/config"
-	"github.com/coffemanfp/shachat/utils"
+	"github.com/coffemanfp/beppin-server/config"
+	"github.com/coffemanfp/beppin-server/utils"
 	"gopkg.in/yaml.v3"
 )
 
