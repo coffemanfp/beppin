@@ -13,11 +13,11 @@ var (
 	withExamples    bool
 	withExamplesDef bool
 	configFile      string
-	configFileDef   string = "../config.yaml"
+	configFileDef   string = "config.yaml"
 	schemaFile      string
-	schemaFileDef   string = "schema.sql"
+	schemaFileDef   string = "migrations/schema.sql"
 	examplesFile    string
-	examplesFileDef string = "examples.sql"
+	examplesFileDef string = "migrations/examples.sql"
 )
 
 func main() {

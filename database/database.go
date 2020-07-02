@@ -49,8 +49,13 @@ func OpenConn() (dbConn *sql.DB, err error) {
 	// ))
 
 	databaseURL := os.Getenv("DATABASE_URL")
-	connection, _ := pq.ParseURL(databaseURL)
-	connection += "?sslmode=require"
+	databaseURL += "?sslmode=require"
+
+	connection, err := pq.ParseURL(databaseURL)
+	if err != nil {
+		err = fmt.Errorf("failed to parse url database:\n%s", err)
+		return
+	}
 
 	dbConn, err = sql.Open("postgres", connection)
 	if err != nil {
