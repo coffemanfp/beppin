@@ -7,6 +7,7 @@ import (
 
 	"github.com/lib/pq"
 	_ "github.com/lib/pq"
+	"github.com/spf13/viper"
 )
 
 var db *sql.DB
@@ -50,6 +51,7 @@ func OpenConn() (dbConn *sql.DB, err error) {
 
 	databaseURL := os.Getenv("DATABASE_URL")
 	databaseURL += "?sslmode=require"
+	viper.WatchRemoteConfig()
 
 	connection, err := pq.ParseURL(databaseURL)
 	if err != nil {
