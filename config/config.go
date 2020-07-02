@@ -44,7 +44,7 @@ func GetSettings() (s Settings, err error) {
 
 // SetSettingsByFile - Sets the settings by a file.
 //	@param filePath string:
-//		Config filepath. (JSON)
+//		Config filepath.
 func SetSettingsByFile(filePath string) (err error) {
 	fileBytes, err := utils.GetFilebytes(filePath)
 	if err != nil {
