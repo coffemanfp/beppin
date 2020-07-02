@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/lib/pq"
 	_ "github.com/lib/pq"
 )
 
@@ -47,7 +48,11 @@ func OpenConn() (dbConn *sql.DB, err error) {
 	// 	settings.Database.Port,
 	// ))
 
-	dbConn, err = sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	databaseURL := os.Getenv("DATABASE_URL")
+	connection, _ := pq.ParseURL(databaseURL)
+	connection += "?sslmode=require"
+
+	dbConn, err = sql.Open("postgres", connection)
 	if err != nil {
 		err = fmt.Errorf("error opening a database connection:\n%s", err)
 		return
