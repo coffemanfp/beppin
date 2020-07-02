@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/coffemanfp/beppin-server/utils"
 	yaml "gopkg.in/yaml.v3"
@@ -65,6 +67,19 @@ func SetSettingsByFile(filePath string) (err error) {
 	if err != nil {
 		err = fmt.Errorf("failed to unmarshalling the settings:\n%s", err)
 		return
+	}
+
+	fmt.Println(os.Getenv("PORT"))
+
+	if portEnv := os.Getenv("PORT"); portEnv != "" {
+		var port int
+		port, err = strconv.Atoi(portEnv)
+		if err != nil {
+			err = fmt.Errorf("failed to get the port environment variable:\n%s", err)
+			return
+		}
+
+		settings.Port = port
 	}
 
 	if !settings.Validate() {
