@@ -21,11 +21,6 @@ var (
 )
 
 func main() {
-	err := config.SetSettingsByFile(configFile)
-	if err != nil {
-		log.Fatalln("failed to configure settings:\n", err)
-	}
-
 	db, err := database.Get()
 	if err != nil {
 		log.Fatalln(err)
@@ -61,6 +56,30 @@ func main() {
 }
 
 func init() {
+	initFlags()
+	initSettings()
+	initDatabase()
+}
+
+func initSettings() {
+	err := config.SetSettingsByFile(configFile)
+	if err != nil {
+		log.Fatalln("failed to configure settings:\n", err)
+	}
+	err = config.SetSettingsByEnv()
+	if err != nil {
+		log.Fatalln("failed to configure env settings:\n", err)
+	}
+}
+
+func initDatabase() {
+	_, err := database.OpenConn()
+	if err != nil {
+		log.Fatalln("failed to start the database:\n", err)
+	}
+}
+
+func initFlags() {
 	flag.BoolVar(&withExamples, "with-examples", withExamplesDef, "Add examples to the database.")
 	flag.StringVar(&configFile, "config-file", configFileDef, "Config file for the database settings.")
 	flag.StringVar(&schemaFile, "schema-file", schemaFileDef, "Schema to execute")

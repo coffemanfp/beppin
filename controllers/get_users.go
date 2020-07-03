@@ -27,6 +27,22 @@ func GetUsers(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
+	// If the limit param is exceeded, is setted to the default limit.
+	err = m.LimitParamExceeded(&limit)
+	if err != nil {
+		c.Logger().Error()
+
+		return echo.ErrInternalServerError
+	}
+
+	// If the limit is not provided, is setted to the default limit.
+	err = m.NotLimitParamProvided(&limit)
+	if err != nil {
+		c.Logger().Error()
+
+		return echo.ErrInternalServerError
+	}
+
 	offset, err = utils.Atoi(offsetParam)
 	if err != nil {
 		m.Error = "offset param not valid"
@@ -64,7 +80,10 @@ func GetUsers(c echo.Context) (err error) {
 	}
 
 	m.Content = users
-	m.Message = "Ok."
+
+	if m.Message == "" {
+		m.Message = "Ok."
+	}
 
 	return c.JSON(http.StatusOK, m)
 }

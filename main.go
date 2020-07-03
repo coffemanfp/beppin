@@ -50,14 +50,19 @@ func init() {
 func initSettings() {
 	err := config.SetSettingsByFile(configFileDef)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalln("failed to configure settings:\n", err)
+	}
+
+	err = config.SetSettingsByEnv()
+	if err != nil {
+		log.Fatalln("failed to configure env settings:\n", err)
 	}
 }
 
 func initDatabase() {
 	_, err := database.OpenConn()
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalln("failed to start the database:\n", err)
 	}
 }
 

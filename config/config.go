@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/coffemanfp/beppin-server/utils"
+	"github.com/lib/pq"
 	yaml "gopkg.in/yaml.v3"
 )
 
@@ -28,6 +29,8 @@ type Database struct {
 	User     string `json:"user" yaml:"user"`
 	Password string `json:"password" yaml:"password"`
 	Host     string `json:"host" yaml:"host"`
+	SslMode  string `json:"sslMode" yaml:"sslMode"`
+	URL      string `json:"url" yaml:"url"`
 }
 
 // GetSettings - Get the server settings.
@@ -69,8 +72,16 @@ func SetSettingsByFile(filePath string) (err error) {
 		return
 	}
 
-	fmt.Println(os.Getenv("PORT"))
+	if !settings.Validate() {
+		err = errors.New("settings are not populated")
+		return
+	}
 
+	return
+}
+
+// SetSettingsByEnv - Fills the settings by the environment variables
+func SetSettingsByEnv() (err error) {
 	if portEnv := os.Getenv("PORT"); portEnv != "" {
 		var port int
 		port, err = strconv.Atoi(portEnv)
@@ -82,11 +93,27 @@ func SetSettingsByFile(filePath string) (err error) {
 		settings.Port = port
 	}
 
-	if !settings.Validate() {
-		err = errors.New("settings are not populated")
-		return
-	}
+	var databaseURL string
+	if databaseURLEnv := os.Getenv("DATABASE_URL"); databaseURLEnv != "" {
+		databaseURL, err = pq.ParseURL(databaseURLEnv)
+		if err != nil {
+			err = fmt.Errorf("failed to parse the database url connection:\n%s", err)
+			return
+		}
+		databaseURL += " sslmode=" + settings.Database.SslMode
 
+	} else {
+		databaseURL = fmt.Sprintf(
+			"user=%s password=%s dbname=%s host=%s port=%d sslmode=%s",
+			settings.Database.User,
+			settings.Database.Password,
+			settings.Database.Name,
+			settings.Database.Host,
+			settings.Database.Port,
+			settings.Database.SslMode,
+		)
+	}
+	settings.Database.URL = databaseURL
 	return
 }
 

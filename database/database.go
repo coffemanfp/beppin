@@ -2,12 +2,11 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
-	"os"
 
-	"github.com/lib/pq"
+	"github.com/coffemanfp/beppin-server/config"
 	_ "github.com/lib/pq"
-	"github.com/spf13/viper"
 )
 
 var db *sql.DB
@@ -30,36 +29,17 @@ func Get() (dbConn *sql.DB, err error) {
 
 // OpenConn - Open a conn to the database.
 func OpenConn() (dbConn *sql.DB, err error) {
-	// settings, err := config.GetSettings()
-	// if err != nil {
-	// 	return
-	// }
-
-	// if !settings.ValidateDatabase() {
-	// 	err = errors.New(fmt.Sprint("database settings are not populated", settings))
-	// 	return
-	// }
-
-	// dbConn, err = sql.Open("postgres", fmt.Sprintf(
-	// 	"user=%s password=%s dbname=%s host=%s port=%d sslmode=disable",
-	// 	settings.Database.User,
-	// 	settings.Database.Password,
-	// 	settings.Database.Name,
-	// 	settings.Database.Host,
-	// 	settings.Database.Port,
-	// ))
-
-	databaseURL := os.Getenv("DATABASE_URL")
-	databaseURL += "?sslmode=require"
-	viper.WatchRemoteConfig()
-
-	connection, err := pq.ParseURL(databaseURL)
+	settings, err := config.GetSettings()
 	if err != nil {
-		err = fmt.Errorf("failed to parse url database:\n%s", err)
 		return
 	}
 
-	dbConn, err = sql.Open("postgres", connection)
+	if !settings.ValidateDatabase() {
+		err = errors.New(fmt.Sprint("invalid database settings", settings))
+		return
+	}
+
+	dbConn, err = sql.Open("postgres", settings.Database.URL)
 	if err != nil {
 		err = fmt.Errorf("error opening a database connection:\n%s", err)
 		return
