@@ -16,23 +16,26 @@ func InsertUser(db *sql.DB, user models.User) (err error) {
 		return
 	}
 
-	language, err := SelectLanguage(db, user.Language.ID, user.Language.Code)
-	if err != nil {
-		return
-	}
-
-	user.Language = language
-
 	if exists {
 		err = errors.New(errs.ErrExistentObject)
 		return
 	}
 
+	if user.Language.Code != "" {
+		var language models.Language
+		language, err = SelectLanguage(db, user.Language.Code)
+		if err != nil {
+			return
+		}
+
+		user.Language = language
+	}
+
 	query := `
 		INSERT INTO
-			users(language_id, username, password, name, last_name, birthday, theme)
+			users(language, username, password, email, name, last_name, birthday, theme)
 		VALUES
-			($1, $2, $3, $4, $5, $6, $7)
+			($1, $2, $3, $4, $5, $6, $7, $8)
 	`
 
 	stmt, err := db.Prepare(query)
@@ -43,10 +46,11 @@ func InsertUser(db *sql.DB, user models.User) (err error) {
 	defer stmt.Close()
 
 	_, err = stmt.Exec(
-		user.Language.ID,
+		user.Language.Code,
 		user.Username,
 		user.Password,
 		user.Name,
+		user.Email,
 		user.LastName,
 		user.Birthday.Time,
 		user.Theme,

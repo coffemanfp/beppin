@@ -4,8 +4,6 @@ import "database/sql"
 
 // Language - Language for the app.
 type Language struct {
-	ID int
-
 	Code   string
 	Status string
 

@@ -2,26 +2,14 @@ package utils
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/database/models"
-	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/lib/pq"
 )
 
 // UpdateProduct - Updates a product.
 func UpdateProduct(db *sql.DB, productID int, product models.Product) (err error) {
-	exists, err := ExistsProduct(db, productID)
-	if err != nil {
-		return
-	}
-
-	if !exists {
-		err = errors.New(errs.ErrNotExistentObject)
-		return
-	}
-
 	previosProductData, err := SelectProduct(db, productID)
 	if err != nil {
 		return
@@ -52,7 +40,7 @@ func UpdateProduct(db *sql.DB, productID int, product models.Product) (err error
 		product.Name,
 		product.Description,
 		pq.Array(product.Categories),
-		product.ID,
+		productID,
 	)
 	if err != nil {
 		err = fmt.Errorf("failed to execute the update product statement:\n%s", err)

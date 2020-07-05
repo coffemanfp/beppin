@@ -12,6 +12,7 @@ type User struct {
 
 	Username  string     `json:"username,omitempty"`
 	Password  string     `json:"password,omitempty"`
+	Email     string     `json:"email,omitempty"`
 	Name      string     `json:"name,omitempty"`
 	LastName  string     `json:"lastName,omitempty"`
 	Birthday  *time.Time `json:"birthday,omitempty"`
@@ -23,6 +24,19 @@ type User struct {
 // Users - Alias for a user array.
 type Users []User
 
+// ValidateLogin - Validates a user login.
+func (u User) ValidateLogin() (valid bool) {
+	valid = true
+
+	switch "" {
+	case u.Username:
+	case u.Password:
+		valid = false
+	}
+
+	return
+}
+
 // Validate - Validates a user.
 func (u User) Validate() (valid bool) {
 	valid = true
@@ -30,6 +44,7 @@ func (u User) Validate() (valid bool) {
 	switch "" {
 	case u.Username:
 	case u.Password:
+	case u.Email:
 	case u.Name:
 	case u.LastName:
 		valid = false

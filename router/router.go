@@ -1,29 +1,54 @@
 package router
 
 import (
-	"net/http"
+	"fmt"
 
+	"github.com/coffemanfp/beppin-server/config"
 	"github.com/coffemanfp/beppin-server/controllers"
+	"github.com/coffemanfp/beppin-server/models"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 // NewRouter - Creates the app router.
-func NewRouter(e *echo.Echo) {
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello world!")
-	})
+func NewRouter(e *echo.Echo) (err error) {
+
+	settings, err := config.GetSettings()
+	if err != nil {
+		err = fmt.Errorf("failed to get settings:\n%s", err)
+		return
+	}
+
+	// API group
+	r := e.Group("/v1")
+
+	// Sign In
+	r.POST("/login", controllers.Login)
+
+	// Sign Up
+	r.POST("/signup", controllers.SignUp)
+
+	// Products
+	r.GET("/products", controllers.GetProducts)
+	r.GET("/products/:id", controllers.GetProduct)
+
+	// JWT Middleware
+	jwtConfig := middleware.JWTConfig{
+		Claims:      &models.Claim{},
+		SigningKey:  []byte(settings.SecretKey),
+		TokenLookup: "header:" + echo.HeaderAuthorization,
+	}
+
+	// Products
+	r.POST("/products", controllers.CreateProduct, middleware.JWTWithConfig(jwtConfig))
+	r.PUT("/products/:id", controllers.UpdateProduct, middleware.JWTWithConfig(jwtConfig))
+	r.DELETE("/products/:id", controllers.DeleteProduct, middleware.JWTWithConfig(jwtConfig))
 
 	// Users
-	e.GET("/products", controllers.GetProducts)
-	e.GET("/products/:id", controllers.GetProduct)
-	e.POST("/products", controllers.CreateProduct)
-	e.PUT("/products/:id", controllers.UpdateProduct)
-	e.DELETE("/products/:id", controllers.DeleteProduct)
+	r.GET("/users", controllers.GetUsers, middleware.JWTWithConfig(jwtConfig))
+	r.GET("/users/:id", controllers.GetUser, middleware.JWTWithConfig(jwtConfig))
+	r.PUT("/users/:id", controllers.UpdateUser, middleware.JWTWithConfig(jwtConfig))
+	r.DELETE("/users/:id", controllers.DeleteUser, middleware.JWTWithConfig(jwtConfig))
 
-	e.GET("/users", controllers.GetUsers)
-	e.GET("/users/:id", controllers.GetUser)
-	e.POST("/users", controllers.CreateUser)
-	e.PUT("/users/:id", controllers.UpdateUser)
-	e.DELETE("/users/:id", controllers.DeleteUser)
-
+	return
 }

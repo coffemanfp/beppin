@@ -26,6 +26,8 @@ func InsertLanguage(db *sql.DB, language models.Language) (err error) {
 			languages(code, status)
 		VALUES
 			($1, $2)
+		ON CONFLICT DO
+			NOTHING
 	`
 
 	stmt, err := db.Prepare(query)

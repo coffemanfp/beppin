@@ -12,16 +12,6 @@ import (
 
 // SelectProduct - Selects a product.
 func SelectProduct(db *sql.DB, productID int) (product models.Product, err error) {
-	exists, err := ExistsProduct(db, productID)
-	if err != nil {
-		return
-	}
-
-	if !exists {
-		err = errors.New(errs.ErrNotExistentObject)
-		return
-	}
-
 	query := `
 		SELECT
 			id, user_id, name, description, categories, created_at, updated_at
@@ -49,6 +39,11 @@ func SelectProduct(db *sql.DB, productID int) (product models.Product, err error
 		&product.UpdatedAt,
 	)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			err = errors.New(errs.ErrNotExistentObject)
+			return
+		}
+
 		err = fmt.Errorf("failed to select the product:\n%s", err)
 	}
 	return

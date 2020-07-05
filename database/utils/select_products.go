@@ -2,10 +2,12 @@ package utils
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/config"
 	"github.com/coffemanfp/beppin-server/database/models"
+	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/lib/pq"
 )
 
@@ -40,6 +42,11 @@ func SelectProducts(db *sql.DB, limit int, offset int) (products models.Products
 
 	rows, err := stmt.Query(limit, offset)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			err = errors.New(errs.ErrNotExistentObject)
+			return
+		}
+
 		err = fmt.Errorf("failed to select the products:\n%s", err)
 		return
 	}

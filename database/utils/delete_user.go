@@ -10,16 +10,6 @@ import (
 
 // DeleteUser - Deletes a user.
 func DeleteUser(db *sql.DB, userID int, username string) (err error) {
-	exists, err := ExistsUser(db, userID, username)
-	if err != nil {
-		return
-	}
-
-	if !exists {
-		err = errors.New(errs.ErrNotExistentObject)
-		return
-	}
-
 	query := `
 		DELETE FROM
 			users
@@ -35,9 +25,19 @@ func DeleteUser(db *sql.DB, userID int, username string) (err error) {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(userID, username)
+	res, err := stmt.Exec(userID, username)
 	if err != nil {
 		err = fmt.Errorf("failed to delete the user:\n%s", err)
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		err = fmt.Errorf("failed to get the rows affected number:\n%s", err)
+		return
+	}
+
+	if rowsAffected == 0 {
+		err = errors.New(errs.ErrNotExistentObject)
 	}
 	return
 }

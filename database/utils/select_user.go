@@ -11,27 +11,13 @@ import (
 
 // SelectUser - Selects a user.
 func SelectUser(db *sql.DB, userID int, username string) (user models.User, err error) {
-	exists, err := ExistsUser(db, userID, username)
-	if err != nil {
-		return
-	}
-
-	if !exists {
-		err = errors.New(errs.ErrNotExistentObject)
-		return
-	}
-
 	query := `
 		SELECT
-			users.id, languages.id, languages.code, username, password, name, last_name, birthday, theme, users.created_at, users.updated_at
+			id, language, username, name, last_name, birthday, theme, created_at, updated_at
 		FROM
 			users
-		INNER JOIN
-			languages
-		ON
-			users.language_id = languages.id
 		WHERE
-			users.id = $1
+			id = $1
 			
 	`
 
@@ -45,10 +31,8 @@ func SelectUser(db *sql.DB, userID int, username string) (user models.User, err 
 
 	err = stmt.QueryRow(userID).Scan(
 		&user.ID,
-		&user.Language.ID,
 		&user.Language.Code,
 		&user.Username,
-		&user.Password,
 		&user.Name,
 		&user.LastName,
 		&user.Birthday,
@@ -57,7 +41,13 @@ func SelectUser(db *sql.DB, userID int, username string) (user models.User, err 
 		&user.UpdatedAt,
 	)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			err = errors.New(errs.ErrNotExistentObject)
+			return
+		}
+
 		err = fmt.Errorf("failed to select the user:\n%s", err)
+		return
 	}
 	return
 }

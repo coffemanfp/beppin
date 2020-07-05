@@ -13,23 +13,22 @@ EXCEPTION
 END$$;
 
 CREATE TABLE IF NOT EXISTS languages (
-    id SERIAL,
-
-    code VARCHAR(5),
+    code CHAR(5),
     status LANGUAGE_STATUS DEFAULT 'unavailable',
 
     created_at TIMESTAMP NOT NULl DEFAULT NOW(),
     updated_at TIMESTAMP,
 
-    PRIMARY KEY (id)
+    PRIMARY KEY (code)
 );
 
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL NOT NULL UNIQUE,
-    language_id INTEGER,
+    language CHAR(5) DEFAULT 'en-EN',
 
-    username VARCHAR(25) UNIQUE,
-    password VARCHAR(75),
+    username VARCHAR(25) NOT NULL UNIQUE,
+    password VARCHAR(75) NOT NULL,
+    email VARCHAR(60) NOT NULL UNIQUE,
     name VARCHAR(25) NOT NULL,
     last_name VARCHAR(25) NOT NULL,
     birthday TIMESTAMP NOT NULL,
@@ -39,7 +38,7 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP,
 
     PRIMARY KEY (id),
-    FOREIGN KEY (language_id) REFERENCES languages(id)
+    FOREIGN KEY (language) REFERENCES languages(code)
 );
 
 CREATE TABLE IF NOT EXISTS products (

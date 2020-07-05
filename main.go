@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/coffemanfp/beppin-server/config"
 	"github.com/coffemanfp/beppin-server/database"
@@ -25,21 +26,41 @@ func main() {
 
 	e := echo.New()
 
+	// Middlewares
+	{
+		e.Use(
+			// middleware.Logger(),
+			middleware.Recover(),
+			middleware.CORSWithConfig(middleware.CORSConfig{
+				AllowOrigins: []string{"*"},
+				AllowMethods: []string{
+					http.MethodPost,
+					http.MethodGet,
+					http.MethodPut,
+					http.MethodDelete,
+				},
+				Skipper: middleware.DefaultSkipper,
+			}),
+		)
+	}
+
+	// Remove Trailing URL Slash
 	e.Pre(middleware.RemoveTrailingSlash())
 
-	// CORS
-	e.Use(middleware.CORS())
 	// Create routes
-	router.NewRouter(e)
+	err = router.NewRouter(e)
+	if err != nil {
+		log.Fatalf("failed to set router:\n%s", err)
+	}
 
 	// Config logger
-	err = config.NewLogger(e, "logs/server.log")
+	err = config.NewLogger(e, settings.LogsFile)
 	if err != nil {
 		log.Fatalf("failed to set logger:\n%s", err)
 	}
 
 	// Run server and print if fails.
-	log.Println(e.Start(fmt.Sprintf(":%d", settings.Port)))
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", settings.Port)))
 }
 
 func init() {

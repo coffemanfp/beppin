@@ -17,9 +17,12 @@ var settings *Settings
 
 // Settings - Settings app.
 type Settings struct {
-	Port                     int       `json:"port" yaml:"port"`
-	Database                 *Database `json:"database" yaml:"database"`
-	MaxElementsPerPagination int       `json:"maxElementsPerPagination" yaml:"maxElementsPerPagination"`
+	Port                     int    `json:"port" yaml:"port"`
+	LogsFile                 string `json:"logsFile" yaml:"logsFile"`
+	MaxElementsPerPagination int    `json:"maxElementsPerPagination" yaml:"maxElementsPerPagination"`
+
+	SecretKey string    `json:"secretKey" yaml:"secretKey"`
+	Database  *Database `json:"database" yaml:"database"`
 }
 
 // Database - Database settings.

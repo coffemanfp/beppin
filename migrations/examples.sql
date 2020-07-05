@@ -13,9 +13,9 @@ ON CONFLICT DO
     NOTHING;
 
 INSERT INTO
-    users(language_id, username, password, name, last_name, birthday, theme)
+    users(language, username, password, email, name, last_name, birthday, theme)
 VALUES
-    (1, 'coffemanfp', '1234', 'Franklin', 'Peñaranda', NOW(), 'light')
+    ('es-ES', 'coffemanfp', '1234', 'coffemanfp@gmail.com', 'Franklin', 'Peñaranda', NOW(), 'light')
 ON CONFLICT DO
     NOTHING;
 

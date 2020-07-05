@@ -10,21 +10,11 @@ import (
 
 // DeleteProduct - Deletess a product.
 func DeleteProduct(db *sql.DB, productID int) (err error) {
-	exists, err := ExistsProduct(db, productID)
-	if err != nil {
-		return
-	}
-
-	if !exists {
-		err = errors.New(errs.ErrNotExistentObject)
-		return
-	}
-
 	query := `
 		DELETE FROM
 			products
 		WHERE
-			products.id = $1
+			id = $1
 	`
 
 	stmt, err := db.Prepare(query)
@@ -35,9 +25,20 @@ func DeleteProduct(db *sql.DB, productID int) (err error) {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(productID)
+	res, err := stmt.Exec(productID)
 	if err != nil {
 		err = fmt.Errorf("failed to delete the product:\n%s", err)
+		return
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		err = fmt.Errorf("failed to get the rows affected number:\n%s", err)
+		return
+	}
+
+	if rowsAffected == 0 {
+		err = errors.New(errs.ErrNotExistentObject)
 	}
 	return
 }

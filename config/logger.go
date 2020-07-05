@@ -27,11 +27,9 @@ func NewLogger(e *echo.Echo, path string) (err error) {
 	}
 
 	if !exist {
-
 		logFile, err = os.Create(path)
-
+		fmt.Println("No existe")
 	} else {
-
 		logFile, err = os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0644)
 	}
 
