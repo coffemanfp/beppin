@@ -13,8 +13,11 @@ logs/
 bin/
 beppin-server
 
-# Test binary, built with `go test -c`
+# Test and test binary, built with `go test -c`
 *.test
+test
+test.go
+
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
