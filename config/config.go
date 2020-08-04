@@ -120,6 +120,24 @@ func SetSettingsByEnv() (err error) {
 	return
 }
 
+func setDefaultSettings() {
+	settings = &Settings{
+		Port:                     8080,
+		LogsFile:                 "logs/server.log",
+		MaxElementsPerPagination: 20,
+		SecretKey:                "Security",
+
+		Database: &Database{
+			Port:     5432,
+			Name:     "database_name",
+			User:     "database_user",
+			Password: "database_password",
+			Host:     "localhost",
+			SslMode:  "disabled",
+		},
+	}
+}
+
 // Validate - Validates all settings.
 func (s Settings) Validate() (valid bool) {
 	valid = true
