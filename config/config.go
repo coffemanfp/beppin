@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/coffemanfp/beppin-server/utils"
+	"github.com/lib/pq"
 	"github.com/spf13/viper"
 	yaml "gopkg.in/yaml.v3"
 )
@@ -23,28 +24,15 @@ type Settings struct {
 	Database  *Database `json:"database" yaml:"database"`
 }
 
-// Database - Database settings.
-type Database struct {
-	Name     string `json:"name" yaml:"name"`
-	Port     int    `json:"port" yaml:"port"`
-	User     string `json:"user" yaml:"user"`
-	Password string `json:"password" yaml:"password"`
-	Host     string `json:"host" yaml:"host"`
-	SslMode  string `json:"sslMode" yaml:"sslMode"`
-	URL      string `json:"url" yaml:"url"`
-}
-
 // GetSettings - Get the server settings.
 //	@return s *Settings:
 //		Server settings.
-func GetSettings() (s Settings, err error) {
+func GetSettings() (s Settings) {
 	if settings == nil {
-		err = fmt.Errorf("error settings not found")
-		return
+		setDefaultSettings()
 	}
 
 	s = *settings
-
 	return
 }
 
@@ -85,42 +73,35 @@ func SetSettingsByFile(filePath string) (err error) {
 func SetSettingsByEnv() (err error) {
 	viper.SetEnvPrefix("beppin")
 
-	if port != "" {
-
+	err = bindEnvVars()
+	if err != nil {
+		fmt.Println(err)
 	}
 
-	//if portEnv := os.Getenv("PORT"); portEnv != "" {
-	//var port int
-	//port, err = strconv.Atoi(portEnv)
-	//if err != nil {
-	//err = fmt.Errorf("failed to get the port environment variable:\n%s", err)
-	//return
-	//}
+	err = viper.Unmarshal(settings)
+	if err != nil {
+		err = fmt.Errorf("failed to unmarshal settings:\n%s", err)
+		return
+	}
 
-	//settings.Port = port
-	//}
+	var databaseURL string
+	if settings.Database.URL == "" {
+		databaseURL, err = settings.Database.GetURL()
+		if err != nil {
+			return
+		}
+	} else {
+		var databaseURL string
+		databaseURL, err = pq.ParseURL(settings.Database.URL)
+		if err != nil {
+			err = fmt.Errorf("failed to parse the database url connection:\n%s", err)
+			return
+		}
 
-	//var databaseURL string
-	//if databaseURLEnv := os.Getenv("DATABASE_URL"); databaseURLEnv != "" {
-	//databaseURL, err = pq.ParseURL(databaseURLEnv)
-	//if err != nil {
-	//err = fmt.Errorf("failed to parse the database url connection:\n%s", err)
-	//return
-	//}
-	//databaseURL += " sslmode=" + settings.Database.SslMode
+		databaseURL += " sslmode=" + settings.Database.SslMode
+	}
 
-	//} else {
-	//databaseURL = fmt.Sprintf(
-	//"user=%s password=%s dbname=%s host=%s port=%d sslmode=%s",
-	//settings.Database.User,
-	//settings.Database.Password,
-	//settings.Database.Name,
-	//settings.Database.Host,
-	//settings.Database.Port,
-	//settings.Database.SslMode,
-	//)
-	//}
-	//settings.Database.URL = databaseURL
+	settings.Database.URL = databaseURL
 	return
 }
 
@@ -176,23 +157,6 @@ func (s Settings) Validate() (valid bool) {
 		valid = false
 	}
 
-	valid = s.ValidateDatabase()
-	return
-}
-
-// ValidateDatabase - Validates the database settings.
-func (s Settings) ValidateDatabase() (valid bool) {
-	valid = true
-
-	switch "" {
-	case s.Database.Host:
-	case s.Database.Name:
-	case s.Database.User:
-	case s.Database.Password:
-		valid = false
-	}
-	if s.Database.Port == 0 {
-		valid = false
-	}
+	valid = s.Database.ValidateDatabase()
 	return
 }
