@@ -4,12 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"path/filepath"
-	"strconv"
 
 	"github.com/coffemanfp/beppin-server/utils"
-	"github.com/lib/pq"
+	"github.com/spf13/viper"
 	yaml "gopkg.in/yaml.v3"
 )
 
@@ -85,38 +83,70 @@ func SetSettingsByFile(filePath string) (err error) {
 
 // SetSettingsByEnv - Fills the settings by the environment variables
 func SetSettingsByEnv() (err error) {
-	if portEnv := os.Getenv("PORT"); portEnv != "" {
-		var port int
-		port, err = strconv.Atoi(portEnv)
-		if err != nil {
-			err = fmt.Errorf("failed to get the port environment variable:\n%s", err)
-			return
-		}
+	viper.SetEnvPrefix("beppin")
 
-		settings.Port = port
+	if port != "" {
+
 	}
 
-	var databaseURL string
-	if databaseURLEnv := os.Getenv("DATABASE_URL"); databaseURLEnv != "" {
-		databaseURL, err = pq.ParseURL(databaseURLEnv)
-		if err != nil {
-			err = fmt.Errorf("failed to parse the database url connection:\n%s", err)
-			return
-		}
-		databaseURL += " sslmode=" + settings.Database.SslMode
+	//if portEnv := os.Getenv("PORT"); portEnv != "" {
+	//var port int
+	//port, err = strconv.Atoi(portEnv)
+	//if err != nil {
+	//err = fmt.Errorf("failed to get the port environment variable:\n%s", err)
+	//return
+	//}
 
-	} else {
-		databaseURL = fmt.Sprintf(
-			"user=%s password=%s dbname=%s host=%s port=%d sslmode=%s",
-			settings.Database.User,
-			settings.Database.Password,
-			settings.Database.Name,
-			settings.Database.Host,
-			settings.Database.Port,
-			settings.Database.SslMode,
-		)
+	//settings.Port = port
+	//}
+
+	//var databaseURL string
+	//if databaseURLEnv := os.Getenv("DATABASE_URL"); databaseURLEnv != "" {
+	//databaseURL, err = pq.ParseURL(databaseURLEnv)
+	//if err != nil {
+	//err = fmt.Errorf("failed to parse the database url connection:\n%s", err)
+	//return
+	//}
+	//databaseURL += " sslmode=" + settings.Database.SslMode
+
+	//} else {
+	//databaseURL = fmt.Sprintf(
+	//"user=%s password=%s dbname=%s host=%s port=%d sslmode=%s",
+	//settings.Database.User,
+	//settings.Database.Password,
+	//settings.Database.Name,
+	//settings.Database.Host,
+	//settings.Database.Port,
+	//settings.Database.SslMode,
+	//)
+	//}
+	//settings.Database.URL = databaseURL
+	return
+}
+
+// bindEnvVars binds the environment variables.
+// returns an error with a list of the missing variables.
+func bindEnvVars() (err error) {
+	envVarNames := []string{
+		"port", "logs_file",
+		"max_elements_per_pagination", "secret_key",
+		"db_name", "db_user",
+		"db_port", "db_password",
+		"db_host", "db_sslmode", "db_url",
 	}
-	settings.Database.URL = databaseURL
+
+	var missingVariables []error
+	for _, envVarName := range envVarNames {
+		err = viper.BindEnv(envVarName)
+		if err != nil {
+			missingVariables = append(missingVariables, err)
+		}
+	}
+
+	for _, missingVariable := range missingVariables {
+		err = errors.New(missingVariable.Error() + "\n")
+	}
+
 	return
 }
 
