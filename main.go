@@ -12,10 +12,7 @@ import (
 )
 
 func main() {
-	settings, err := config.GetSettings()
-	if err != nil {
-		log.Fatalf("failed to get settings:\n%s", err)
-	}
+	settings := config.GetSettings()
 
 	e := echo.New()
 
@@ -41,7 +38,7 @@ func main() {
 	e.Pre(middleware.RemoveTrailingSlash())
 
 	// Create routes
-	err = router.NewRouter(e)
+	err := router.NewRouter(e)
 	if err != nil {
 		log.Fatalf("failed to set router:\n%s", err)
 	}
@@ -57,6 +54,7 @@ func main() {
 }
 
 func init() {
+	initFlags()
 	initSettings()
 	initDatabase()
 }

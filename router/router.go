@@ -1,8 +1,6 @@
 package router
 
 import (
-	"fmt"
-
 	"github.com/coffemanfp/beppin-server/config"
 	"github.com/coffemanfp/beppin-server/controllers"
 	"github.com/coffemanfp/beppin-server/models"
@@ -12,12 +10,7 @@ import (
 
 // NewRouter - Creates the app router.
 func NewRouter(e *echo.Echo) (err error) {
-
-	settings, err := config.GetSettings()
-	if err != nil {
-		err = fmt.Errorf("failed to get settings:\n%s", err)
-		return
-	}
+	settings := config.GetSettings()
 
 	// API group
 	r := e.Group("/v1")

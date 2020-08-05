@@ -1,84 +1,91 @@
 package config
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"path/filepath"
+	"strings"
 
-	"github.com/coffemanfp/beppin-server/utils"
 	"github.com/lib/pq"
 	"github.com/spf13/viper"
-	yaml "gopkg.in/yaml.v3"
 )
 
 var settings *Settings
 
-// Settings - Settings app.
-type Settings struct {
-	Port                     int    `json:"port" yaml:"port"`
-	LogsFile                 string `json:"logsFile" yaml:"logsFile"`
-	MaxElementsPerPagination int    `json:"maxElementsPerPagination" yaml:"maxElementsPerPagination"`
-
-	SecretKey string    `json:"secretKey" yaml:"secretKey"`
-	Database  *Database `json:"database" yaml:"database"`
-}
-
 // GetSettings - Get the server settings.
-//	@return s *Settings:
+//	@return s Settings:
 //		Server settings.
 func GetSettings() (s Settings) {
 	if settings == nil {
-		setDefaultSettings()
+		SetDefaultSettings()
 	}
 
 	s = *settings
 	return
 }
 
+// SetDefaultSettings configure the default settings values.
+func SetDefaultSettings() {
+	settings = &Settings{
+		Port:                     8080,
+		LogsFile:                 "logs/server.log",
+		MaxElementsPerPagination: 20,
+		SecretKey:                "Security",
+
+		Database: &Database{
+			Port:     5432,
+			Name:     "database_name",
+			User:     "database_user",
+			Password: "database_password",
+			Host:     "localhost",
+			SslMode:  "disable",
+		},
+	}
+}
+
 // SetSettingsByFile - Sets the settings by a file.
-//	@param filePath string:
+//	@param path string:
 //		Config filepath.
-func SetSettingsByFile(filePath string) (err error) {
-	fileBytes, err := utils.GetFilebytes(filePath)
+func SetSettingsByFile(path string) (err error) {
+	viper.SetConfigName("config")
+	viper.SetConfigType(filepath.Ext(path)[1:])
+	viper.AddConfigPath(".")
+	viper.AddConfigPath("$HOME")
+	viper.SetEnvKeyReplacer(strings.NewReplacer("_", "."))
+
+	err = viper.ReadInConfig()
 	if err != nil {
 		return
 	}
 
-	switch ext := filepath.Ext(filePath)[1:]; {
-	case ext == "json":
-		err = json.Unmarshal(fileBytes, &settings)
-	case ext == "yaml":
-		err = yaml.Unmarshal(fileBytes, &settings)
-	default:
-		err = fmt.Errorf("extension (%s) not supported:\n%s", ext, err)
-		if err != nil {
-			return
-		}
-	}
+	err = viper.Unmarshal(&settings)
 	if err != nil {
-		err = fmt.Errorf("failed to unmarshalling the settings:\n%s", err)
 		return
 	}
 
 	if !settings.Validate() {
 		err = errors.New("settings are not populated")
-		return
 	}
-
 	return
 }
 
 // SetSettingsByEnv - Fills the settings by the environment variables
 func SetSettingsByEnv() (err error) {
 	viper.SetEnvPrefix("beppin")
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	err = bindEnvVars()
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	err = viper.Unmarshal(settings)
+	err = viper.Unmarshal(&settings)
+	if err != nil {
+		err = fmt.Errorf("failed to unmarshal settings:\n%s", err)
+		return
+	}
+
+	err = viper.Unmarshal(&settings.Database)
 	if err != nil {
 		err = fmt.Errorf("failed to unmarshal settings:\n%s", err)
 		return
@@ -113,7 +120,7 @@ func bindEnvVars() (err error) {
 		"max_elements_per_pagination", "secret_key",
 		"db_name", "db_user",
 		"db_port", "db_password",
-		"db_host", "db_sslmode", "db_url",
+		"db_host", "db_ssl_mode", "db_url",
 	}
 
 	var missingVariables []error
@@ -128,35 +135,5 @@ func bindEnvVars() (err error) {
 		err = errors.New(missingVariable.Error() + "\n")
 	}
 
-	return
-}
-
-func setDefaultSettings() {
-	settings = &Settings{
-		Port:                     8080,
-		LogsFile:                 "logs/server.log",
-		MaxElementsPerPagination: 20,
-		SecretKey:                "Security",
-
-		Database: &Database{
-			Port:     5432,
-			Name:     "database_name",
-			User:     "database_user",
-			Password: "database_password",
-			Host:     "localhost",
-			SslMode:  "disabled",
-		},
-	}
-}
-
-// Validate - Validates all settings.
-func (s Settings) Validate() (valid bool) {
-	valid = true
-
-	if s.Port == 0 {
-		valid = false
-	}
-
-	valid = s.Database.ValidateDatabase()
 	return
 }
