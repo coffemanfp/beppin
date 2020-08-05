@@ -11,21 +11,24 @@ import (
 
 // Flags
 var (
-	configFile    string
-	configFileDef string = "config.yaml"
+	configFile string
 )
 
 var filesToUpload = make(chan *os.File)
 
 func initSettings() {
-	err := config.SetSettingsByFile(configFileDef)
-	if err != nil {
-		log.Fatalln("failed to configure settings:\n", err)
-	}
+	config.SetDefaultSettings()
 
-	err = config.SetSettingsByEnv()
+	err := config.SetSettingsByEnv()
 	if err != nil {
 		log.Fatalln("failed to configure env settings:\n", err)
+	}
+
+	if configFile != "" {
+		err := config.SetSettingsByFile(configFile)
+		if err != nil {
+			log.Fatalln("failed to configure file settings:\n", err)
+		}
 	}
 }
 
@@ -37,7 +40,7 @@ func initDatabase() {
 }
 
 func initFlags() {
-	flag.StringVar(&configFile, "config-file", configFileDef, "Config file for the server settings.")
+	flag.StringVar(&configFile, "config-file", "config.yaml", "Config file for the server settings.")
 
 	flag.Parse()
 }

@@ -29,12 +29,9 @@ func Get() (dbConn *sql.DB, err error) {
 
 // OpenConn - Open a conn to the database.
 func OpenConn() (dbConn *sql.DB, err error) {
-	settings, err := config.GetSettings()
-	if err != nil {
-		return
-	}
+	settings := config.GetSettings()
 
-	if !settings.ValidateDatabase() {
+	if !settings.Database.ValidateDatabase() {
 		err = errors.New(fmt.Sprint("invalid database settings", settings))
 		return
 	}

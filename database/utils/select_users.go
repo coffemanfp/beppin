@@ -23,10 +23,7 @@ func SelectUsers(db *sql.DB, limit int, offset int) (users models.Users, err err
 			$2
 	`
 
-	settings, err := config.GetSettings()
-	if err != nil {
-		return
-	}
+	settings := config.GetSettings()
 
 	if limit == 0 {
 		limit = settings.MaxElementsPerPagination

@@ -28,20 +28,10 @@ func GetUsers(c echo.Context) (err error) {
 	}
 
 	// If the limit param is exceeded, is setted to the default limit.
-	err = m.LimitParamExceeded(&limit)
-	if err != nil {
-		c.Logger().Error()
-
-		return echo.ErrInternalServerError
-	}
+	m.LimitParamExceeded(&limit)
 
 	// If the limit is not provided, is setted to the default limit.
-	err = m.NotLimitParamProvided(&limit)
-	if err != nil {
-		c.Logger().Error()
-
-		return echo.ErrInternalServerError
-	}
+	m.NotLimitParamProvided(&limit)
 
 	offset, err = utils.Atoi(offsetParam)
 	if err != nil {

@@ -14,15 +14,12 @@ type ResponseMessage struct {
 }
 
 // NotLimitParamProvided - Sets a message saying that the limit parameter has not been provided.
-func (m *ResponseMessage) NotLimitParamProvided(limit *int) (err error) {
+func (m *ResponseMessage) NotLimitParamProvided(limit *int) {
 	if *limit > 0 {
 		return
 	}
 
-	settings, err := config.GetSettings()
-	if err != nil {
-		return
-	}
+	settings := config.GetSettings()
 
 	m.Message = fmt.Sprintf(
 		"Not limit param provided, setted to %d",
@@ -34,11 +31,8 @@ func (m *ResponseMessage) NotLimitParamProvided(limit *int) (err error) {
 }
 
 // LimitParamExceeded - Sets a message saying that the limit parameter has  been provided.
-func (m *ResponseMessage) LimitParamExceeded(limit *int) (err error) {
-	settings, err := config.GetSettings()
-	if err != nil {
-		return
-	}
+func (m *ResponseMessage) LimitParamExceeded(limit *int) {
+	settings := config.GetSettings()
 
 	if *limit < settings.MaxElementsPerPagination {
 		return
