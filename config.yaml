@@ -1,3 +1,0 @@
-secret_key: Vaina
-database:
-    db_ssl_mode: require3
