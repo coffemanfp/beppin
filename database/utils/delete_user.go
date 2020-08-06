@@ -2,7 +2,6 @@ package utils
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 
 	errs "github.com/coffemanfp/beppin-server/errors"
@@ -37,7 +36,7 @@ func DeleteUser(db *sql.DB, userID int, username string) (err error) {
 	}
 
 	if rowsAffected == 0 {
-		err = errors.New(errs.ErrNotExistentObject)
+		err = errs.ErrNotExistentObject
 	}
 	return
 }

@@ -2,10 +2,9 @@ package utils
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 
-	errs "github.com/coffemanfp/beppin-server/errors"
+	"github.com/coffemanfp/beppin-server/errors"
 )
 
 // DeleteProduct - Deletess a product.
@@ -19,26 +18,25 @@ func DeleteProduct(db *sql.DB, productID int) (err error) {
 
 	stmt, err := db.Prepare(query)
 	if err != nil {
-		err = fmt.Errorf("failed to prepare the delete product statement:\n%s", err)
-
+		err = fmt.Errorf("failed to prepare the delete %d product statement: %v", productID, err)
 		return
 	}
 	defer stmt.Close()
 
 	res, err := stmt.Exec(productID)
 	if err != nil {
-		err = fmt.Errorf("failed to delete the product:\n%s", err)
+		err = fmt.Errorf("failed to delete %d product: %v", err)
 		return
 	}
 
 	rowsAffected, err := res.RowsAffected()
 	if err != nil {
-		err = fmt.Errorf("failed to get the rows affected number:\n%s", err)
+		err = fmt.Errorf("failed to get the rows affected number:\n%v", err)
 		return
 	}
 
 	if rowsAffected == 0 {
-		err = errors.New(errs.ErrNotExistentObject)
+		err = fmt.Errorf("failed to delete %d product: %w", productID, errors.ErrNotExistentObject)
 	}
 	return
 }

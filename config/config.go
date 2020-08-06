@@ -1,10 +1,11 @@
 package config
 
 import (
-	"errors"
 	"fmt"
 	"path/filepath"
 	"strings"
+
+	"github.com/coffemanfp/beppin-server/errors"
 
 	"github.com/lib/pq"
 	"github.com/spf13/viper"
@@ -55,16 +56,18 @@ func SetSettingsByFile(path string) (err error) {
 
 	err = viper.ReadInConfig()
 	if err != nil {
+		err = fmt.Errorf("failed to read in config:\n%w", err)
 		return
 	}
 
 	err = viper.Unmarshal(&settings)
 	if err != nil {
+		err = fmt.Errorf("failed to unmarshal settings:%w\n%v", errors.ErrInvalidSettings, err)
 		return
 	}
 
 	if !settings.Validate() {
-		err = errors.New("settings are not populated")
+		err = fmt.Errorf("failed to validate settings:\n%w", err)
 	}
 	return
 }
@@ -81,13 +84,13 @@ func SetSettingsByEnv() (err error) {
 
 	err = viper.Unmarshal(&settings)
 	if err != nil {
-		err = fmt.Errorf("failed to unmarshal settings:\n%s", err)
+		err = fmt.Errorf("failed to unmarshal settings: %w\n%v", errors.ErrInvalidSettings, err)
 		return
 	}
 
 	err = viper.Unmarshal(&settings.Database)
 	if err != nil {
-		err = fmt.Errorf("failed to unmarshal settings:\n%s", err)
+		err = fmt.Errorf("failed to unmarshal database settings: %w\n%v", errors.ErrInvalidSettings, err)
 		return
 	}
 
@@ -101,7 +104,7 @@ func SetSettingsByEnv() (err error) {
 		var databaseURL string
 		databaseURL, err = pq.ParseURL(settings.Database.URL)
 		if err != nil {
-			err = fmt.Errorf("failed to parse the database url connection:\n%s", err)
+			err = fmt.Errorf("failed to parse database url: %v", err)
 			return
 		}
 
@@ -132,7 +135,7 @@ func bindEnvVars() (err error) {
 	}
 
 	for _, missingVariable := range missingVariables {
-		err = errors.New(missingVariable.Error() + "\n")
+		err = fmt.Errorf("failed to get env var: %v", missingVariable)
 	}
 
 	return
