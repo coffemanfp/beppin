@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/coffemanfp/beppin-server/errors"
+	errs "github.com/coffemanfp/beppin-server/errors"
 
 	"github.com/lib/pq"
 	"github.com/spf13/viper"
@@ -62,7 +62,7 @@ func SetSettingsByFile(path string) (err error) {
 
 	err = viper.Unmarshal(&settings)
 	if err != nil {
-		err = fmt.Errorf("failed to unmarshal settings:%w\n%v", errors.ErrInvalidSettings, err)
+		err = fmt.Errorf("failed to unmarshal settings:%w\n%v", errs.ErrInvalidSettings, err)
 		return
 	}
 
@@ -84,13 +84,13 @@ func SetSettingsByEnv() (err error) {
 
 	err = viper.Unmarshal(&settings)
 	if err != nil {
-		err = fmt.Errorf("failed to unmarshal settings: %w\n%v", errors.ErrInvalidSettings, err)
+		err = fmt.Errorf("failed to unmarshal settings: %w\n%v", errs.ErrInvalidSettings, err)
 		return
 	}
 
 	err = viper.Unmarshal(&settings.Database)
 	if err != nil {
-		err = fmt.Errorf("failed to unmarshal database settings: %w\n%v", errors.ErrInvalidSettings, err)
+		err = fmt.Errorf("failed to unmarshal database settings: %w\n%v", errs.ErrInvalidSettings, err)
 		return
 	}
 

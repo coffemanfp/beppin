@@ -6,11 +6,19 @@ import "errors"
 // TODO: Create database errors.
 // TODO: Create server errors.
 
-// Common errors
+// Common errors.
 var (
 	ErrNotExistentObject = errors.New("non-existent object")
 	ErrExistentObject    = errors.New("existent object")
 	ErrNotSupportedType  = errors.New("not-supported type")
+)
 
+// System errors.
+var (
 	ErrInvalidSettings = errors.New("invalid settings")
+)
+
+// Server errors.
+var (
+	ErrInvalidBody = "invalid body"
 )
