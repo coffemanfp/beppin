@@ -1,11 +1,13 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/coffemanfp/beppin-server/database"
 	dbu "github.com/coffemanfp/beppin-server/database/utils"
+	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
 	"github.com/dgrijalva/jwt-go"
@@ -22,7 +24,7 @@ func Login(c echo.Context) (err error) {
 	}
 
 	if !user.ValidateLogin() {
-		m.Error = "missing or invalid username or password"
+		m.Error = fmt.Sprintf("%v: %s", errs.ErrInvalidUserLogin)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}

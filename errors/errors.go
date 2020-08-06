@@ -20,5 +20,7 @@ var (
 
 // Server errors.
 var (
-	ErrInvalidBody = "invalid body"
+	ErrInvalidBody      = "invalid body"
+	ErrInvalidParam     = "invalid param"
+	ErrInvalidUserLogin = "missing or invalid user credentials"
 )

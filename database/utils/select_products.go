@@ -2,7 +2,6 @@ package utils
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/config"
@@ -32,7 +31,7 @@ func SelectProducts(db *sql.DB, limit int, offset int) (products models.Products
 
 	stmt, err := db.Prepare(query)
 	if err != nil {
-		err = fmt.Errorf("failed to prepare the select products statement:\n%s", err)
+		err = fmt.Errorf("failed to prepare the select products statement:\n%v", err)
 		return
 	}
 	defer stmt.Close()
@@ -40,11 +39,11 @@ func SelectProducts(db *sql.DB, limit int, offset int) (products models.Products
 	rows, err := stmt.Query(limit, offset)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			err = errors.New(errs.ErrNotExistentObject)
+			err = fmt.Errorf("failed to select the products: %w", errs.ErrNotExistentObject)
 			return
 		}
 
-		err = fmt.Errorf("failed to select the products:\n%s", err)
+		err = fmt.Errorf("failed to select the products:\n%v", err)
 		return
 	}
 
@@ -61,7 +60,7 @@ func SelectProducts(db *sql.DB, limit int, offset int) (products models.Products
 			&product.UpdatedAt,
 		)
 		if err != nil {
-			err = fmt.Errorf("failed to scan a product:\n%s", err)
+			err = fmt.Errorf("failed to scan a product:\n%v", err)
 			return
 		}
 
