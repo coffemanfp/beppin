@@ -20,7 +20,9 @@ func Login(c echo.Context) (err error) {
 	var user models.User
 
 	if err = c.Bind(&user); err != nil {
-		return echo.ErrBadRequest
+		m.Error = errs.ErrInvalidBody
+
+		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
 	if !user.ValidateLogin() {

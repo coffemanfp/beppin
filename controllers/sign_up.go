@@ -1,12 +1,14 @@
 package controllers
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
 	dbu "github.com/coffemanfp/beppin-server/database/utils"
-	"github.com/coffemanfp/beppin-server/errors"
+	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
 	"github.com/labstack/echo"
@@ -18,13 +20,13 @@ func SignUp(c echo.Context) (err error) {
 	var user models.User
 
 	if err = c.Bind(&user); err != nil {
-		m.Error = "invalid body"
+		m.Error = errs.ErrInvalidBody
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
 	if !user.Validate() {
-		m.Error = "invalid body"
+		m.Error = errs.ErrInvalidBody
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
@@ -47,23 +49,25 @@ func SignUp(c echo.Context) (err error) {
 
 	err = dbu.InsertUser(db, dbUser)
 	if err != nil {
-		if err.Error() == errors.ErrExistentObject {
-			m.Error = err.Error() + " (user)"
+		unwrappedErr := errors.Unwrap(err)
 
+		switch unwrappedErr {
+		case errs.ErrExistentObject:
+			m.Error = fmt.Sprintf("%v: %s", errs.ErrNotExistentObject, "user")
 			return echo.NewHTTPError(http.StatusConflict, m)
 
-		} else if err.Error() == errors.ErrNotExistentObject {
-			m.Error = err.Error() + " (language)"
-
+		case errs.ErrNotExistentObject:
+			m.Error = fmt.Sprintf("%v: %s", errs.ErrNotExistentObject, "language")
 			return echo.NewHTTPError(http.StatusNotFound, m)
+
+		default:
+			c.Logger().Error(err)
+
+			return echo.ErrInternalServerError
 		}
 
-		c.Logger().Error(err)
-
-		return echo.ErrInternalServerError
 	}
 
 	m.Message = "Created."
-
 	return c.JSON(http.StatusCreated, m)
 }
