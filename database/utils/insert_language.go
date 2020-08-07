@@ -2,7 +2,6 @@ package utils
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/database/models"
@@ -11,13 +10,19 @@ import (
 
 // InsertLanguage - Insert a language.
 func InsertLanguage(db *sql.DB, language models.Language) (err error) {
-	exists, err := ExistsLanguage(db, 0, language.Code)
+	identifier := language.GetIdentifier()
+	if identifier == nil {
+		err = fmt.Errorf("failed to insert language: %w (language)", errs.ErrNotProvidedOrInvalidObject)
+		return
+	}
+
+	exists, err := ExistsLanguage(db, language)
 	if err != nil {
 		return
 	}
 
 	if exists {
-		err = errors.New(errs.ErrExistentObject)
+		err = fmt.Errorf("failed to check (%v) language: %w (language)", identifier, errs.ErrExistentObject)
 		return
 	}
 
@@ -32,7 +37,7 @@ func InsertLanguage(db *sql.DB, language models.Language) (err error) {
 
 	stmt, err := db.Prepare(query)
 	if err != nil {
-		err = fmt.Errorf("failed to prepare the insert language statement:\n%s", err)
+		err = fmt.Errorf("failed to prepare the insert (%v) language statement: %v", identifier, err)
 		return
 	}
 	defer stmt.Close()
@@ -42,7 +47,7 @@ func InsertLanguage(db *sql.DB, language models.Language) (err error) {
 		language.Status,
 	)
 	if err != nil {
-		err = fmt.Errorf("failed to execute insert language statement:\n%s", err)
+		err = fmt.Errorf("failed to execute insert (%v) language statement: %v", identifier, err)
 	}
 	return
 }

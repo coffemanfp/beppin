@@ -2,13 +2,14 @@ package utils
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/database/models"
 )
 
 // Login - Select a user by his username and password, and checks if exists.
-func Login(db *sql.DB, username string, password string) (user models.User, match bool, err error) {
+func Login(db *sql.DB, userToLogin models.User) (user models.User, match bool, err error) {
 	match = true
 
 	query := `
@@ -23,25 +24,25 @@ func Login(db *sql.DB, username string, password string) (user models.User, matc
 
 	stmt, err := db.Prepare(query)
 	if err != nil {
-		err = fmt.Errorf("failed to prepare the login user statement:\n%s", err)
+		err = fmt.Errorf("failed to prepare the login (%s) user statement: %v", userToLogin.Username, err)
 		return
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(username, password).Scan(
+	err = stmt.QueryRow(userToLogin.Username, userToLogin.Password).Scan(
 		&user.ID,
 		&user.Language.Code,
 		&user.Username,
 		&user.Theme,
 	)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			err = nil
 			match = false
 			return
 		}
 
-		err = fmt.Errorf("failed to select the user login:\n%s", err)
+		err = fmt.Errorf("failed to login (%s) user: %v", userToLogin.Username, err)
 	}
 	return
 }

@@ -1,11 +1,14 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/coffemanfp/beppin-server/database"
+	dbm "github.com/coffemanfp/beppin-server/database/models"
 	dbu "github.com/coffemanfp/beppin-server/database/utils"
+	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
 	"github.com/dgrijalva/jwt-go"
@@ -18,11 +21,13 @@ func Login(c echo.Context) (err error) {
 	var user models.User
 
 	if err = c.Bind(&user); err != nil {
-		return echo.ErrBadRequest
+		m.Error = errs.ErrInvalidBody
+
+		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
 	if !user.ValidateLogin() {
-		m.Error = "missing or invalid username or password"
+		m.Error = fmt.Sprintf("%v", errs.ErrInvalidUserLogin)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
@@ -34,7 +39,13 @@ func Login(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	dbUser, match, err := dbu.Login(db, user.Username, user.Password)
+	dbUser, match, err := dbu.Login(
+		db,
+		dbm.User{
+			Username: user.Username,
+			Password: user.Password,
+		},
+	)
 	if err != nil {
 		c.Logger().Error(err)
 

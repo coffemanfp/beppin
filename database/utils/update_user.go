@@ -4,12 +4,19 @@ import (
 	"database/sql"
 	"fmt"
 
-	dbm "github.com/coffemanfp/beppin-server/database/models"
+	"github.com/coffemanfp/beppin-server/database/models"
+	errs "github.com/coffemanfp/beppin-server/errors"
 )
 
 // UpdateUser - Updates a user.
-func UpdateUser(db *sql.DB, userID int, username string, user dbm.User) (err error) {
-	previousUserData, err := SelectUser(db, userID, "")
+func UpdateUser(db *sql.DB, userToUpdate, user models.User) (err error) {
+	identifier := user.GetIdentifier()
+	if identifier == nil {
+		err = fmt.Errorf("failed to update user: %w (user)", errs.ErrNotProvidedOrInvalidObject)
+		return
+	}
+
+	previousUserData, err := SelectUser(db, userToUpdate)
 	if err != nil {
 		return
 	}
@@ -35,7 +42,7 @@ func UpdateUser(db *sql.DB, userID int, username string, user dbm.User) (err err
 
 	stmt, err := db.Prepare(query)
 	if err != nil {
-		err = fmt.Errorf("failed to prepare the update user statement:\n%s", err)
+		err = fmt.Errorf("failed to prepare the update (%v) user statement: %v", identifier, err)
 		return
 	}
 	defer stmt.Close()
@@ -49,16 +56,16 @@ func UpdateUser(db *sql.DB, userID int, username string, user dbm.User) (err err
 		user.LastName,
 		user.Birthday,
 		user.Theme,
-		userID,
-		username,
+		userToUpdate.ID,
+		userToUpdate.Name,
 	)
 	if err != nil {
-		err = fmt.Errorf("failed to execute the update user statement:\n%s", err)
+		err = fmt.Errorf("failed to execute the update (%v) user statement: %v", identifier, err)
 	}
 	return
 }
 
-func fillUserEmptyFields(user dbm.User, previousUserData dbm.User) dbm.User {
+func fillUserEmptyFields(user, previousUserData models.User) models.User {
 
 	switch "" {
 	case user.Language.Code:

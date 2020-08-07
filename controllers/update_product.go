@@ -1,12 +1,14 @@
 package controllers
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
 	dbu "github.com/coffemanfp/beppin-server/database/utils"
-	"github.com/coffemanfp/beppin-server/errors"
+	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
 	"github.com/coffemanfp/beppin-server/utils"
@@ -20,7 +22,7 @@ func UpdateProduct(c echo.Context) (err error) {
 
 	productID, err := utils.Atoi(productIDParam)
 	if err != nil || productID == 0 {
-		m.Error = "id param not valid"
+		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
@@ -28,7 +30,7 @@ func UpdateProduct(c echo.Context) (err error) {
 	var product models.Product
 
 	if err = c.Bind(&product); err != nil {
-		m.Error = "invalid body"
+		m.Error = errs.ErrInvalidBody
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
@@ -49,10 +51,17 @@ func UpdateProduct(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	err = dbu.UpdateProduct(db, productID, dbProduct)
+	err = dbu.UpdateProduct(
+		db,
+		dbm.Product{
+			ID: productID,
+		},
+		dbProduct,
+	)
 	if err != nil {
-		if err.Error() == errors.ErrNotExistentObject {
-			m.Error = err.Error() + " (product)"
+		if errors.Is(err, errs.ErrNotExistentObject) {
+			m.Error = fmt.Sprintf("%v: product", errs.ErrExistentObject)
+
 			return echo.NewHTTPError(http.StatusNotFound, m)
 		}
 		c.Logger().Error(err)

@@ -1,10 +1,12 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/coffemanfp/beppin-server/database"
 	dbu "github.com/coffemanfp/beppin-server/database/utils"
+	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
 	"github.com/coffemanfp/beppin-server/utils"
@@ -22,7 +24,7 @@ func GetUsers(c echo.Context) (err error) {
 
 	limit, err = utils.Atoi(limitParam)
 	if err != nil {
-		m.Error = "limit param not valid"
+		m.Error = fmt.Sprintf("%v: limit", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
@@ -35,7 +37,7 @@ func GetUsers(c echo.Context) (err error) {
 
 	offset, err = utils.Atoi(offsetParam)
 	if err != nil {
-		m.Error = "offset param not valid"
+		m.Error = fmt.Sprintf("%v: offset", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}

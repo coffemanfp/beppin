@@ -17,7 +17,7 @@ func NewLogger(e *echo.Echo, path string) (err error) {
 
 	err = os.MkdirAll(filepath.Dir(path), 0777)
 	if err != nil {
-		err = fmt.Errorf("Error create folder, %s", path)
+		err = fmt.Errorf("failed to create (%s) folder: %v", path, err)
 		return
 	}
 
@@ -28,13 +28,16 @@ func NewLogger(e *echo.Echo, path string) (err error) {
 
 	if !exist {
 		logFile, err = os.Create(path)
+		if err != nil {
+			err = fmt.Errorf("failed to create (%s) file: %v", path, err)
+			return
+		}
 	} else {
 		logFile, err = os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0644)
-	}
-
-	if err != nil {
-		err = fmt.Errorf("Error opening %s, file log", path)
-		return
+		if err != nil {
+			err = fmt.Errorf("failed to open (%s) file: %v", path, err)
+			return
+		}
 	}
 
 	mw := io.MultiWriter(e.Logger.Output(), logFile)

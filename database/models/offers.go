@@ -14,5 +14,14 @@ type Offer struct {
 	UpdatedAt   *sql.NullTime `json:"updatedAt,omitempty"`
 }
 
+// GetIdentifier gets the first unique identifier it finds in order of importance.
+func (o Offer) GetIdentifier() (identifier interface{}) {
+	if o.ID != 0 {
+		identifier = o.ID
+	}
+
+	return
+}
+
 // Offers - Alias for a offer array.
 type Offers []Offer

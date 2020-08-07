@@ -21,13 +21,13 @@ func initSettings() {
 
 	err := config.SetSettingsByEnv()
 	if err != nil {
-		log.Fatalln("failed to configure env settings:\n", err)
+		log.Fatalln("failed to configure env settings: ", err)
 	}
 
 	if configFile != "" {
 		err := config.SetSettingsByFile(configFile)
 		if err != nil {
-			log.Fatalln("failed to configure file settings:\n", err)
+			log.Fatalln("failed to configure file settings: ", err)
 		}
 	}
 }
@@ -35,12 +35,12 @@ func initSettings() {
 func initDatabase() {
 	_, err := database.OpenConn()
 	if err != nil {
-		log.Fatalln("failed to start the database:\n", err)
+		log.Fatalln("failed to start the database: ", err)
 	}
 }
 
 func initFlags() {
-	flag.StringVar(&configFile, "config-file", "config.yaml", "Config file for the server settings.")
+	flag.StringVar(&configFile, "config-file", "", "Config file for the server settings.")
 
 	flag.Parse()
 }

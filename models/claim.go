@@ -21,7 +21,7 @@ func (c *Claim) GenerateJWT() (result string, err error) {
 
 	result, err = token.SignedString([]byte(settings.SecretKey))
 	if err != nil {
-		err = fmt.Errorf("failed to sign token:\n%s", err)
+		err = fmt.Errorf("failed to sign token:\n%v", err)
 	}
 	return
 }

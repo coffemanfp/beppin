@@ -2,7 +2,6 @@ package utils
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/database/models"
@@ -11,19 +10,25 @@ import (
 
 // InsertUser - Insert a user.
 func InsertUser(db *sql.DB, user models.User) (err error) {
-	exists, err := ExistsUser(db, 0, user.Username)
+	identifier := user.GetIdentifier()
+	if identifier == nil {
+		err = fmt.Errorf("failed to insert user: %w (user)", errs.ErrNotProvidedOrInvalidObject)
+		return
+	}
+
+	exists, err := ExistsUser(db, user)
 	if err != nil {
 		return
 	}
 
 	if exists {
-		err = errors.New(errs.ErrExistentObject)
+		err = fmt.Errorf("failed to check (%v) user: %w (user)", identifier, errs.ErrExistentObject)
 		return
 	}
 
 	if user.Language.Code != "" {
 		var language models.Language
-		language, err = SelectLanguage(db, user.Language.Code)
+		language, err = SelectLanguage(db, user.Language)
 		if err != nil {
 			return
 		}
@@ -40,7 +45,7 @@ func InsertUser(db *sql.DB, user models.User) (err error) {
 
 	stmt, err := db.Prepare(query)
 	if err != nil {
-		err = fmt.Errorf("failed to prepare the insert user statement:\n%s", err)
+		err = fmt.Errorf("failed to prepare the insert user statement: %v", err)
 		return
 	}
 	defer stmt.Close()
@@ -56,7 +61,7 @@ func InsertUser(db *sql.DB, user models.User) (err error) {
 		user.Theme,
 	)
 	if err != nil {
-		err = fmt.Errorf("failed to execute insert user statement:\n%s", err)
+		err = fmt.Errorf("failed to execute insert user statement: %v", err)
 	}
 	return
 }

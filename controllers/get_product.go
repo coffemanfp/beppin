@@ -1,11 +1,14 @@
 package controllers
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/coffemanfp/beppin-server/database"
+	dbm "github.com/coffemanfp/beppin-server/database/models"
 	dbu "github.com/coffemanfp/beppin-server/database/utils"
-	"github.com/coffemanfp/beppin-server/errors"
+	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
 	"github.com/coffemanfp/beppin-server/utils"
@@ -20,7 +23,7 @@ func GetProduct(c echo.Context) (err error) {
 	productIDParam := c.Param("id")
 
 	if productID, err = utils.Atoi(productIDParam); err != nil || productID == 0 {
-		m.Error = "id param not valid"
+		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
@@ -32,10 +35,16 @@ func GetProduct(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	dbProduct, err := dbu.SelectProduct(db, productID)
+	dbProduct, err := dbu.SelectProduct(
+		db,
+		dbm.Product{
+			ID: productID,
+		},
+	)
 	if err != nil {
-		if err.Error() == errors.ErrNotExistentObject {
-			m.Error = err.Error() + " (product)"
+		if errors.Is(err, errs.ErrNotExistentObject) {
+			m.Error = fmt.Sprintf("%v: product", errs.ErrExistentObject)
+
 			return echo.NewHTTPError(http.StatusNotFound, m)
 		}
 		c.Logger().Error(err)
@@ -53,6 +62,5 @@ func GetProduct(c echo.Context) (err error) {
 	product := productI.(models.Product)
 
 	m.Content = product
-
 	return c.JSON(http.StatusOK, m)
 }

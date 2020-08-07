@@ -1,8 +1,9 @@
 package config
 
 import (
-	"errors"
 	"fmt"
+
+	errs "github.com/coffemanfp/beppin-server/errors"
 )
 
 // Database - Database settings.
@@ -47,7 +48,7 @@ func (d Database) GetURL() (url string, err error) {
 			d.SslMode,
 		)
 	} else {
-		err = errors.New("failed to parse database url: invalid database data")
+		err = fmt.Errorf("failed to parse database url: %w", errs.ErrInvalidSettings)
 	}
 
 	return

@@ -1,10 +1,11 @@
 package config
 
 import (
-	"errors"
 	"fmt"
 	"path/filepath"
 	"strings"
+
+	errs "github.com/coffemanfp/beppin-server/errors"
 
 	"github.com/lib/pq"
 	"github.com/spf13/viper"
@@ -12,7 +13,7 @@ import (
 
 var settings *Settings
 
-// GetSettings - Get the server settings.
+// GetSettings - Gets the server settings.
 //	@return s Settings:
 //		Server settings.
 func GetSettings() (s Settings) {
@@ -24,7 +25,7 @@ func GetSettings() (s Settings) {
 	return
 }
 
-// SetDefaultSettings configure the default settings values.
+// SetDefaultSettings populates the default settings values.
 func SetDefaultSettings() {
 	settings = &Settings{
 		Port:                     8080,
@@ -43,34 +44,84 @@ func SetDefaultSettings() {
 	}
 }
 
-// SetSettingsByFile - Sets the settings by a file.
+// SetSettingsByFile - Populates the settings by a file.
 //	@param path string:
 //		Config filepath.
 func SetSettingsByFile(path string) (err error) {
-	viper.SetConfigName("config")
-	viper.SetConfigType(filepath.Ext(path)[1:])
-	viper.AddConfigPath(".")
-	viper.AddConfigPath("$HOME")
-	viper.SetEnvKeyReplacer(strings.NewReplacer("_", "."))
-
-	err = viper.ReadInConfig()
-	if err != nil {
-		return
-	}
-
-	err = viper.Unmarshal(&settings)
+	err = unmarshalByFile(path)
 	if err != nil {
 		return
 	}
 
 	if !settings.Validate() {
-		err = errors.New("settings are not populated")
+		err = fmt.Errorf("failed to validate settings: %w", errs.ErrInvalidSettings)
 	}
 	return
 }
 
-// SetSettingsByEnv - Fills the settings by the environment variables
+// SetMigrationsSettingsByFile - Populates only settings for migrations.
+func SetMigrationsSettingsByFile(path string) (err error) {
+	err = unmarshalByFile(path)
+	if err != nil {
+		return
+	}
+
+	if !settings.ValidateMigrations() {
+		err = fmt.Errorf("failed to validate migrations settings: %w", errs.ErrInvalidSettings)
+	}
+	return
+}
+
+// SetSettingsByEnv - Populates the settings by the environment variables
 func SetSettingsByEnv() (err error) {
+	err = unmarshalByEnv()
+	if err != nil {
+		return
+	}
+
+	if !settings.ValidateMigrations() {
+		err = fmt.Errorf("failed to validate settings: %w", errs.ErrInvalidSettings)
+	}
+	return
+}
+
+// SetMigrationsSettingsByEnv - Populates the settings by the environment variables
+func SetMigrationsSettingsByEnv() (err error) {
+	err = unmarshalByEnv()
+	if err != nil {
+		return
+	}
+
+	if !settings.ValidateMigrations() {
+		err = fmt.Errorf("failed to validate migrations settings: %w", errs.ErrInvalidSettings)
+	}
+	return
+}
+
+func unmarshalByFile(path string) (err error) {
+	viper.SetConfigName("config")
+	viper.SetConfigType(filepath.Ext(path)[1:])
+	viper.AddConfigPath(".")
+	viper.AddConfigPath(filepath.Dir(path))
+	viper.AddConfigPath("$HOME")
+	viper.SetEnvKeyReplacer(strings.NewReplacer("_", "."))
+
+	err = viper.ReadInConfig()
+	if err != nil {
+		err = fmt.Errorf("failed to read in config: %w", err)
+		return
+	}
+
+	err = viper.Unmarshal(&settings)
+	if err != nil {
+		err = fmt.Errorf("failed to unmarshal settings: %v", err)
+		return
+	}
+
+	return
+}
+
+func unmarshalByEnv() (err error) {
 	viper.SetEnvPrefix("beppin")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
@@ -81,13 +132,13 @@ func SetSettingsByEnv() (err error) {
 
 	err = viper.Unmarshal(&settings)
 	if err != nil {
-		err = fmt.Errorf("failed to unmarshal settings:\n%s", err)
+		err = fmt.Errorf("failed to unmarshal settings: %v", err)
 		return
 	}
 
 	err = viper.Unmarshal(&settings.Database)
 	if err != nil {
-		err = fmt.Errorf("failed to unmarshal settings:\n%s", err)
+		err = fmt.Errorf("failed to unmarshal database settings: %v", err)
 		return
 	}
 
@@ -101,7 +152,7 @@ func SetSettingsByEnv() (err error) {
 		var databaseURL string
 		databaseURL, err = pq.ParseURL(settings.Database.URL)
 		if err != nil {
-			err = fmt.Errorf("failed to parse the database url connection:\n%s", err)
+			err = fmt.Errorf("failed to parse database url: %v", err)
 			return
 		}
 
@@ -132,7 +183,7 @@ func bindEnvVars() (err error) {
 	}
 
 	for _, missingVariable := range missingVariables {
-		err = errors.New(missingVariable.Error() + "\n")
+		err = fmt.Errorf("failed to get env var: %v", missingVariable)
 	}
 
 	return

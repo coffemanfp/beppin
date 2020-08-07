@@ -10,7 +10,13 @@ import (
 )
 
 // SelectLanguage - Selects a language.
-func SelectLanguage(db *sql.DB, languageCode string) (language models.Language, err error) {
+func SelectLanguage(db *sql.DB, languageToFind models.Language) (language models.Language, err error) {
+	identifier := languageToFind.GetIdentifier()
+	if identifier == nil {
+		err = fmt.Errorf("failed to select language: %w (language)", errs.ErrNotProvidedOrInvalidObject)
+		return
+	}
+
 	query := `
 		SELECT
 			code, status, created_at, updated_at
@@ -23,25 +29,24 @@ func SelectLanguage(db *sql.DB, languageCode string) (language models.Language, 
 
 	stmt, err := db.Prepare(query)
 	if err != nil {
-		err = fmt.Errorf("failed to prepare the select language statement:\n%s", err)
-
+		err = fmt.Errorf("failed to prepare the select (%v) language statement: %v", identifier, err)
 		return
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(languageCode).Scan(
+	err = stmt.QueryRow(languageToFind.Code).Scan(
 		&language.Code,
 		&language.Status,
 		&language.CreatedAt,
 		&language.UpdatedAt,
 	)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			err = errors.New(errs.ErrNotExistentObject)
+		if errors.Is(err, sql.ErrNoRows) {
+			err = fmt.Errorf("failed to select (%v) language: %w (language)", identifier, errs.ErrNotExistentObject)
 			return
 		}
 
-		err = fmt.Errorf("failed to select the language:\n%s", err)
+		err = fmt.Errorf("failed to select (%v) language: %v", identifier, err)
 	}
 	return
 }

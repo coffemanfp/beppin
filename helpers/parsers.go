@@ -2,10 +2,10 @@ package helpers
 
 import (
 	"database/sql"
-	"errors"
+	"fmt"
 
 	dbm "github.com/coffemanfp/beppin-server/database/models"
-	errs "github.com/coffemanfp/beppin-server/errors"
+	"github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/models"
 )
 
@@ -32,7 +32,7 @@ func ParseDBModelToModel(dbModel interface{}) (model interface{}, err error) {
 		model = parseDBOffersToOffers(dbModel.(dbm.Offers))
 
 	default:
-		err = errors.New(errs.ErrNotSupportedType)
+		err = fmt.Errorf("failed to parse database model (%T) to normal model: %w", model, errors.ErrNotSupportedType)
 	}
 
 	return
@@ -48,7 +48,7 @@ func ParseModelToDBModel(model interface{}) (dbModel interface{}, err error) {
 	case models.Offer:
 		dbModel = parseOfferToDBOffer(model.(models.Offer))
 	default:
-		err = errors.New(errs.ErrNotSupportedType)
+		err = fmt.Errorf("failed to parse normal model (%T) to database model: %w", model, errors.ErrNotSupportedType)
 	}
 
 	return
