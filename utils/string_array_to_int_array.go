@@ -16,7 +16,7 @@ func StringArrayToIntArray(sArray []string) (iArray []int, err error) {
 	for _, s := range sArray {
 		i, err = strconv.Atoi(s)
 		if err != nil {
-			err = fmt.Errorf("failed to convert %s string to an int:\n%s", s, err)
+			err = fmt.Errorf("failed to convert (%s) string to an int: %v", s, err)
 			return
 		}
 

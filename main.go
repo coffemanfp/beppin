@@ -40,13 +40,13 @@ func main() {
 	// Create routes
 	err := router.NewRouter(e)
 	if err != nil {
-		log.Fatalf("failed to set router:\n%s", err)
+		log.Fatalf("failed to set router: %v", err)
 	}
 
 	// Config logger
 	err = config.NewLogger(e, settings.LogsFile)
 	if err != nil {
-		log.Fatalf("failed to set logger:\n%s", err)
+		log.Fatalf("failed to set logger: %v", err)
 	}
 
 	// Run server and print if fails.

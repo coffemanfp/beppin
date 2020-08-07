@@ -56,18 +56,18 @@ func SetSettingsByFile(path string) (err error) {
 
 	err = viper.ReadInConfig()
 	if err != nil {
-		err = fmt.Errorf("failed to read in config:\n%w", err)
+		err = fmt.Errorf("failed to read in config: %w", err)
 		return
 	}
 
 	err = viper.Unmarshal(&settings)
 	if err != nil {
-		err = fmt.Errorf("failed to unmarshal settings:%w\n%v", errs.ErrInvalidSettings, err)
+		err = fmt.Errorf("failed to unmarshal settings: %v", err)
 		return
 	}
 
 	if !settings.Validate() {
-		err = fmt.Errorf("failed to validate settings:\n%w", err)
+		err = fmt.Errorf("failed to validate settings: %w", errs.ErrInvalidSettings)
 	}
 	return
 }
@@ -84,13 +84,13 @@ func SetSettingsByEnv() (err error) {
 
 	err = viper.Unmarshal(&settings)
 	if err != nil {
-		err = fmt.Errorf("failed to unmarshal settings: %w\n%v", errs.ErrInvalidSettings, err)
+		err = fmt.Errorf("failed to unmarshal settings: %v", err)
 		return
 	}
 
 	err = viper.Unmarshal(&settings.Database)
 	if err != nil {
-		err = fmt.Errorf("failed to unmarshal database settings: %w\n%v", errs.ErrInvalidSettings, err)
+		err = fmt.Errorf("failed to unmarshal database settings: %v", err)
 		return
 	}
 

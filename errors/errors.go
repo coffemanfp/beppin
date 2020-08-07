@@ -16,12 +16,12 @@ var (
 
 // System errors.
 var (
-	ErrInvalidSettings = errors.New("invalid settings")
+	ErrInvalidSettings = errors.New("missing or invalid settings")
 )
 
 // Server errors.
 var (
-	ErrInvalidBody      = "invalid body"
-	ErrInvalidParam     = "invalid param"
+	ErrInvalidBody      = "missing or invalid body"
+	ErrInvalidParam     = "missing or invalid param"
 	ErrInvalidUserLogin = "missing or invalid user credentials"
 )

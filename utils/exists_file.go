@@ -19,7 +19,7 @@ func ExistsFile(path string) (exists bool, err error) {
 			exists = false
 			return
 		} else {
-			err = fmt.Errorf("failed to check file %s: %v", path, err)
+			err = fmt.Errorf("failed to check (%s) file: %v", path, err)
 			exists = false
 			return
 		}
