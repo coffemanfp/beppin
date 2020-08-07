@@ -1,7 +1,0 @@
-logsFile: logs/server.log
-database:
-    port: 5432
-    name: beppin
-    user: beppin
-    password: b26edb839ea81fe0801f9d47f17aaeaac2e1162fe28a3487f51a3ee7716d1ef7
-    host: localhost
