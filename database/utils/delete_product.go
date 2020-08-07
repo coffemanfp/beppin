@@ -4,11 +4,19 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/coffemanfp/beppin-server/errors"
+	"github.com/coffemanfp/beppin-server/database/models"
+	errs "github.com/coffemanfp/beppin-server/errors"
 )
 
-// DeleteProduct - Deletess a product.
-func DeleteProduct(db *sql.DB, productID int) (err error) {
+// DeleteProduct - Deletes a product.
+func DeleteProduct(db *sql.DB, product models.Product) (err error) {
+	identifier := product.GetIdentifier()
+
+	if identifier == nil {
+		err = fmt.Errorf("failed to delete (%v) product: %w (product)", identifier, errs.ErrNotProvidedOrInvalidObject)
+		return
+	}
+
 	query := `
 		DELETE FROM
 			products
@@ -18,25 +26,25 @@ func DeleteProduct(db *sql.DB, productID int) (err error) {
 
 	stmt, err := db.Prepare(query)
 	if err != nil {
-		err = fmt.Errorf("failed to prepare the delete %d product statement: %v", productID, err)
+		err = fmt.Errorf("failed to prepare the delete (%v) product statement: %v", identifier, err)
 		return
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(productID)
+	res, err := stmt.Exec(product.ID)
 	if err != nil {
-		err = fmt.Errorf("failed to delete %d product: %v", err)
+		err = fmt.Errorf("failed to delete (%v) product: %v", identifier, err)
 		return
 	}
 
 	rowsAffected, err := res.RowsAffected()
 	if err != nil {
-		err = fmt.Errorf("failed to get the rows affected number:\n%v", err)
+		err = fmt.Errorf("failed to get the rows affected number: %v", err)
 		return
 	}
 
 	if rowsAffected == 0 {
-		err = fmt.Errorf("failed to delete %d product: %w", productID, errors.ErrNotExistentObject)
+		err = fmt.Errorf("failed to delete (%v) product: %w", identifier, errs.ErrNotExistentObject)
 	}
 	return
 }

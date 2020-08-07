@@ -2,7 +2,6 @@ package utils
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/database/models"
@@ -11,13 +10,13 @@ import (
 
 // InsertProduct - Insert a product.
 func InsertProduct(db *sql.DB, product models.Product) (err error) {
-	exists, err := ExistsUser(db, product.UserID, "")
+	exists, err := ExistsUser(db, models.User{ID: product.UserID})
 	if err != nil {
 		return
 	}
 
 	if !exists {
-		err = errors.New(errs.ErrNotExistentObject)
+		err = fmt.Errorf("failed to check (%d) user: %w", product.UserID, errs.ErrNotExistentObject)
 		return
 	}
 
@@ -30,7 +29,7 @@ func InsertProduct(db *sql.DB, product models.Product) (err error) {
 
 	stmt, err := db.Prepare(query)
 	if err != nil {
-		err = fmt.Errorf("failed to prepare the insert product statement:\n%s", err)
+		err = fmt.Errorf("failed to prepare the insert product statement: %v", err)
 		return
 	}
 	defer stmt.Close()
@@ -41,7 +40,7 @@ func InsertProduct(db *sql.DB, product models.Product) (err error) {
 		product.Description,
 	)
 	if err != nil {
-		err = fmt.Errorf("failed to execute insert product statement:\n%s", err)
+		err = fmt.Errorf("failed to execute insert product statement: %v", err)
 	}
 	return
 }

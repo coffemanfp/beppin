@@ -16,9 +16,6 @@ type Product struct {
 	UpdatedAt *sql.NullTime
 }
 
-// Products - Alias for a product array.
-type Products []Product
-
 // ValidateUpdate - Validates a product for update.
 func (p Product) ValidateUpdate() (valid bool) {
 	valid = true
@@ -43,3 +40,15 @@ func (p Product) Validate() (valid bool) {
 	}
 	return
 }
+
+// GetIdentifier gets the first unique identifier it finds in order of importance.
+func (p Product) GetIdentifier() (identifier interface{}) {
+	if p.ID != 0 {
+		identifier = p.ID
+	}
+
+	return
+}
+
+// Products - Alias for a product array.
+type Products []Product

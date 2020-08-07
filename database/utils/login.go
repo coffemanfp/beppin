@@ -23,7 +23,7 @@ func Login(db *sql.DB, username string, password string) (user models.User, matc
 
 	stmt, err := db.Prepare(query)
 	if err != nil {
-		err = fmt.Errorf("failed to prepare the login user statement:\n%s", err)
+		err = fmt.Errorf("failed to prepare the login (%s) user statement: %v", username, err)
 		return
 	}
 	defer stmt.Close()
@@ -41,7 +41,7 @@ func Login(db *sql.DB, username string, password string) (user models.User, matc
 			return
 		}
 
-		err = fmt.Errorf("failed to select the user login:\n%s", err)
+		err = fmt.Errorf("failed to select the user login: %v", err)
 	}
 	return
 }

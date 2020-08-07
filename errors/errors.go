@@ -8,9 +8,10 @@ import "errors"
 
 // Common errors.
 var (
-	ErrNotExistentObject = errors.New("non-existent object")
-	ErrExistentObject    = errors.New("existent object")
-	ErrNotSupportedType  = errors.New("not-supported type")
+	ErrNotExistentObject          = errors.New("non-existent object")
+	ErrExistentObject             = errors.New("existent object")
+	ErrNotSupportedType           = errors.New("not-supported type")
+	ErrNotProvidedOrInvalidObject = errors.New("not-provided or invalid object")
 )
 
 // System errors.
