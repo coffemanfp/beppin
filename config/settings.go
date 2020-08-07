@@ -34,3 +34,19 @@ func (s Settings) Validate() (valid bool) {
 
 	return
 }
+
+// ValidateMigrations - Validate only settings for migrations.
+func (s Settings) ValidateMigrations() (valid bool) {
+	valid = true
+
+	if s.Database != nil {
+		valid = s.Database.ValidateDatabase()
+	} else {
+		valid = false
+	}
+
+	if s.LogsFile == "" {
+		valid = false
+	}
+	return
+}

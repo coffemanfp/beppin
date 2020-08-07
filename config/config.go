@@ -13,7 +13,7 @@ import (
 
 var settings *Settings
 
-// GetSettings - Get the server settings.
+// GetSettings - Gets the server settings.
 //	@return s Settings:
 //		Server settings.
 func GetSettings() (s Settings) {
@@ -25,7 +25,7 @@ func GetSettings() (s Settings) {
 	return
 }
 
-// SetDefaultSettings configure the default settings values.
+// SetDefaultSettings populates the default settings values.
 func SetDefaultSettings() {
 	settings = &Settings{
 		Port:                     8080,
@@ -44,10 +44,61 @@ func SetDefaultSettings() {
 	}
 }
 
-// SetSettingsByFile - Sets the settings by a file.
+// SetSettingsByFile - Populates the settings by a file.
 //	@param path string:
 //		Config filepath.
 func SetSettingsByFile(path string) (err error) {
+	err = unmarshalByFile(path)
+	if err != nil {
+		return
+	}
+
+	if !settings.Validate() {
+		err = fmt.Errorf("failed to validate settings: %w", errs.ErrInvalidSettings)
+	}
+	return
+}
+
+// SetMigrationsSettingsByFile - Populates only settings for migrations.
+func SetMigrationsSettingsByFile(path string) (err error) {
+	err = unmarshalByFile(path)
+	if err != nil {
+		return
+	}
+
+	if !settings.ValidateMigrations() {
+		err = fmt.Errorf("failed to validate migrations settings: %w", errs.ErrInvalidSettings)
+	}
+	return
+}
+
+// SetSettingsByEnv - Populates the settings by the environment variables
+func SetSettingsByEnv() (err error) {
+	err = unmarshalByEnv()
+	if err != nil {
+		return
+	}
+
+	if !settings.ValidateMigrations() {
+		err = fmt.Errorf("failed to validate settings: %w", errs.ErrInvalidSettings)
+	}
+	return
+}
+
+// SetMigrationsSettingsByEnv - Populates the settings by the environment variables
+func SetMigrationsSettingsByEnv() (err error) {
+	err = unmarshalByEnv()
+	if err != nil {
+		return
+	}
+
+	if !settings.ValidateMigrations() {
+		err = fmt.Errorf("failed to validate migrations settings: %w", errs.ErrInvalidSettings)
+	}
+	return
+}
+
+func unmarshalByFile(path string) (err error) {
 	viper.SetConfigName("config")
 	viper.SetConfigType(filepath.Ext(path)[1:])
 	viper.AddConfigPath(".")
@@ -66,14 +117,10 @@ func SetSettingsByFile(path string) (err error) {
 		return
 	}
 
-	if !settings.Validate() {
-		err = fmt.Errorf("failed to validate settings: %w", errs.ErrInvalidSettings)
-	}
 	return
 }
 
-// SetSettingsByEnv - Fills the settings by the environment variables
-func SetSettingsByEnv() (err error) {
+func unmarshalByEnv() (err error) {
 	viper.SetEnvPrefix("beppin")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 

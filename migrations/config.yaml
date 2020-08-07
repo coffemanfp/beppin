@@ -1,3 +1,4 @@
+logsFile: logs/server.log
 database:
     port: 5432
     name: beppin
