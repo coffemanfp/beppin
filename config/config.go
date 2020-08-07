@@ -102,6 +102,7 @@ func unmarshalByFile(path string) (err error) {
 	viper.SetConfigName("config")
 	viper.SetConfigType(filepath.Ext(path)[1:])
 	viper.AddConfigPath(".")
+	viper.AddConfigPath(filepath.Dir(path))
 	viper.AddConfigPath("$HOME")
 	viper.SetEnvKeyReplacer(strings.NewReplacer("_", "."))
 
