@@ -11,9 +11,8 @@ import (
 // DeleteUser - Deletes a user.
 func DeleteUser(db *sql.DB, user models.User) (err error) {
 	identifier := user.GetIdentifier()
-
 	if identifier == nil {
-		err = fmt.Errorf("failed to delete (%d) user: %w (user)", identifier, errs.ErrNotProvidedOrInvalidObject)
+		err = fmt.Errorf("failed to delete user: %w (user)", errs.ErrNotProvidedOrInvalidObject)
 		return
 	}
 
@@ -44,7 +43,7 @@ func DeleteUser(db *sql.DB, user models.User) (err error) {
 	}
 
 	if rowsAffected == 0 {
-		err = fmt.Errorf("failed to delete (%v) user: %w", identifier, errs.ErrNotExistentObject)
+		err = fmt.Errorf("failed to delete (%v) user: %w (user)", identifier, errs.ErrNotExistentObject)
 	}
 	return
 }

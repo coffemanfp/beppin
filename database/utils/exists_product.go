@@ -11,9 +11,8 @@ import (
 // ExistsProduct - Checks if exists a product.
 func ExistsProduct(db *sql.DB, product models.Product) (exists bool, err error) {
 	identifier := product.GetIdentifier()
-
 	if identifier == nil {
-		err = fmt.Errorf("failed to check (%v) product: %w (product)", identifier, errs.ErrNotProvidedOrInvalidObject)
+		err = fmt.Errorf("failed to check product: %w (product)", errs.ErrNotProvidedOrInvalidObject)
 		return
 	}
 

@@ -11,9 +11,8 @@ import (
 // InsertLanguage - Insert a language.
 func InsertLanguage(db *sql.DB, language models.Language) (err error) {
 	identifier := language.GetIdentifier()
-
 	if identifier == nil {
-		err = fmt.Errorf("failed to insert (%v) language: %w (language)", identifier, errs.ErrNotProvidedOrInvalidObject)
+		err = fmt.Errorf("failed to insert language: %w (language)", errs.ErrNotProvidedOrInvalidObject)
 		return
 	}
 
@@ -23,7 +22,7 @@ func InsertLanguage(db *sql.DB, language models.Language) (err error) {
 	}
 
 	if exists {
-		err = fmt.Errorf("failed to check (%v) language: %w", identifier, errs.ErrExistentObject)
+		err = fmt.Errorf("failed to check (%v) language: %w (language)", identifier, errs.ErrExistentObject)
 		return
 	}
 

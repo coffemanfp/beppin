@@ -11,9 +11,8 @@ import (
 // ExistsUser - Checks if exists a user.
 func ExistsUser(db *sql.DB, user models.User) (exists bool, err error) {
 	identifier := user.GetIdentifier()
-
 	if identifier == nil {
-		err = fmt.Errorf("failed to check (%v) user: %w (user)", identifier, errs.ErrNotProvidedOrInvalidObject)
+		err = fmt.Errorf("failed to check user: %w (user)", errs.ErrNotProvidedOrInvalidObject)
 		return
 	}
 

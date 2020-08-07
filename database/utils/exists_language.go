@@ -11,9 +11,8 @@ import (
 // ExistsLanguage - Checks if exists a language.
 func ExistsLanguage(db *sql.DB, language models.Language) (exists bool, err error) {
 	identifier := language.GetIdentifier()
-
 	if identifier == nil {
-		err = fmt.Errorf("failed to check (%v) language: %w (language)", identifier, errs.ErrNotProvidedOrInvalidObject)
+		err = fmt.Errorf("failed to check language: %w (language)", errs.ErrNotProvidedOrInvalidObject)
 		return
 	}
 

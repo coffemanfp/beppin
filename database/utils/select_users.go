@@ -38,12 +38,12 @@ func SelectUsers(db *sql.DB, limit int, offset int) (users models.Users, err err
 
 	rows, err := stmt.Query(limit, offset)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			err = errors.New(errs.ErrNotExistentObject)
+		if errors.Is(err, sql.ErrNoRows) {
+			err = fmt.Errorf("failed to select users: %w", errs.ErrNotExistentObject)
 			return
 		}
 
-		err = fmt.Errorf("failed to select the users:\n%s", err)
+		err = fmt.Errorf("failed to select users: %v", err)
 		return
 	}
 
@@ -62,7 +62,7 @@ func SelectUsers(db *sql.DB, limit int, offset int) (users models.Users, err err
 			&user.UpdatedAt,
 		)
 		if err != nil {
-			err = fmt.Errorf("failed to scan a user:\n%s", err)
+			err = fmt.Errorf("failed to scan user: %v", err)
 			return
 		}
 

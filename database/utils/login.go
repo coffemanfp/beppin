@@ -2,6 +2,7 @@ package utils
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/database/models"
@@ -35,7 +36,7 @@ func Login(db *sql.DB, username string, password string) (user models.User, matc
 		&user.Theme,
 	)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			err = nil
 			match = false
 			return

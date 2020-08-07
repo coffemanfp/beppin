@@ -10,7 +10,13 @@ import (
 )
 
 // SelectUser - Selects a user.
-func SelectUser(db *sql.DB, userID int, username string) (user models.User, err error) {
+func SelectUser(db *sql.DB, userToFind models.User) (user models.User, err error) {
+	identifier := userToFind.GetIdentifier()
+	if identifier == nil {
+		err = fmt.Errorf("failed to select user: %w (user)", errs.ErrNotProvidedOrInvalidObject)
+		return
+	}
+
 	query := `
 		SELECT
 			id, language, username, name, last_name, birthday, theme, created_at, updated_at
@@ -23,13 +29,12 @@ func SelectUser(db *sql.DB, userID int, username string) (user models.User, err 
 
 	stmt, err := db.Prepare(query)
 	if err != nil {
-		err = fmt.Errorf("failed to prepare the select user statement:\n%s", err)
-
+		err = fmt.Errorf("failed to prepare the select (%v) user statement: %v", identifier, err)
 		return
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(userID).Scan(
+	err = stmt.QueryRow(userToFind.ID).Scan(
 		&user.ID,
 		&user.Language.Code,
 		&user.Username,
@@ -41,12 +46,12 @@ func SelectUser(db *sql.DB, userID int, username string) (user models.User, err 
 		&user.UpdatedAt,
 	)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			err = errors.New(errs.ErrNotExistentObject)
+		if errors.Is(err, sql.ErrNoRows) {
+			err = fmt.Errorf("failed to select (%v) user: %w (user)", identifier, errs.ErrNotExistentObject)
 			return
 		}
 
-		err = fmt.Errorf("failed to select the user:\n%s", err)
+		err = fmt.Errorf("failed to select (%v) user: %v", identifier, err)
 		return
 	}
 	return

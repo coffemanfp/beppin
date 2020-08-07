@@ -11,25 +11,24 @@ import (
 // InsertUser - Insert a user.
 func InsertUser(db *sql.DB, user models.User) (err error) {
 	identifier := user.GetIdentifier()
-
 	if identifier == nil {
 		err = fmt.Errorf("failed to insert user: %w (user)", errs.ErrNotProvidedOrInvalidObject)
 		return
 	}
 
-	exists, err := ExistsUser(db, 0, user.Username)
+	exists, err := ExistsUser(db, user)
 	if err != nil {
 		return
 	}
 
 	if exists {
-		err = fmt.Errorf("failed to check (%s) user: %w", user.Username, errs.ErrExistentObject)
+		err = fmt.Errorf("failed to check (%v) user: %w (user)", identifier, errs.ErrExistentObject)
 		return
 	}
 
 	if user.Language.Code != "" {
 		var language models.Language
-		language, err = SelectLanguage(db, user.Language.Code)
+		language, err = SelectLanguage(db, user.Language)
 		if err != nil {
 			return
 		}

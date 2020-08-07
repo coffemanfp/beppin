@@ -11,9 +11,8 @@ import (
 // DeleteProduct - Deletes a product.
 func DeleteProduct(db *sql.DB, product models.Product) (err error) {
 	identifier := product.GetIdentifier()
-
 	if identifier == nil {
-		err = fmt.Errorf("failed to delete (%v) product: %w (product)", identifier, errs.ErrNotProvidedOrInvalidObject)
+		err = fmt.Errorf("failed to delete product: %w (product)", errs.ErrNotProvidedOrInvalidObject)
 		return
 	}
 
@@ -44,7 +43,7 @@ func DeleteProduct(db *sql.DB, product models.Product) (err error) {
 	}
 
 	if rowsAffected == 0 {
-		err = fmt.Errorf("failed to delete (%v) product: %w", identifier, errs.ErrNotExistentObject)
+		err = fmt.Errorf("failed to delete (%v) product: %w (product)", identifier, errs.ErrNotExistentObject)
 	}
 	return
 }

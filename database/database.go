@@ -2,10 +2,10 @@ package database
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/config"
+	errs "github.com/coffemanfp/beppin-server/errors"
 	_ "github.com/lib/pq"
 )
 
@@ -32,13 +32,13 @@ func OpenConn() (dbConn *sql.DB, err error) {
 	settings := config.GetSettings()
 
 	if !settings.Database.ValidateDatabase() {
-		err = errors.New(fmt.Sprint("invalid database settings", settings))
+		err = fmt.Errorf("%w", errs.ErrInvalidSettings)
 		return
 	}
 
 	dbConn, err = sql.Open("postgres", settings.Database.URL)
 	if err != nil {
-		err = fmt.Errorf("error opening a database connection:\n%s", err)
+		err = fmt.Errorf("error opening a database connection: %v", err)
 		return
 	}
 
@@ -48,7 +48,7 @@ func OpenConn() (dbConn *sql.DB, err error) {
 
 	err = dbConn.Ping()
 	if err != nil {
-		err = fmt.Errorf("error in ping to the database:\n%s", err)
+		err = fmt.Errorf("error in ping to the database: %v", err)
 	}
 
 	return
@@ -61,4 +61,5 @@ func CloseConn() {
 	}
 
 	db.Close()
+	db = nil
 }

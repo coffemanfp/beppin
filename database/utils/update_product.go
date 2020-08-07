@@ -5,17 +5,29 @@ import (
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/database/models"
+	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/lib/pq"
 )
 
 // UpdateProduct - Updates a product.
-func UpdateProduct(db *sql.DB, productID int, product models.Product) (err error) {
-	previosProductData, err := SelectProduct(db, productID)
+func UpdateProduct(db *sql.DB, productToUpdate, product models.Product) (err error) {
+	identifier := productToUpdate.GetIdentifier()
+	if identifier == nil {
+		err = fmt.Errorf("failed to update product: %w (product)", errs.ErrNotProvidedOrInvalidObject)
+		return
+	}
+
+	productToUpdate, err = SelectProduct(
+		db,
+		models.Product{
+			ID: productToUpdate.ID,
+		},
+	)
 	if err != nil {
 		return
 	}
 
-	product = fillProductEmptyFields(product, previosProductData)
+	product = fillProductEmptyFields(product, productToUpdate)
 
 	query := `
 		UPDATE
@@ -31,7 +43,7 @@ func UpdateProduct(db *sql.DB, productID int, product models.Product) (err error
 
 	stmt, err := db.Prepare(query)
 	if err != nil {
-		err = fmt.Errorf("failed to prepare the update product statement:\n%s", err)
+		err = fmt.Errorf("failed to prepare the update (%v) product statement: %v", identifier, err)
 		return
 	}
 	defer stmt.Close()
@@ -40,15 +52,15 @@ func UpdateProduct(db *sql.DB, productID int, product models.Product) (err error
 		product.Name,
 		product.Description,
 		pq.Array(product.Categories),
-		productID,
+		productToUpdate.ID,
 	)
 	if err != nil {
-		err = fmt.Errorf("failed to execute the update product statement:\n%s", err)
+		err = fmt.Errorf("failed to execute the update (%v) product statement: %v", identifier, err)
 	}
 	return
 }
 
-func fillProductEmptyFields(product models.Product, previousProductData models.Product) models.Product {
+func fillProductEmptyFields(product, previousProductData models.Product) models.Product {
 
 	switch "" {
 	case product.Name:
