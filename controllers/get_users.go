@@ -24,7 +24,7 @@ func GetUsers(c echo.Context) (err error) {
 
 	limit, err = utils.Atoi(limitParam)
 	if err != nil {
-		m.Error = fmt.Sprintf("%v: %s", errs.ErrInvalidParam, "limit")
+		m.Error = fmt.Sprintf("%v: limit", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
@@ -37,7 +37,7 @@ func GetUsers(c echo.Context) (err error) {
 
 	offset, err = utils.Atoi(offsetParam)
 	if err != nil {
-		m.Error = fmt.Sprintf("%v: %s", errs.ErrInvalidParam, "offset")
+		m.Error = fmt.Sprintf("%v: offset", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}

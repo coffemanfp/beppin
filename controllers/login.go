@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/coffemanfp/beppin-server/database"
+	dbm "github.com/coffemanfp/beppin-server/database/models"
 	dbu "github.com/coffemanfp/beppin-server/database/utils"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
@@ -26,7 +27,7 @@ func Login(c echo.Context) (err error) {
 	}
 
 	if !user.ValidateLogin() {
-		m.Error = fmt.Sprintf("%v: %s", errs.ErrInvalidUserLogin)
+		m.Error = fmt.Sprintf("%v", errs.ErrInvalidUserLogin)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
@@ -38,7 +39,13 @@ func Login(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	dbUser, match, err := dbu.Login(db, user.Username, user.Password)
+	dbUser, match, err := dbu.Login(
+		db,
+		dbm.User{
+			Username: user.Username,
+			Password: user.Password,
+		},
+	)
 	if err != nil {
 		c.Logger().Error(err)
 

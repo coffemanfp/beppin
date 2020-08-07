@@ -22,7 +22,7 @@ func UpdateUser(c echo.Context) (err error) {
 
 	userID, err := utils.Atoi(userIDParam)
 	if err != nil || userID == 0 {
-		m.Error = fmt.Sprintf("%v: %s", errs.ErrInvalidParam, "id")
+		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
@@ -51,10 +51,16 @@ func UpdateUser(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	err = dbu.UpdateUser(db, userID, "", dbUser)
+	err = dbu.UpdateUser(
+		db,
+		dbm.User{
+			ID: userID,
+		},
+		dbUser,
+	)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {
-			m.Error = fmt.Sprintf("%v: %s", errs.ErrExistentObject, "user")
+			m.Error = fmt.Sprintf("%v: user", errs.ErrExistentObject)
 			return echo.NewHTTPError(http.StatusNotFound, m)
 		}
 		c.Logger().Error(err)

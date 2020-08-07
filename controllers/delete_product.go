@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/coffemanfp/beppin-server/database"
+	dbm "github.com/coffemanfp/beppin-server/database/models"
 	dbu "github.com/coffemanfp/beppin-server/database/utils"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/models"
@@ -21,7 +22,7 @@ func DeleteProduct(c echo.Context) (err error) {
 	productIDParam := c.Param("id")
 
 	if productID, err = utils.Atoi(productIDParam); err != nil || productID == 0 {
-		m.Error = fmt.Sprintf("%v: %s", errs.ErrInvalidParam, "id")
+		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
@@ -33,10 +34,15 @@ func DeleteProduct(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	err = dbu.DeleteProduct(db, productID)
+	err = dbu.DeleteProduct(
+		db,
+		dbm.Product{
+			ID: productID,
+		},
+	)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {
-			m.Error = fmt.Sprintf("%v: %s", errs.ErrNotExistentObject, "product")
+			m.Error = fmt.Sprintf("%v: product", errs.ErrNotExistentObject)
 
 			return echo.NewHTTPError(http.StatusNotFound, m)
 		}

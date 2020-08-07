@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/coffemanfp/beppin-server/database"
+	dbm "github.com/coffemanfp/beppin-server/database/models"
 	dbu "github.com/coffemanfp/beppin-server/database/utils"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/models"
@@ -21,7 +22,7 @@ func DeleteUser(c echo.Context) (err error) {
 	userIDParam := c.Param("id")
 
 	if userID, err = utils.Atoi(userIDParam); err != nil || userID == 0 {
-		m.Error = fmt.Sprintf("%v: %s", errs.ErrInvalidParam, "id")
+		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
@@ -33,10 +34,15 @@ func DeleteUser(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	err = dbu.DeleteUser(db, userID, "")
+	err = dbu.DeleteUser(
+		db,
+		dbm.User{
+			ID: userID,
+		},
+	)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {
-			m.Error = fmt.Sprintf("%v: %s", errs.ErrNotExistentObject, "user")
+			m.Error = fmt.Sprintf("%v: user", errs.ErrNotExistentObject)
 
 			return echo.NewHTTPError(http.StatusNotFound, m)
 		}

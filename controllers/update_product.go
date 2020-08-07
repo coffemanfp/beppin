@@ -22,7 +22,7 @@ func UpdateProduct(c echo.Context) (err error) {
 
 	productID, err := utils.Atoi(productIDParam)
 	if err != nil || productID == 0 {
-		m.Error = fmt.Sprintf("%v: %s", errs.ErrInvalidParam, "id")
+		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
@@ -51,10 +51,16 @@ func UpdateProduct(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	err = dbu.UpdateProduct(db, productID, dbProduct)
+	err = dbu.UpdateProduct(
+		db,
+		dbm.Product{
+			ID: productID,
+		},
+		dbProduct,
+	)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {
-			m.Error = fmt.Sprintf("%v: %s", errs.ErrExistentObject, "product")
+			m.Error = fmt.Sprintf("%v: product", errs.ErrExistentObject)
 
 			return echo.NewHTTPError(http.StatusNotFound, m)
 		}

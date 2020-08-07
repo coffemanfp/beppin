@@ -35,7 +35,7 @@ func SelectProduct(db *sql.DB, productToFind models.Product) (product models.Pro
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(productID).Scan(
+	err = stmt.QueryRow(productToFind.ID).Scan(
 		&product.ID,
 		&product.UserID,
 		&product.Name,

@@ -53,11 +53,11 @@ func SignUp(c echo.Context) (err error) {
 
 		switch unwrappedErr {
 		case errs.ErrExistentObject:
-			m.Error = fmt.Sprintf("%v: %s", errs.ErrNotExistentObject, "user")
+			m.Error = fmt.Sprintf("%v: user", errs.ErrNotExistentObject)
 			return echo.NewHTTPError(http.StatusConflict, m)
 
 		case errs.ErrNotExistentObject:
-			m.Error = fmt.Sprintf("%v: %s", errs.ErrNotExistentObject, "language")
+			m.Error = fmt.Sprintf("%v: user", errs.ErrNotExistentObject)
 			return echo.NewHTTPError(http.StatusNotFound, m)
 
 		default:
