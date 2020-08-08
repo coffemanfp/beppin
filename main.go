@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/coffemanfp/beppin-server/config"
-	"github.com/coffemanfp/beppin-server/router"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )
@@ -38,7 +37,7 @@ func main() {
 	e.Pre(middleware.RemoveTrailingSlash())
 
 	// Create routes
-	router.NewRouter(e)
+	newRouter(e)
 
 	// Config logger
 	err := config.NewLogger(e, settings.LogsFile)
