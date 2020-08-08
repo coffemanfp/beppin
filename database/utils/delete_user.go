@@ -20,7 +20,7 @@ func DeleteUser(db *sql.DB, user models.User) (err error) {
 		DELETE FROM
 			users
 		WHERE
-			users.id = $1 OR users.username = $2
+			users.id = $1 OR users.username = $2 OR users.email = $3
 	`
 
 	stmt, err := db.Prepare(query)
@@ -30,7 +30,7 @@ func DeleteUser(db *sql.DB, user models.User) (err error) {
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(user.ID, user.Username)
+	res, err := stmt.Exec(user.ID, user.Username, user.Email)
 	if err != nil {
 		err = fmt.Errorf("failed to delete (%v) user: %v", identifier, err)
 		return

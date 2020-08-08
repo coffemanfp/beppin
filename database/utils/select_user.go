@@ -19,11 +19,11 @@ func SelectUser(db *sql.DB, userToFind models.User) (user models.User, err error
 
 	query := `
 		SELECT
-			id, language, username, name, last_name, birthday, theme, created_at, updated_at
+			id, language, username, email, name, last_name, birthday, theme, created_at, updated_at
 		FROM
 			users
 		WHERE
-			id = $1
+			id = $1 OR username = $2 OR email = $3
 			
 	`
 
@@ -34,10 +34,15 @@ func SelectUser(db *sql.DB, userToFind models.User) (user models.User, err error
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(userToFind.ID).Scan(
+	err = stmt.QueryRow(
+		userToFind.ID,
+		userToFind.Username,
+		userToFind.Email,
+	).Scan(
 		&user.ID,
 		&user.Language.Code,
 		&user.Username,
+		&user.Email,
 		&user.Name,
 		&user.LastName,
 		&user.Birthday,

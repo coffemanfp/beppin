@@ -43,6 +43,7 @@ func Login(c echo.Context) (err error) {
 		db,
 		dbm.User{
 			Username: user.Username,
+			Email:    user.Email,
 			Password: user.Password,
 		},
 	)
