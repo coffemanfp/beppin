@@ -38,13 +38,10 @@ func main() {
 	e.Pre(middleware.RemoveTrailingSlash())
 
 	// Create routes
-	err := router.NewRouter(e)
-	if err != nil {
-		log.Fatalf("failed to set router: %v", err)
-	}
+	router.NewRouter(e)
 
 	// Config logger
-	err = config.NewLogger(e, settings.LogsFile)
+	err := config.NewLogger(e, settings.LogsFile)
 	if err != nil {
 		log.Fatalf("failed to set logger: %v", err)
 	}

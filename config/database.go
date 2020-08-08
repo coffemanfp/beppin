@@ -28,6 +28,7 @@ func (d Database) ValidateDatabase() (valid bool) {
 	case d.Password:
 	case d.SslMode:
 		valid = false
+		return
 	}
 	if d.Port == 0 {
 		valid = false

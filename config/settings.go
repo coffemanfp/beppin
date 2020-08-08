@@ -15,15 +15,20 @@ func (s Settings) Validate() (valid bool) {
 	valid = true
 
 	if s.Database != nil {
-		valid = s.Database.ValidateDatabase()
+		if !s.Database.ValidateDatabase() {
+			valid = false
+			return
+		}
 	} else {
 		valid = false
+		return
 	}
 
 	switch "" {
 	case s.LogsFile:
 	case s.SecretKey:
 		valid = false
+		return
 	}
 
 	switch 0 {
@@ -40,9 +45,13 @@ func (s Settings) ValidateMigrations() (valid bool) {
 	valid = true
 
 	if s.Database != nil {
-		valid = s.Database.ValidateDatabase()
+		if !s.Database.ValidateDatabase() {
+			valid = false
+			return
+		}
 	} else {
 		valid = false
+		return
 	}
 
 	if s.LogsFile == "" {

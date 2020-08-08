@@ -24,7 +24,7 @@ func ExistsUser(db *sql.DB, user models.User) (exists bool, err error) {
 				FROM
 					users
 				WHERE
-					id = $1 OR username = $2
+					id = $1 OR username = $2 OR email = $3
 			)
 	`
 
@@ -35,7 +35,11 @@ func ExistsUser(db *sql.DB, user models.User) (exists bool, err error) {
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(user.ID, user.Username).Scan(&exists)
+	err = stmt.QueryRow(
+		user.ID,
+		user.Username,
+		user.Email,
+	).Scan(&exists)
 	if err != nil {
 		err = fmt.Errorf("failed to select the exists (%v) user statement: %v", identifier, err)
 	}

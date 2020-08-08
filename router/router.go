@@ -9,7 +9,7 @@ import (
 )
 
 // NewRouter - Creates the app router.
-func NewRouter(e *echo.Echo) (err error) {
+func NewRouter(e *echo.Echo) {
 	settings := config.GetSettings()
 
 	// API group

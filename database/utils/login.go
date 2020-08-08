@@ -18,7 +18,7 @@ func Login(db *sql.DB, userToLogin models.User) (user models.User, match bool, e
 		FROM
 			users
 		WHERE
-			username = $1 AND password = $2
+			username = $1 AND password = $2 OR email = $3 AND password = $2
 			
 	`
 
@@ -29,7 +29,11 @@ func Login(db *sql.DB, userToLogin models.User) (user models.User, match bool, e
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(userToLogin.Username, userToLogin.Password).Scan(
+	err = stmt.QueryRow(
+		userToLogin.Username,
+		userToLogin.Password,
+		userToLogin.Email,
+	).Scan(
 		&user.ID,
 		&user.Language.Code,
 		&user.Username,
