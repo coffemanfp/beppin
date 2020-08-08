@@ -172,9 +172,8 @@ func parseDBProductToProduct(dbProduct dbm.Product) (product models.Product) {
 
 	if dbProduct.Offer != nil {
 		offer = parseDBOfferToOffer(*dbProduct.Offer)
+		product.Offer = &offer
 	}
-
-	product.Offer = &offer
 	return
 }
 
@@ -197,14 +196,6 @@ func parseProductToDBProduct(product models.Product) (dbProduct dbm.Product) {
 		Categories:  product.Categories,
 	}
 
-	var dbOffer dbm.Offer
-
-	if product.Offer != nil {
-		dbOffer = parseOfferToDBOffer(*product.Offer)
-	}
-
-	dbProduct.Offer = &dbOffer
-
 	if product.CreatedAt != nil {
 		if &product.CreatedAt != nil {
 			dbProduct.CreatedAt.Time = *product.CreatedAt
@@ -217,6 +208,12 @@ func parseProductToDBProduct(product models.Product) (dbProduct dbm.Product) {
 		}
 	}
 
+	var dbOffer dbm.Offer
+
+	if product.Offer != nil {
+		dbOffer = parseOfferToDBOffer(*product.Offer)
+		dbProduct.Offer = &dbOffer
+	}
 	return
 }
 

@@ -3,6 +3,8 @@ package models
 import (
 	"regexp"
 	"time"
+
+	"github.com/coffemanfp/beppin-server/utils"
 )
 
 // User - User for the app.
@@ -24,30 +26,19 @@ type User struct {
 // Users - Alias for a user array.
 type Users []User
 
-// ValidateLogin - Validates a user login.
-func (u User) ValidateLogin() (valid bool) {
-	valid = true
-
-	switch "" {
-	case u.Username:
-	case u.Password:
-		valid = false
-	}
-
-	return
-}
-
 // Validate - Validates a user.
 func (u User) Validate() (valid bool) {
 	valid = true
 
 	switch "" {
-	case u.Username:
 	case u.Password:
-	case u.Email:
 	case u.Name:
 	case u.LastName:
 		valid = false
+	}
+
+	if valid {
+		valid = u.ValidateLogin()
 	}
 
 	if u.Birthday == nil || u.Birthday.IsZero() {
@@ -57,8 +48,30 @@ func (u User) Validate() (valid bool) {
 	return
 }
 
+// ValidateLogin - Validates a user login.
+func (u User) ValidateLogin() (valid bool) {
+	valid = true
+
+	if u.Password == "" {
+		valid = false
+		return
+	}
+
+	switch false {
+	case utils.ValidateEmail(u.Email):
+	case u.ValidateUsername():
+		valid = false
+	}
+
+	return
+}
+
 // ValidateUsername - Validate a username.
 func (u User) ValidateUsername() (valid bool) {
+	if u.Username == "" {
+		return
+	}
+
 	re := regexp.MustCompile(`^[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*$`)
 
 	valid = re.MatchString(u.Username)

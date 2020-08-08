@@ -27,6 +27,7 @@ func (p Product) Validate() (valid bool) {
 	case p.Name:
 	case p.Description:
 		valid = false
+		return
 	}
 
 	if p.UserID == 0 {

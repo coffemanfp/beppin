@@ -1,9 +1,8 @@
 package models
 
 import (
+	"regexp"
 	"time"
-
-	"github.com/coffemanfp/beppin-server/utils"
 )
 
 // Language status.
@@ -37,8 +36,17 @@ func (l Language) Validate() (valid bool) {
 	case LanguageAvailable:
 	default:
 		valid = false
+		return
 	}
 
-	valid = utils.ValidateLanguageCode(l.Code)
+	valid = l.ValidateCode()
+	return
+}
+
+// ValidateCode - Validates the language code.
+func (l Language) ValidateCode() (valid bool) {
+	rx := regexp.MustCompile(`^[a-z]{2,2}-[A-Z]{2,2}$`)
+
+	valid = rx.MatchString(l.Code)
 	return
 }
