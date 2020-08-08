@@ -1,4 +1,4 @@
-package router
+package main
 
 import (
 	"github.com/coffemanfp/beppin-server/config"
@@ -8,8 +8,7 @@ import (
 	"github.com/labstack/echo/middleware"
 )
 
-// NewRouter - Creates the app router.
-func NewRouter(e *echo.Echo) {
+func newRouter(e *echo.Echo) {
 	settings := config.GetSettings()
 
 	// API group
