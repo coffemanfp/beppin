@@ -16,6 +16,7 @@ func newRouter(e *echo.Echo) {
 
 	// Sign In
 	r.POST("/login", controllers.Login)
+	r.POST("/login/:provider", controllers.LoginWithProvider)
 
 	// Sign Up
 	r.POST("/signup", controllers.SignUp)
