@@ -4,8 +4,8 @@ import "database/sql"
 
 // Product - Product for the app.
 type Product struct {
-	ID     int
-	UserID int
+	ID     int64
+	UserID int64
 	Offer  *Offer
 
 	Name        string

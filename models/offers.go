@@ -4,8 +4,8 @@ import "time"
 
 // Offer - Offer details of a product.
 type Offer struct {
-	ID        int `json:"id,omitempty"`
-	ProductID int `json:"productId,omitempty"`
+	ID        int64 `json:"id,omitempty"`
+	ProductID int64 `json:"productId,omitempty"`
 
 	Type        string     `json:"type,omitempty"`
 	Value       string     `json:"value,omitempty"`

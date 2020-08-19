@@ -37,7 +37,7 @@ func DeleteUser(c echo.Context) (err error) {
 	err = dbu.DeleteUser(
 		db,
 		dbm.User{
-			ID: userID,
+			ID: int64(userID),
 		},
 	)
 	if err != nil {

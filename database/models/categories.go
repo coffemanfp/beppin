@@ -4,7 +4,7 @@ import "database/sql"
 
 // Category - Product category
 type Category struct {
-	ID int
+	ID int64
 
 	Name              string
 	RelatedCategories []string

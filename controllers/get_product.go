@@ -38,7 +38,7 @@ func GetProduct(c echo.Context) (err error) {
 	dbProduct, err := dbu.SelectProduct(
 		db,
 		dbm.Product{
-			ID: productID,
+			ID: int64(productID),
 		},
 	)
 	if err != nil {
