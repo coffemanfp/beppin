@@ -4,8 +4,9 @@ import "database/sql"
 
 // User - User for the app.
 type User struct {
-	ID       int
-	Language Language
+	ID        int
+	Language  Language
+	AvatarURL string
 
 	Username  string
 	Password  string

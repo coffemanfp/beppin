@@ -29,6 +29,7 @@ func GetSettings() (s Settings) {
 func SetDefaultSettings() {
 	settings = &Settings{
 		Port:                     8080,
+		Assets:                   "assets/",
 		LogsFile:                 "logs/server.log",
 		MaxElementsPerPagination: 20,
 		SecretKey:                "Security",
@@ -42,6 +43,12 @@ func SetDefaultSettings() {
 			SslMode:  "disable",
 		},
 	}
+
+	settings.Host = fmt.Sprintf(
+		"http://%s:%d",
+		"localhost",
+		settings.Port,
+	)
 }
 
 // SetSettingsByFile - Populates the settings by a file.

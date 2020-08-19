@@ -10,7 +10,7 @@ import (
 
 // UpdateUser - Updates a user.
 func UpdateUser(db *sql.DB, userToUpdate, user models.User) (err error) {
-	identifier := user.GetIdentifier()
+	identifier := userToUpdate.GetIdentifier()
 	if identifier == nil {
 		err = fmt.Errorf("failed to update user: %w (user)", errs.ErrNotProvidedOrInvalidObject)
 		return
@@ -28,16 +28,17 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (err error) {
 			users
 		SET
 			language = $1,
-			username = $2,
-			password = $3,
-			email = $4,
-			name = $5,
-			last_name = $6,
-			birthday = $7,
-			theme = $8,
+			avatar = $2,
+			username = $3,
+			password = $4,
+			email = $5,
+			name = $6,
+			last_name = $7,
+			birthday = $8,
+			theme = $9,
 			updated_at = NOW()
 		WHERE 
-			id = $9 OR username = $10 OR email = $11
+			id = $10 OR username = $11 OR email = $12
 	`)
 
 	stmt, err := db.Prepare(query)
@@ -49,6 +50,7 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (err error) {
 
 	_, err = stmt.Exec(
 		user.Language.Code,
+		user.AvatarURL,
 		user.Username,
 		user.Password,
 		user.Email,

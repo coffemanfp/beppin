@@ -14,7 +14,7 @@ import (
 func SelectUsers(db *sql.DB, limit int, offset int) (users models.Users, err error) {
 	query := `
 		SELECT
-			id, language, username, email, name, last_name, birthday, theme, created_at, updated_at
+			id, language, avatar, username, email, name, last_name, birthday, theme, created_at, updated_at
 		FROM	
 			users
 		LIMIT
@@ -53,6 +53,7 @@ func SelectUsers(db *sql.DB, limit int, offset int) (users models.Users, err err
 		err = rows.Scan(
 			&user.ID,
 			&user.Language.Code,
+			&user.AvatarURL,
 			&user.Username,
 			&user.Email,
 			&user.Name,

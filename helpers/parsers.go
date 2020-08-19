@@ -86,6 +86,10 @@ func parseDBUserToUser(dbUser dbm.User) (user models.User) {
 		}
 	}
 
+	if dbUser.AvatarURL != "" {
+		user.Avatar.URL = dbUser.AvatarURL
+	}
+
 	return
 }
 
@@ -132,6 +136,9 @@ func parseUserToDBUser(user models.User) (dbUser dbm.User) {
 		dbUser.Birthday.Time = *user.Birthday
 	}
 
+	if user.Avatar != nil {
+		dbUser.AvatarURL = user.Avatar.URL
+	}
 	return
 }
 

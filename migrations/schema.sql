@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS users (
     id SERIAL NOT NULL UNIQUE,
     language CHAR(5) DEFAULT 'en-EN',
 
+    avatar VARCHAR UNIQUE,
     username VARCHAR(25) NOT NULL UNIQUE,
     password VARCHAR(75) NOT NULL,
     email VARCHAR(60) NOT NULL UNIQUE,

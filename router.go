@@ -31,16 +31,19 @@ func newRouter(e *echo.Echo) {
 		TokenLookup: "header:" + echo.HeaderAuthorization,
 	}
 
+	jwtMiddleware := middleware.JWTWithConfig(jwtConfig)
+
 	// Products
-	r.POST("/products", controllers.CreateProduct, middleware.JWTWithConfig(jwtConfig))
-	r.PUT("/products/:id", controllers.UpdateProduct, middleware.JWTWithConfig(jwtConfig))
-	r.DELETE("/products/:id", controllers.DeleteProduct, middleware.JWTWithConfig(jwtConfig))
+	r.POST("/products", controllers.CreateProduct, jwtMiddleware)
+	r.PUT("/products/:id", controllers.UpdateProduct, jwtMiddleware)
+	r.DELETE("/products/:id", controllers.DeleteProduct, jwtMiddleware)
 
 	// Users
-	r.GET("/users", controllers.GetUsers, middleware.JWTWithConfig(jwtConfig))
-	r.GET("/users/:id", controllers.GetUser, middleware.JWTWithConfig(jwtConfig))
-	r.PUT("/users/:id", controllers.UpdateUser, middleware.JWTWithConfig(jwtConfig))
-	r.DELETE("/users/:id", controllers.DeleteUser, middleware.JWTWithConfig(jwtConfig))
+	r.GET("/users", controllers.GetUsers, jwtMiddleware)
+	r.GET("/users/:id", controllers.GetUser, jwtMiddleware)
+	r.PUT("/users/:id", controllers.UpdateUser, jwtMiddleware)
+	r.PUT("/users/:id/avatar", controllers.UpdateAvatar, jwtMiddleware)
+	r.DELETE("/users/:id", controllers.DeleteUser, jwtMiddleware)
 
 	return
 }

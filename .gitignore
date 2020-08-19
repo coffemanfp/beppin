@@ -18,6 +18,9 @@ beppin-server
 test
 test.go
 
+# Assets
+assets/
+
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 

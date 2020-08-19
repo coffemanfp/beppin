@@ -12,6 +12,7 @@ var (
 	ErrExistentObject             = errors.New("existent object")
 	ErrNotSupportedType           = errors.New("not-supported type")
 	ErrNotProvidedOrInvalidObject = errors.New("not-provided or invalid object")
+	ErrInvalidData                = errors.New("invalid data")
 )
 
 // System errors.
@@ -19,9 +20,10 @@ var (
 	ErrInvalidSettings = errors.New("missing or invalid settings")
 )
 
-// Server errors.
+// Client errors.
 var (
-	ErrInvalidBody      = "missing or invalid body"
-	ErrInvalidParam     = "missing or invalid param"
-	ErrInvalidUserLogin = "missing or invalid user credentials"
+	ErrInvalidBody       = "missing or invalid body"
+	ErrInvalidParam      = "missing or invalid param"
+	ErrInvalidUserLogin  = "missing or invalid user credentials"
+	ErrInvalidAvatarData = "missing or invalid avatar data"
 )
