@@ -54,7 +54,7 @@ func UpdateProduct(c echo.Context) (err error) {
 	err = dbu.UpdateProduct(
 		db,
 		dbm.Product{
-			ID: productID,
+			ID: int64(productID),
 		},
 		dbProduct,
 	)

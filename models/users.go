@@ -9,7 +9,7 @@ import (
 
 // User - User for the app.
 type User struct {
-	ID       int    `json:"id,omitempty"`
+	ID       int64  `json:"id,omitempty"`
 	Language string `json:"language,omitempty"`
 
 	Avatar    *Avatar    `json:"avatar,omitempty"`

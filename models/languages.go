@@ -14,7 +14,7 @@ const (
 
 // Language - Language for the app.
 type Language struct {
-	ID int `json:"id,omitempty"`
+	ID int64 `json:"id,omitempty"`
 
 	Code   string `json:"code,omitempty"`
 	Status string `json:"status,omitempty"`

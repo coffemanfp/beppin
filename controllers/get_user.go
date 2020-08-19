@@ -38,7 +38,7 @@ func GetUser(c echo.Context) (err error) {
 	dbuser, err := dbu.SelectUser(
 		db,
 		dbm.User{
-			ID: userID,
+			ID: int64(userID),
 		},
 	)
 	if err != nil {

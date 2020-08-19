@@ -87,7 +87,7 @@ func parseDBUserToUser(dbUser dbm.User) (user models.User) {
 	}
 
 	if dbUser.AvatarURL != "" {
-		user.Avatar.URL = dbUser.AvatarURL
+		user.Avatar = &models.Avatar{URL: dbUser.AvatarURL}
 	}
 
 	return

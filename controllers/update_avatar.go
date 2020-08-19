@@ -43,6 +43,27 @@ func UpdateAvatar(c echo.Context) (err error) {
 
 	avatarURL := avatar.URL
 
+	var db *sql.DB
+	db, err = database.Get()
+	if err != nil {
+		c.Logger().Error(err)
+
+		return echo.ErrInternalServerError
+	}
+
+	exists, err := dbu.ExistsUser(db, dbm.User{ID: int64(userID)})
+	if err != nil {
+		c.Logger().Error(err)
+
+		return echo.ErrInternalServerError
+	}
+
+	if !exists {
+		m.Error = fmt.Sprintf("%v: user", errs.ErrNotExistentObject)
+
+		return echo.NewHTTPError(http.StatusNotFound, m)
+	}
+
 	// If the user will save their avatar in our file system
 	if avatar.Data != "" && avatar.URL == "" {
 		avatarURL, err = avatar.Save(strconv.Itoa(userID))
@@ -53,19 +74,16 @@ func UpdateAvatar(c echo.Context) (err error) {
 		}
 	}
 
-	var db *sql.DB
-	db, err = database.Get()
+	err = dbu.UpdateAvatar(
+		db,
+		avatarURL,
+		dbm.User{ID: int64(userID)},
+	)
 	if err != nil {
 		c.Logger().Error(err)
 
 		return echo.ErrInternalServerError
 	}
-
-	err = dbu.UpdateAvatar(
-		db,
-		avatarURL,
-		dbm.User{ID: userID},
-	)
 	if err != nil {
 		c.Logger().Error(err)
 

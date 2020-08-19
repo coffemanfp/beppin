@@ -37,7 +37,7 @@ func DeleteProduct(c echo.Context) (err error) {
 	err = dbu.DeleteProduct(
 		db,
 		dbm.Product{
-			ID: productID,
+			ID: int64(productID),
 		},
 	)
 	if err != nil {
