@@ -8,12 +8,15 @@ import (
 	"github.com/coffemanfp/beppin-server/config"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	"github.com/stretchr/gomniauth"
 )
 
 func main() {
 	settings := config.GetSettings()
 
 	e := echo.New()
+
+	gomniauth.SetSecurityKey(settings.SecretKey)
 
 	// Middlewares
 	{
