@@ -39,6 +39,11 @@ func (dS defaultStorage) CreateUser(user models.User) (err error) {
 	return
 }
 
+func (dS defaultStorage) Login(userToLogin models.User) (user models.User, match bool, err error) {
+	user, match, err = dbu.Login(dS.db, userToLogin)
+	return
+}
+
 func (dS defaultStorage) GetUser(userToFind models.User) (user models.User, err error) {
 	user, err = dbu.SelectUser(dS.db, userToFind)
 	return
@@ -62,6 +67,22 @@ func (dS defaultStorage) UpdateUser(userToUpdate, user models.User) (err error) 
 }
 
 func (dS defaultStorage) UpdateAvatar(avatarURL string, userToUpdate models.User) (err error) {
+	identifier := userToUpdate.GetIdentifier()
+	if identifier == nil {
+		err = fmt.Errorf("failed to check user: %w (user)", errs.ErrNotProvidedOrInvalidObject)
+		return
+	}
+
+	exists, err := dbu.ExistsUser(dS.db, userToUpdate)
+	if err != nil {
+		return
+	}
+
+	if !exists {
+		err = fmt.Errorf("failed to check (%v) user: %w (user)", identifier, errs.ErrNotExistentObject)
+		return
+	}
+
 	err = dbu.UpdateAvatar(dS.db, avatarURL, userToUpdate)
 	return
 }

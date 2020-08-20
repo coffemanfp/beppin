@@ -1,14 +1,13 @@
 package handlers
 
 import (
-	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
-	dbu "github.com/coffemanfp/beppin-server/database/utils"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/models"
 	"github.com/coffemanfp/beppin-server/utils"
@@ -43,25 +42,11 @@ func UpdateAvatar(c echo.Context) (err error) {
 
 	avatarURL := avatar.URL
 
-	var db *sql.DB
-	db, err = database.Get()
+	db, err := database.Get()
 	if err != nil {
 		c.Logger().Error(err)
 
 		return echo.ErrInternalServerError
-	}
-
-	exists, err := dbu.ExistsUser(db, dbm.User{ID: int64(userID)})
-	if err != nil {
-		c.Logger().Error(err)
-
-		return echo.ErrInternalServerError
-	}
-
-	if !exists {
-		m.Error = fmt.Sprintf("%v: user", errs.ErrNotExistentObject)
-
-		return echo.NewHTTPError(http.StatusNotFound, m)
 	}
 
 	// If the user will save their avatar in our file system
@@ -74,12 +59,17 @@ func UpdateAvatar(c echo.Context) (err error) {
 		}
 	}
 
-	err = dbu.UpdateAvatar(
-		db,
+	err = db.UpdateAvatar(
 		avatarURL,
 		dbm.User{ID: int64(userID)},
 	)
 	if err != nil {
+		if errors.Is(err, errs.ErrNotExistentObject) {
+			m.Error = fmt.Sprintf("%v: user", errs.ErrNotExistentObject)
+
+			return echo.NewHTTPError(http.StatusNotFound, m)
+		}
+
 		c.Logger().Error(err)
 
 		return echo.ErrInternalServerError

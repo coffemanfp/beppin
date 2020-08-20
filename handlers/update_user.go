@@ -7,7 +7,6 @@ import (
 
 	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
-	dbu "github.com/coffemanfp/beppin-server/database/utils"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
@@ -51,8 +50,7 @@ func UpdateUser(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	err = dbu.UpdateUser(
-		db,
+	err = db.UpdateUser(
 		dbm.User{
 			ID: int64(userID),
 		},

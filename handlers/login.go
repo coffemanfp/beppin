@@ -7,7 +7,6 @@ import (
 
 	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
-	dbu "github.com/coffemanfp/beppin-server/database/utils"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
@@ -40,8 +39,7 @@ func Login(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	dbUser, match, err := dbu.Login(
-		db,
+	dbUser, match, err := db.Login(
 		dbm.User{
 			Username: user.Username,
 			Email:    user.Email,

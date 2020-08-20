@@ -7,7 +7,6 @@ import (
 
 	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
-	dbu "github.com/coffemanfp/beppin-server/database/utils"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/models"
 	"github.com/coffemanfp/beppin-server/utils"
@@ -34,8 +33,7 @@ func DeleteUser(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	err = dbu.DeleteUser(
-		db,
+	err = db.DeleteUser(
 		dbm.User{
 			ID: int64(userID),
 		},

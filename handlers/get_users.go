@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/coffemanfp/beppin-server/database"
-	dbu "github.com/coffemanfp/beppin-server/database/utils"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
@@ -49,7 +48,7 @@ func GetUsers(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	dbUsers, err := dbu.SelectUsers(db, limit, offset)
+	dbUsers, err := db.GetUsers(limit, offset)
 	if err != nil {
 		c.Logger().Error(err)
 

@@ -18,6 +18,7 @@ func Get() (s Storage, err error) {
 	}
 
 	storage, err = NewDefault()
+	s = storage
 	return
 }
 
@@ -28,7 +29,7 @@ func Set(s Storage) {
 }
 
 // NewDefault returns the default database storage.
-func NewDefault() (storage Storage, err error) {
+func NewDefault() (s Storage, err error) {
 	settings := config.GetSettings()
 
 	if !settings.Database.ValidateDatabase() {
@@ -50,6 +51,6 @@ func NewDefault() (storage Storage, err error) {
 		return
 	}
 
-	storage = defaultStorage{db: db}
+	s = defaultStorage{db: db}
 	return
 }
