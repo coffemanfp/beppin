@@ -11,17 +11,17 @@ import (
 func (dS defaultStorage) CreateUser(user models.User) (err error) {
 	identifier := user.GetIdentifier()
 	if identifier == nil {
-		err = fmt.Errorf("failed to insert user: %w (user)", errs.ErrNotProvidedOrInvalidObject)
+		err = fmt.Errorf("failed to create user: %w (user)", errs.ErrNotProvidedOrInvalidObject)
 		return
 	}
 
-	exists, err := dbu.ExistsUser(dS.db, user)
+	exists, err := dS.ExistsUser(user)
 	if err != nil {
 		return
 	}
 
 	if exists {
-		err = fmt.Errorf("failed to check (%v) user: %w (user)", identifier, errs.ErrExistentObject)
+		err = fmt.Errorf("failed to create (%v) user: %w (user)", identifier, errs.ErrExistentObject)
 		return
 	}
 
@@ -36,6 +36,11 @@ func (dS defaultStorage) CreateUser(user models.User) (err error) {
 	}
 
 	err = dbu.InsertUser(dS.db, user)
+	return
+}
+
+func (dS defaultStorage) ExistsUser(user models.User) (exists bool, err error) {
+	exists, err = dbu.ExistsUser(dS.db, user)
 	return
 }
 
@@ -73,7 +78,7 @@ func (dS defaultStorage) UpdateAvatar(avatarURL string, userToUpdate models.User
 		return
 	}
 
-	exists, err := dbu.ExistsUser(dS.db, userToUpdate)
+	exists, err := dS.ExistsUser(userToUpdate)
 	if err != nil {
 		return
 	}

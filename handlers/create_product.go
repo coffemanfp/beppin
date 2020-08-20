@@ -7,7 +7,6 @@ import (
 
 	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
-	dbu "github.com/coffemanfp/beppin-server/database/utils"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
@@ -47,7 +46,7 @@ func CreateProduct(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	err = dbu.InsertProduct(db, dbProduct)
+	err = db.CreateProduct(dbProduct)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {
 			m.Error = fmt.Sprintf("%v: user", errs.ErrExistentObject)

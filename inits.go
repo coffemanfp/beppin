@@ -33,7 +33,7 @@ func initSettings() {
 }
 
 func initDatabase() {
-	_, err := database.OpenConn()
+	_, err := database.NewDefault()
 	if err != nil {
 		log.Fatalln("failed to start the database: ", err)
 	}

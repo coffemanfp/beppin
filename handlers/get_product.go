@@ -7,7 +7,6 @@ import (
 
 	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
-	dbu "github.com/coffemanfp/beppin-server/database/utils"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
@@ -35,8 +34,7 @@ func GetProduct(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	dbProduct, err := dbu.SelectProduct(
-		db,
+	dbProduct, err := db.GetProduct(
 		dbm.Product{
 			ID: int64(productID),
 		},

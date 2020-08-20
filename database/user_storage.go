@@ -6,6 +6,7 @@ import "github.com/coffemanfp/beppin-server/database/models"
 type UserStorage interface {
 	CreateUser(user models.User) error
 	Login(userToLogin models.User) (models.User, bool, error)
+	ExistsUser(user models.User) (bool, error)
 	GetUser(userToFind models.User) (models.User, error)
 	GetUsers(limit, offset int) (models.Users, error)
 	UpdateUser(userToUpdate, user models.User) error
