@@ -6,29 +6,29 @@ import (
 
 	"github.com/coffemanfp/beppin-server/config"
 	errs "github.com/coffemanfp/beppin-server/errors"
-	_ "github.com/lib/pq"
 )
 
-var db *sql.DB
+var storage Storage
 
-// Get - Get the conn to the database.
-func Get() (dbConn *sql.DB, err error) {
-	if db != nil {
-		dbConn = db
+// Get gets the current database storage.
+func Get() (s Storage, err error) {
+	if storage != nil {
+		s = storage
 		return
 	}
 
-	dbConn, err = OpenConn()
-	if err != nil {
-		return
-	}
-
-	db = dbConn
+	storage, err = NewDefault()
 	return
 }
 
-// OpenConn - Open a conn to the database.
-func OpenConn() (dbConn *sql.DB, err error) {
+// Set sets the current database storage.
+func Set(s Storage) {
+	storage = s
+	return
+}
+
+// NewDefault returns the default database storage.
+func NewDefault() (storage Storage, err error) {
 	settings := config.GetSettings()
 
 	if !settings.Database.ValidateDatabase() {
@@ -36,30 +36,20 @@ func OpenConn() (dbConn *sql.DB, err error) {
 		return
 	}
 
-	dbConn, err = sql.Open("postgres", settings.Database.URL)
+	db, err := sql.Open("postgres", settings.Database.URL)
 	if err != nil {
 		err = fmt.Errorf("error opening a database connection: %v", err)
 		return
 	}
 
-	dbConn.SetMaxOpenConns(1)
+	db.SetMaxOpenConns(1)
 
-	db = dbConn
-
-	err = dbConn.Ping()
+	err = db.Ping()
 	if err != nil {
 		err = fmt.Errorf("error in ping to the database: %v", err)
-	}
-
-	return
-}
-
-// CloseConn - ...
-func CloseConn() {
-	if db == nil {
 		return
 	}
 
-	db.Close()
-	db = nil
+	storage = defaultStorage{db: db}
+	return
 }

@@ -16,13 +16,6 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (err error) {
 		return
 	}
 
-	previousUserData, err := SelectUser(db, userToUpdate)
-	if err != nil {
-		return
-	}
-
-	user = fillUserEmptyFields(user, previousUserData)
-
 	query := fmt.Sprintf(`
 		UPDATE
 			users
@@ -66,36 +59,4 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (err error) {
 		err = fmt.Errorf("failed to execute the update (%v) user statement: %v", identifier, err)
 	}
 	return
-}
-
-func fillUserEmptyFields(user, previousUserData models.User) models.User {
-
-	switch "" {
-	case user.Language.Code:
-		user.Language.Code = previousUserData.Language.Code
-
-	case user.Username:
-		user.Username = previousUserData.Username
-
-	case user.Email:
-		user.Email = previousUserData.Email
-
-	case user.Password:
-		user.Password = previousUserData.Password
-
-	case user.Name:
-		user.Name = previousUserData.Name
-
-	case user.LastName:
-		user.LastName = previousUserData.LastName
-
-	case user.Theme:
-		user.Theme = previousUserData.Theme
-	}
-
-	if user.Birthday == nil {
-		user.Birthday = previousUserData.Birthday
-	}
-
-	return user
 }
