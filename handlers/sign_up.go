@@ -1,34 +1,31 @@
-package controllers
+package handlers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
-	dbu "github.com/coffemanfp/beppin-server/database/utils"
-	"github.com/coffemanfp/beppin-server/errors"
+	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
 	"github.com/labstack/echo"
 )
 
-// CreateUser - Creates a user.
-func CreateUser(c echo.Context) (err error) {
+// SignUp - Register a user.
+func SignUp(c echo.Context) (err error) {
 	var m models.ResponseMessage
 	var user models.User
 
 	if err = c.Bind(&user); err != nil {
-		m.Error = "invalid body"
-		fmt.Println(time.Now().String())
+		m.Error = errs.ErrInvalidBody
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
 	if !user.Validate() {
-		m.Error = "invalid body"
-		fmt.Println("aqui 2")
+		m.Error = errs.ErrInvalidBody
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
@@ -49,19 +46,27 @@ func CreateUser(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	err = dbu.InsertUser(db, dbUser)
+	err = db.CreateUser(dbUser)
 	if err != nil {
-		if err.Error() == errors.ErrExistentObject {
-			m.Error = err.Error() + " (user)"
+		unwrappedErr := errors.Unwrap(err)
 
+		switch unwrappedErr {
+		case errs.ErrExistentObject:
+			m.Error = fmt.Sprintf("%v: user", errs.ErrNotExistentObject)
+			return echo.NewHTTPError(http.StatusConflict, m)
+
+		case errs.ErrNotExistentObject:
+			m.Error = fmt.Sprintf("%v: user", errs.ErrNotExistentObject)
 			return echo.NewHTTPError(http.StatusNotFound, m)
-		}
-		c.Logger().Error(err)
 
-		return echo.ErrInternalServerError
+		default:
+			c.Logger().Error(err)
+
+			return echo.ErrInternalServerError
+		}
+
 	}
 
 	m.Message = "Created."
-
 	return c.JSON(http.StatusCreated, m)
 }

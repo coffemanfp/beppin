@@ -2,7 +2,6 @@ package utils
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/database/models"
@@ -11,23 +10,12 @@ import (
 )
 
 // UpdateProduct - Updates a product.
-func UpdateProduct(db *sql.DB, productID int, product models.Product) (err error) {
-	exists, err := ExistsProduct(db, productID)
-	if err != nil {
+func UpdateProduct(db *sql.DB, productToUpdate, product models.Product) (err error) {
+	identifier := productToUpdate.GetIdentifier()
+	if identifier == nil {
+		err = fmt.Errorf("failed to update product: %w (product)", errs.ErrNotProvidedOrInvalidObject)
 		return
 	}
-
-	if !exists {
-		err = errors.New(errs.ErrNotExistentObject)
-		return
-	}
-
-	previosProductData, err := SelectProduct(db, productID)
-	if err != nil {
-		return
-	}
-
-	product = fillProductEmptyFields(product, previosProductData)
 
 	query := `
 		UPDATE
@@ -43,7 +31,7 @@ func UpdateProduct(db *sql.DB, productID int, product models.Product) (err error
 
 	stmt, err := db.Prepare(query)
 	if err != nil {
-		err = fmt.Errorf("failed to prepare the update product statement:\n%s", err)
+		err = fmt.Errorf("failed to prepare the update (%v) product statement: %v", identifier, err)
 		return
 	}
 	defer stmt.Close()
@@ -52,26 +40,10 @@ func UpdateProduct(db *sql.DB, productID int, product models.Product) (err error
 		product.Name,
 		product.Description,
 		pq.Array(product.Categories),
-		product.ID,
+		productToUpdate.ID,
 	)
 	if err != nil {
-		err = fmt.Errorf("failed to execute the update product statement:\n%s", err)
+		err = fmt.Errorf("failed to execute the update (%v) product statement: %v", identifier, err)
 	}
 	return
-}
-
-func fillProductEmptyFields(product models.Product, previousProductData models.Product) models.Product {
-
-	switch "" {
-	case product.Name:
-		product.Name = previousProductData.Name
-	case product.Description:
-		product.Description = previousProductData.Description
-	}
-
-	if product.Categories == nil {
-		product.Categories = previousProductData.Categories
-	}
-
-	return product
 }

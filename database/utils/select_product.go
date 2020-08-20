@@ -11,14 +11,10 @@ import (
 )
 
 // SelectProduct - Selects a product.
-func SelectProduct(db *sql.DB, productID int) (product models.Product, err error) {
-	exists, err := ExistsProduct(db, productID)
-	if err != nil {
-		return
-	}
-
-	if !exists {
-		err = errors.New(errs.ErrNotExistentObject)
+func SelectProduct(db *sql.DB, productToFind models.Product) (product models.Product, err error) {
+	identifier := productToFind.GetIdentifier()
+	if identifier == nil {
+		err = fmt.Errorf("failed to select product: %w (product)", errs.ErrNotProvidedOrInvalidObject)
 		return
 	}
 
@@ -33,13 +29,13 @@ func SelectProduct(db *sql.DB, productID int) (product models.Product, err error
 
 	stmt, err := db.Prepare(query)
 	if err != nil {
-		err = fmt.Errorf("failed to prepare the select product statement:\n%s", err)
+		err = fmt.Errorf("failed to prepare the select (%v) product statement: %v", identifier, err)
 
 		return
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(productID).Scan(
+	err = stmt.QueryRow(productToFind.ID).Scan(
 		&product.ID,
 		&product.UserID,
 		&product.Name,
@@ -49,7 +45,12 @@ func SelectProduct(db *sql.DB, productID int) (product models.Product, err error
 		&product.UpdatedAt,
 	)
 	if err != nil {
-		err = fmt.Errorf("failed to select the product:\n%s", err)
+		if errors.Is(err, sql.ErrNoRows) {
+			err = fmt.Errorf("failed to select (%v) product: %w (product)", identifier, errs.ErrNotExistentObject)
+			return
+		}
+
+		err = fmt.Errorf("failed to select (%v) product: %v", identifier, err)
 	}
 	return
 }

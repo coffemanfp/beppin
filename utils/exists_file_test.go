@@ -1,8 +1,9 @@
 package utils_test
 
 import (
-	"github.com/coffemanfp/shachat/utils"
 	"testing"
+
+	"github.com/coffemanfp/beppin-server/utils"
 )
 
 func TestExistsFile(t *testing.T) {

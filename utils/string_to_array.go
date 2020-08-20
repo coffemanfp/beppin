@@ -1,9 +1,11 @@
 package utils
 
 import (
-	"errors"
+	"fmt"
 	"regexp"
 	"strings"
+
+	errs "github.com/coffemanfp/beppin-server/errors"
 )
 
 // StringToArray - Convert a string in a array.
@@ -15,7 +17,7 @@ import (
 func StringToArray(s string) (array []string, err error) {
 	re := regexp.MustCompile(`^[0-9,\[\],\,\ ]*$`)
 	if !re.MatchString(s) {
-		err = errors.New("error: int array invalid")
+		err = fmt.Errorf("%w: int array", errs.ErrNotProvidedOrInvalidObject)
 		return
 	}
 	if strings.Index(s, "[") == 0 {

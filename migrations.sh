@@ -1,5 +1,8 @@
 #!/bin/bash
+
 cd migrations
+go build -o ../bin/migrations
+cd ../
 
 echo 'Starting migrations...'
-go run migrations.go -with-examples
+./bin/migrations --with-examples

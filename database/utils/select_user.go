@@ -10,45 +10,40 @@ import (
 )
 
 // SelectUser - Selects a user.
-func SelectUser(db *sql.DB, userID int, username string) (user models.User, err error) {
-	exists, err := ExistsUser(db, userID, username)
-	if err != nil {
-		return
-	}
-
-	if !exists {
-		err = errors.New(errs.ErrNotExistentObject)
+func SelectUser(db *sql.DB, userToFind models.User) (user models.User, err error) {
+	identifier := userToFind.GetIdentifier()
+	if identifier == nil {
+		err = fmt.Errorf("failed to select user: %w (user)", errs.ErrNotProvidedOrInvalidObject)
 		return
 	}
 
 	query := `
 		SELECT
-			users.id, languages.id, languages.code, username, password, name, last_name, birthday, theme, users.created_at, users.updated_at
+			id, language, avatar, username, email, name, last_name, birthday, theme, created_at, updated_at
 		FROM
 			users
-		INNER JOIN
-			languages
-		ON
-			users.language_id = languages.id
 		WHERE
-			users.id = $1
+			id = $1 OR username = $2 OR email = $3
 			
 	`
 
 	stmt, err := db.Prepare(query)
 	if err != nil {
-		err = fmt.Errorf("failed to prepare the select user statement:\n%s", err)
-
+		err = fmt.Errorf("failed to prepare the select (%v) user statement: %v", identifier, err)
 		return
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(userID).Scan(
+	err = stmt.QueryRow(
+		userToFind.ID,
+		userToFind.Username,
+		userToFind.Email,
+	).Scan(
 		&user.ID,
-		&user.Language.ID,
 		&user.Language.Code,
+		&user.AvatarURL,
 		&user.Username,
-		&user.Password,
+		&user.Email,
 		&user.Name,
 		&user.LastName,
 		&user.Birthday,
@@ -57,7 +52,13 @@ func SelectUser(db *sql.DB, userID int, username string) (user models.User, err 
 		&user.UpdatedAt,
 	)
 	if err != nil {
-		err = fmt.Errorf("failed to select the user:\n%s", err)
+		if errors.Is(err, sql.ErrNoRows) {
+			err = fmt.Errorf("failed to select (%v) user: %w (user)", identifier, errs.ErrNotExistentObject)
+			return
+		}
+
+		err = fmt.Errorf("failed to select (%v) user: %v", identifier, err)
+		return
 	}
 	return
 }

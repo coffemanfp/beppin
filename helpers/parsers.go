@@ -2,10 +2,10 @@ package helpers
 
 import (
 	"database/sql"
-	"errors"
+	"fmt"
 
 	dbm "github.com/coffemanfp/beppin-server/database/models"
-	errs "github.com/coffemanfp/beppin-server/errors"
+	"github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/models"
 )
 
@@ -32,7 +32,7 @@ func ParseDBModelToModel(dbModel interface{}) (model interface{}, err error) {
 		model = parseDBOffersToOffers(dbModel.(dbm.Offers))
 
 	default:
-		err = errors.New(errs.ErrNotSupportedType)
+		err = fmt.Errorf("failed to parse database model (%T) to normal model: %w", model, errors.ErrNotSupportedType)
 	}
 
 	return
@@ -48,7 +48,7 @@ func ParseModelToDBModel(model interface{}) (dbModel interface{}, err error) {
 	case models.Offer:
 		dbModel = parseOfferToDBOffer(model.(models.Offer))
 	default:
-		err = errors.New(errs.ErrNotSupportedType)
+		err = fmt.Errorf("failed to parse normal model (%T) to database model: %w", model, errors.ErrNotSupportedType)
 	}
 
 	return
@@ -61,6 +61,7 @@ func parseDBUserToUser(dbUser dbm.User) (user models.User) {
 		ID:       dbUser.ID,
 		Language: dbUser.Language.Code,
 		Username: dbUser.Username,
+		Email:    dbUser.Email,
 		Password: dbUser.Password,
 		Name:     dbUser.Name,
 		LastName: dbUser.LastName,
@@ -85,6 +86,10 @@ func parseDBUserToUser(dbUser dbm.User) (user models.User) {
 		}
 	}
 
+	if dbUser.AvatarURL != "" {
+		user.Avatar = &models.Avatar{URL: dbUser.AvatarURL}
+	}
+
 	return
 }
 
@@ -105,6 +110,7 @@ func parseUserToDBUser(user models.User) (dbUser dbm.User) {
 			Code: user.Language,
 		},
 		Username: user.Username,
+		Email:    user.Email,
 		Password: user.Password,
 		Name:     user.Name,
 		LastName: user.LastName,
@@ -130,6 +136,9 @@ func parseUserToDBUser(user models.User) (dbUser dbm.User) {
 		dbUser.Birthday.Time = *user.Birthday
 	}
 
+	if user.Avatar != nil {
+		dbUser.AvatarURL = user.Avatar.URL
+	}
 	return
 }
 
@@ -170,9 +179,8 @@ func parseDBProductToProduct(dbProduct dbm.Product) (product models.Product) {
 
 	if dbProduct.Offer != nil {
 		offer = parseDBOfferToOffer(*dbProduct.Offer)
+		product.Offer = &offer
 	}
-
-	product.Offer = &offer
 	return
 }
 
@@ -195,14 +203,6 @@ func parseProductToDBProduct(product models.Product) (dbProduct dbm.Product) {
 		Categories:  product.Categories,
 	}
 
-	var dbOffer dbm.Offer
-
-	if product.Offer != nil {
-		dbOffer = parseOfferToDBOffer(*product.Offer)
-	}
-
-	dbProduct.Offer = &dbOffer
-
 	if product.CreatedAt != nil {
 		if &product.CreatedAt != nil {
 			dbProduct.CreatedAt.Time = *product.CreatedAt
@@ -215,6 +215,12 @@ func parseProductToDBProduct(product models.Product) (dbProduct dbm.Product) {
 		}
 	}
 
+	var dbOffer dbm.Offer
+
+	if product.Offer != nil {
+		dbOffer = parseOfferToDBOffer(*product.Offer)
+		dbProduct.Offer = &dbOffer
+	}
 	return
 }
 

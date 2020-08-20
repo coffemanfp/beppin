@@ -1,68 +1,60 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/coffemanfp/beppin-server/config"
-	"github.com/coffemanfp/beppin-server/database"
-	"github.com/coffemanfp/beppin-server/router"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-)
-
-var (
-	configFile    string
-	configFileDef string = "config.yaml"
+	"github.com/stretchr/gomniauth"
 )
 
 func main() {
-	settings, err := config.GetSettings()
-	if err != nil {
-		log.Fatalf("failed to get settings:\n%s", err)
-	}
+	settings := config.GetSettings()
 
 	e := echo.New()
 
-	e.Pre(middleware.RemoveTrailingSlash())
+	gomniauth.SetSecurityKey(settings.SecretKey)
 
-	// CORS
-	e.Use(middleware.CORS())
+	// Middlewares
+	{
+		e.Use(
+			// middleware.Logger(),
+			middleware.Recover(),
+			middleware.CORSWithConfig(middleware.CORSConfig{
+				AllowOrigins: []string{"*"},
+				AllowMethods: []string{
+					http.MethodPost,
+					http.MethodGet,
+					http.MethodPut,
+					http.MethodDelete,
+				},
+				Skipper: middleware.DefaultSkipper,
+			}),
+		)
+	}
+
+	// Remove Trailing URL Slash
+	e.Pre(middleware.RemoveTrailingSlash())
+	e.Static("static", "assets")
+
 	// Create routes
-	router.NewRouter(e)
+	newRouter(e)
 
 	// Config logger
-	err = config.NewLogger(e, "logs/server.log")
+	err := config.NewLogger(e, settings.LogsFile)
 	if err != nil {
-		log.Fatalf("failed to set logger:\n%s", err)
+		log.Fatalf("failed to set logger: %v", err)
 	}
 
 	// Run server and print if fails.
-	log.Println(e.Start(fmt.Sprintf(":%d", settings.Port)))
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", settings.Port)))
 }
 
 func init() {
+	initFlags()
 	initSettings()
 	initDatabase()
-}
-
-func initSettings() {
-	err := config.SetSettingsByFile(configFileDef)
-	if err != nil {
-		log.Fatalln(err)
-	}
-}
-
-func initDatabase() {
-	_, err := database.OpenConn()
-	if err != nil {
-		log.Fatalln(err)
-	}
-}
-
-func initFlags() {
-	flag.StringVar(&configFile, "config-file", configFileDef, "Config file for the server settings.")
-
-	flag.Parse()
 }

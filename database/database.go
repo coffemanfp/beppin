@@ -2,74 +2,55 @@ package database
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/config"
-	_ "github.com/lib/pq"
+	errs "github.com/coffemanfp/beppin-server/errors"
 )
 
-var db *sql.DB
+var storage Storage
 
-// Get - Get the conn to the database.
-func Get() (dbConn *sql.DB, err error) {
-	if db != nil {
-		dbConn = db
+// Get gets the current database storage.
+func Get() (s Storage, err error) {
+	if storage != nil {
+		s = storage
 		return
 	}
 
-	dbConn, err = OpenConn()
-	if err != nil {
-		return
-	}
-
-	db = dbConn
+	storage, err = NewDefault()
+	s = storage
 	return
 }
 
-// OpenConn - Open a conn to the database.
-func OpenConn() (dbConn *sql.DB, err error) {
-	settings, err := config.GetSettings()
-	if err != nil {
-		return
-	}
-
-	if !settings.ValidateDatabase() {
-		err = errors.New(fmt.Sprint("database settings are not populated", settings))
-		return
-	}
-
-	dbConn, err = sql.Open("postgres", fmt.Sprintf(
-		"user=%s password=%s dbname=%s host=%s port=%d sslmode=disable",
-		settings.Database.User,
-		settings.Database.Password,
-		settings.Database.Name,
-		settings.Database.Host,
-		settings.Database.Port,
-	))
-
-	if err != nil {
-		err = fmt.Errorf("error opening a database connection:\n%s", err)
-		return
-	}
-
-	dbConn.SetMaxOpenConns(1)
-
-	db = dbConn
-
-	err = dbConn.Ping()
-	if err != nil {
-		err = fmt.Errorf("error in ping to the database:\n%s", err)
-	}
-
+// Set sets the current database storage.
+func Set(s Storage) {
+	storage = s
 	return
 }
 
-// CloseConn - ...
-func CloseConn() {
-	if db == nil {
+// NewDefault returns the default database storage.
+func NewDefault() (s Storage, err error) {
+	settings := config.GetSettings()
+
+	if !settings.Database.ValidateDatabase() {
+		err = fmt.Errorf("%w", errs.ErrInvalidSettings)
 		return
 	}
 
-	db.Close()
+	db, err := sql.Open("postgres", settings.Database.URL)
+	if err != nil {
+		err = fmt.Errorf("error opening a database connection: %v", err)
+		return
+	}
+
+	db.SetMaxOpenConns(1)
+
+	err = db.Ping()
+	if err != nil {
+		err = fmt.Errorf("error in ping to the database: %v", err)
+		return
+	}
+
+	s = defaultStorage{db: db}
+	return
 }

@@ -1,12 +1,13 @@
-package controllers
+package handlers
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
-	dbu "github.com/coffemanfp/beppin-server/database/utils"
-	"github.com/coffemanfp/beppin-server/errors"
+	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
 	"github.com/coffemanfp/beppin-server/utils"
@@ -20,7 +21,7 @@ func UpdateUser(c echo.Context) (err error) {
 
 	userID, err := utils.Atoi(userIDParam)
 	if err != nil || userID == 0 {
-		m.Error = "id param not valid"
+		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
@@ -28,7 +29,7 @@ func UpdateUser(c echo.Context) (err error) {
 	var user models.User
 
 	if err = c.Bind(&user); err != nil {
-		m.Error = "invalid body"
+		m.Error = errs.ErrInvalidBody
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
@@ -49,10 +50,15 @@ func UpdateUser(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	err = dbu.UpdateUser(db, userID, "", dbUser)
+	err = db.UpdateUser(
+		dbm.User{
+			ID: int64(userID),
+		},
+		dbUser,
+	)
 	if err != nil {
-		if err.Error() == errors.ErrNotExistentObject {
-			m.Error = err.Error() + " (user)"
+		if errors.Is(err, errs.ErrNotExistentObject) {
+			m.Error = fmt.Sprintf("%v: user", errs.ErrExistentObject)
 			return echo.NewHTTPError(http.StatusNotFound, m)
 		}
 		c.Logger().Error(err)

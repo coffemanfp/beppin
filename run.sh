@@ -1,2 +1,3 @@
 #!/bin/bash
-go run main.go
+
+go build -o ./bin/beppin-server && ./bin/beppin-server

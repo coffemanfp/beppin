@@ -2,33 +2,28 @@ package utils
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/config"
 	"github.com/coffemanfp/beppin-server/database/models"
+	errs "github.com/coffemanfp/beppin-server/errors"
 )
 
 // SelectUsers - Select a users list.
 func SelectUsers(db *sql.DB, limit int, offset int) (users models.Users, err error) {
 	query := `
 		SELECT
-			users.id, languages.code, username, password, name, last_name, birthday, theme, users.created_at, users.updated_at
+			id, language, avatar, username, email, name, last_name, birthday, theme, created_at, updated_at
 		FROM	
 			users
-		INNER JOIN
-			languages
-		ON
-			languages.id = users.language_id
 		LIMIT
 			$1
 		OFFSET
 			$2
 	`
 
-	settings, err := config.GetSettings()
-	if err != nil {
-		return
-	}
+	settings := config.GetSettings()
 
 	if limit == 0 {
 		limit = settings.MaxElementsPerPagination
@@ -43,7 +38,12 @@ func SelectUsers(db *sql.DB, limit int, offset int) (users models.Users, err err
 
 	rows, err := stmt.Query(limit, offset)
 	if err != nil {
-		err = fmt.Errorf("failed to select the users:\n%s", err)
+		if errors.Is(err, sql.ErrNoRows) {
+			err = fmt.Errorf("failed to select users: %w", errs.ErrNotExistentObject)
+			return
+		}
+
+		err = fmt.Errorf("failed to select users: %v", err)
 		return
 	}
 
@@ -53,8 +53,9 @@ func SelectUsers(db *sql.DB, limit int, offset int) (users models.Users, err err
 		err = rows.Scan(
 			&user.ID,
 			&user.Language.Code,
+			&user.AvatarURL,
 			&user.Username,
-			&user.Password,
+			&user.Email,
 			&user.Name,
 			&user.LastName,
 			&user.Birthday,
@@ -63,7 +64,7 @@ func SelectUsers(db *sql.DB, limit int, offset int) (users models.Users, err err
 			&user.UpdatedAt,
 		)
 		if err != nil {
-			err = fmt.Errorf("failed to scan a user:\n%s", err)
+			err = fmt.Errorf("failed to scan user: %v", err)
 			return
 		}
 

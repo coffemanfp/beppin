@@ -1,18 +1,19 @@
-package controllers
+package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/coffemanfp/beppin-server/database"
-	dbu "github.com/coffemanfp/beppin-server/database/utils"
+	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
 	"github.com/coffemanfp/beppin-server/utils"
 	"github.com/labstack/echo"
 )
 
-// GetUsers - Get user.
-func GetUsers(c echo.Context) (err error) {
+// GetProducts - Get products.
+func GetProducts(c echo.Context) (err error) {
 	limitParam := c.QueryParam("limit")
 	offsetParam := c.QueryParam("offset")
 
@@ -22,14 +23,20 @@ func GetUsers(c echo.Context) (err error) {
 
 	limit, err = utils.Atoi(limitParam)
 	if err != nil {
-		m.Error = "limit param not valid"
+		m.Error = fmt.Sprintf("%v: limit", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
+	// If the limit param is exceeded, is setted to the default limit.
+	m.LimitParamExceeded(&limit)
+
+	// If the limit is not provided, is setted to the default limit.
+	m.NotLimitParamProvided(&limit)
+
 	offset, err = utils.Atoi(offsetParam)
 	if err != nil {
-		m.Error = "offset param not valid"
+		m.Error = fmt.Sprintf("%v: offset", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
@@ -41,30 +48,33 @@ func GetUsers(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	dbUsers, err := dbu.SelectUsers(db, limit, offset)
+	dbProducts, err := db.GetProducts(limit, offset)
 	if err != nil {
 		c.Logger().Error(err)
 
 		return echo.ErrInternalServerError
 	}
 
-	var users models.Users
+	var products models.Products
 
-	if dbUsers == nil {
-		users = make(models.Users, 0)
+	if dbProducts == nil {
+		products = make(models.Products, 0)
 	} else {
-		usersI, err := helpers.ParseDBModelToModel(dbUsers)
+		productsI, err := helpers.ParseDBModelToModel(dbProducts)
 		if err != nil {
 			c.Logger().Error(err)
 
 			return echo.ErrInternalServerError
 		}
 
-		users = usersI.(models.Users)
+		products = productsI.(models.Products)
 	}
 
-	m.Content = users
-	m.Message = "Ok."
+	m.Content = products
+
+	if m.Message == "" {
+		m.Message = "Ok."
+	}
 
 	return c.JSON(http.StatusOK, m)
 }

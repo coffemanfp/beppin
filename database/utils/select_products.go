@@ -2,10 +2,12 @@ package utils
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/config"
 	"github.com/coffemanfp/beppin-server/database/models"
+	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/lib/pq"
 )
 
@@ -22,10 +24,7 @@ func SelectProducts(db *sql.DB, limit int, offset int) (products models.Products
 			$2
 	`
 
-	settings, err := config.GetSettings()
-	if err != nil {
-		return
-	}
+	settings := config.GetSettings()
 
 	if limit == 0 {
 		limit = settings.MaxElementsPerPagination
@@ -33,14 +32,19 @@ func SelectProducts(db *sql.DB, limit int, offset int) (products models.Products
 
 	stmt, err := db.Prepare(query)
 	if err != nil {
-		err = fmt.Errorf("failed to prepare the select products statement:\n%s", err)
+		err = fmt.Errorf("failed to prepare the select products statement: %v", err)
 		return
 	}
 	defer stmt.Close()
 
 	rows, err := stmt.Query(limit, offset)
 	if err != nil {
-		err = fmt.Errorf("failed to select the products:\n%s", err)
+		if errors.Is(err, sql.ErrNoRows) {
+			err = fmt.Errorf("failed to select products: %w", errs.ErrNotExistentObject)
+			return
+		}
+
+		err = fmt.Errorf("failed to select products: %v", err)
 		return
 	}
 
@@ -57,7 +61,7 @@ func SelectProducts(db *sql.DB, limit int, offset int) (products models.Products
 			&product.UpdatedAt,
 		)
 		if err != nil {
-			err = fmt.Errorf("failed to scan a product:\n%s", err)
+			err = fmt.Errorf("failed to scan product: %v", err)
 			return
 		}
 
