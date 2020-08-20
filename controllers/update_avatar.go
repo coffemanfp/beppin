@@ -90,5 +90,7 @@ func UpdateAvatar(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	return
+	m.Message = "Updated."
+
+	return c.JSON(http.StatusOK, m)
 }
