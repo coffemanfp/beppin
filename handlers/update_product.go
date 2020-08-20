@@ -1,4 +1,4 @@
-package controllers
+package handlers
 
 import (
 	"errors"
@@ -9,23 +9,40 @@ import (
 	dbm "github.com/coffemanfp/beppin-server/database/models"
 	dbu "github.com/coffemanfp/beppin-server/database/utils"
 	errs "github.com/coffemanfp/beppin-server/errors"
+	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
 	"github.com/coffemanfp/beppin-server/utils"
 	"github.com/labstack/echo"
 )
 
-// DeleteProduct - Delete a product.
-func DeleteProduct(c echo.Context) (err error) {
-	var m models.ResponseMessage
-	var productID int
-
+// UpdateProduct - Updates a product.
+func UpdateProduct(c echo.Context) (err error) {
 	productIDParam := c.Param("id")
+	var m models.ResponseMessage
 
-	if productID, err = utils.Atoi(productIDParam); err != nil || productID == 0 {
+	productID, err := utils.Atoi(productIDParam)
+	if err != nil || productID == 0 {
 		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
+
+	var product models.Product
+
+	if err = c.Bind(&product); err != nil {
+		m.Error = errs.ErrInvalidBody
+
+		return echo.NewHTTPError(http.StatusBadRequest, m)
+	}
+
+	dbProductI, err := helpers.ParseModelToDBModel(product)
+	if err != nil {
+		c.Logger().Error(err)
+
+		return echo.ErrInternalServerError
+	}
+
+	dbProduct := dbProductI.(dbm.Product)
 
 	db, err := database.Get()
 	if err != nil {
@@ -34,15 +51,16 @@ func DeleteProduct(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	err = dbu.DeleteProduct(
+	err = dbu.UpdateProduct(
 		db,
 		dbm.Product{
 			ID: int64(productID),
 		},
+		dbProduct,
 	)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {
-			m.Error = fmt.Sprintf("%v: product", errs.ErrNotExistentObject)
+			m.Error = fmt.Sprintf("%v: product", errs.ErrExistentObject)
 
 			return echo.NewHTTPError(http.StatusNotFound, m)
 		}
@@ -51,6 +69,7 @@ func DeleteProduct(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	m.Message = "Deleted."
+	m.Message = "Updated."
+
 	return c.JSON(http.StatusOK, m)
 }

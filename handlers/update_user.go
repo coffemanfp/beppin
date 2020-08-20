@@ -1,4 +1,4 @@
-package controllers
+package handlers
 
 import (
 	"errors"
@@ -11,34 +11,38 @@ import (
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
+	"github.com/coffemanfp/beppin-server/utils"
 	"github.com/labstack/echo"
 )
 
-// CreateProduct - Creates a product.
-func CreateProduct(c echo.Context) (err error) {
+// UpdateUser - Updates a user.
+func UpdateUser(c echo.Context) (err error) {
+	userIDParam := c.Param("id")
 	var m models.ResponseMessage
-	var product models.Product
 
-	if err = c.Bind(&product); err != nil {
+	userID, err := utils.Atoi(userIDParam)
+	if err != nil || userID == 0 {
+		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
+
+		return echo.NewHTTPError(http.StatusBadRequest, m)
+	}
+
+	var user models.User
+
+	if err = c.Bind(&user); err != nil {
 		m.Error = errs.ErrInvalidBody
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	if !product.Validate() {
-		m.Error = errs.ErrInvalidBody
-
-		return echo.NewHTTPError(http.StatusBadRequest, m)
-	}
-
-	dbProductI, err := helpers.ParseModelToDBModel(product)
+	dbuserI, err := helpers.ParseModelToDBModel(user)
 	if err != nil {
 		c.Logger().Error(err)
 
 		return echo.ErrInternalServerError
 	}
 
-	dbProduct := dbProductI.(dbm.Product)
+	dbUser := dbuserI.(dbm.User)
 
 	db, err := database.Get()
 	if err != nil {
@@ -47,11 +51,16 @@ func CreateProduct(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	err = dbu.InsertProduct(db, dbProduct)
+	err = dbu.UpdateUser(
+		db,
+		dbm.User{
+			ID: int64(userID),
+		},
+		dbUser,
+	)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {
 			m.Error = fmt.Sprintf("%v: user", errs.ErrExistentObject)
-
 			return echo.NewHTTPError(http.StatusNotFound, m)
 		}
 		c.Logger().Error(err)
@@ -59,7 +68,7 @@ func CreateProduct(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	m.Message = "Created."
+	m.Message = "Updated."
 
-	return c.JSON(http.StatusCreated, m)
+	return c.JSON(http.StatusOK, m)
 }

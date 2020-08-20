@@ -1,4 +1,4 @@
-package controllers
+package handlers
 
 import (
 	"errors"
@@ -15,34 +15,18 @@ import (
 	"github.com/labstack/echo"
 )
 
-// UpdateUser - Updates a user.
-func UpdateUser(c echo.Context) (err error) {
-	userIDParam := c.Param("id")
+// GetProduct - Get a product.
+func GetProduct(c echo.Context) (err error) {
 	var m models.ResponseMessage
+	var productID int
 
-	userID, err := utils.Atoi(userIDParam)
-	if err != nil || userID == 0 {
+	productIDParam := c.Param("id")
+
+	if productID, err = utils.Atoi(productIDParam); err != nil || productID == 0 {
 		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
-
-	var user models.User
-
-	if err = c.Bind(&user); err != nil {
-		m.Error = errs.ErrInvalidBody
-
-		return echo.NewHTTPError(http.StatusBadRequest, m)
-	}
-
-	dbuserI, err := helpers.ParseModelToDBModel(user)
-	if err != nil {
-		c.Logger().Error(err)
-
-		return echo.ErrInternalServerError
-	}
-
-	dbUser := dbuserI.(dbm.User)
 
 	db, err := database.Get()
 	if err != nil {
@@ -51,16 +35,16 @@ func UpdateUser(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	err = dbu.UpdateUser(
+	dbProduct, err := dbu.SelectProduct(
 		db,
-		dbm.User{
-			ID: int64(userID),
+		dbm.Product{
+			ID: int64(productID),
 		},
-		dbUser,
 	)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {
-			m.Error = fmt.Sprintf("%v: user", errs.ErrExistentObject)
+			m.Error = fmt.Sprintf("%v: product", errs.ErrExistentObject)
+
 			return echo.NewHTTPError(http.StatusNotFound, m)
 		}
 		c.Logger().Error(err)
@@ -68,7 +52,15 @@ func UpdateUser(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	m.Message = "Updated."
+	productI, err := helpers.ParseDBModelToModel(dbProduct)
+	if err != nil {
+		c.Logger().Error(err)
 
+		return echo.ErrInternalServerError
+	}
+
+	product := productI.(models.Product)
+
+	m.Content = product
 	return c.JSON(http.StatusOK, m)
 }

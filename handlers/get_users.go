@@ -1,4 +1,4 @@
-package controllers
+package handlers
 
 import (
 	"fmt"
@@ -13,8 +13,8 @@ import (
 	"github.com/labstack/echo"
 )
 
-// GetProducts - Get products.
-func GetProducts(c echo.Context) (err error) {
+// GetUsers - Get user.
+func GetUsers(c echo.Context) (err error) {
 	limitParam := c.QueryParam("limit")
 	offsetParam := c.QueryParam("offset")
 
@@ -49,29 +49,29 @@ func GetProducts(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	dbProducts, err := dbu.SelectProducts(db, limit, offset)
+	dbUsers, err := dbu.SelectUsers(db, limit, offset)
 	if err != nil {
 		c.Logger().Error(err)
 
 		return echo.ErrInternalServerError
 	}
 
-	var products models.Products
+	var users models.Users
 
-	if dbProducts == nil {
-		products = make(models.Products, 0)
+	if dbUsers == nil {
+		users = make(models.Users, 0)
 	} else {
-		productsI, err := helpers.ParseDBModelToModel(dbProducts)
+		usersI, err := helpers.ParseDBModelToModel(dbUsers)
 		if err != nil {
 			c.Logger().Error(err)
 
 			return echo.ErrInternalServerError
 		}
 
-		products = productsI.(models.Products)
+		users = usersI.(models.Users)
 	}
 
-	m.Content = products
+	m.Content = users
 
 	if m.Message == "" {
 		m.Message = "Ok."
