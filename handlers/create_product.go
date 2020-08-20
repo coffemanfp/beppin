@@ -1,4 +1,4 @@
-package controllers
+package handlers
 
 import (
 	"errors"
@@ -9,23 +9,36 @@ import (
 	dbm "github.com/coffemanfp/beppin-server/database/models"
 	dbu "github.com/coffemanfp/beppin-server/database/utils"
 	errs "github.com/coffemanfp/beppin-server/errors"
+	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
-	"github.com/coffemanfp/beppin-server/utils"
 	"github.com/labstack/echo"
 )
 
-// DeleteUser - Delete a user.
-func DeleteUser(c echo.Context) (err error) {
+// CreateProduct - Creates a product.
+func CreateProduct(c echo.Context) (err error) {
 	var m models.ResponseMessage
-	var userID int
+	var product models.Product
 
-	userIDParam := c.Param("id")
-
-	if userID, err = utils.Atoi(userIDParam); err != nil || userID == 0 {
-		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
+	if err = c.Bind(&product); err != nil {
+		m.Error = errs.ErrInvalidBody
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
+
+	if !product.Validate() {
+		m.Error = errs.ErrInvalidBody
+
+		return echo.NewHTTPError(http.StatusBadRequest, m)
+	}
+
+	dbProductI, err := helpers.ParseModelToDBModel(product)
+	if err != nil {
+		c.Logger().Error(err)
+
+		return echo.ErrInternalServerError
+	}
+
+	dbProduct := dbProductI.(dbm.Product)
 
 	db, err := database.Get()
 	if err != nil {
@@ -34,15 +47,10 @@ func DeleteUser(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	err = dbu.DeleteUser(
-		db,
-		dbm.User{
-			ID: int64(userID),
-		},
-	)
+	err = dbu.InsertProduct(db, dbProduct)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {
-			m.Error = fmt.Sprintf("%v: user", errs.ErrNotExistentObject)
+			m.Error = fmt.Sprintf("%v: user", errs.ErrExistentObject)
 
 			return echo.NewHTTPError(http.StatusNotFound, m)
 		}
@@ -51,7 +59,7 @@ func DeleteUser(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	m.Message = "Deleted."
+	m.Message = "Created."
 
-	return c.JSON(http.StatusOK, m)
+	return c.JSON(http.StatusCreated, m)
 }

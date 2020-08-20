@@ -1,4 +1,4 @@
-package controllers
+package handlers
 
 import (
 	"errors"
@@ -9,20 +9,19 @@ import (
 	dbm "github.com/coffemanfp/beppin-server/database/models"
 	dbu "github.com/coffemanfp/beppin-server/database/utils"
 	errs "github.com/coffemanfp/beppin-server/errors"
-	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
 	"github.com/coffemanfp/beppin-server/utils"
 	"github.com/labstack/echo"
 )
 
-// GetProduct - Get a product.
-func GetProduct(c echo.Context) (err error) {
+// DeleteUser - Delete a user.
+func DeleteUser(c echo.Context) (err error) {
 	var m models.ResponseMessage
-	var productID int
+	var userID int
 
-	productIDParam := c.Param("id")
+	userIDParam := c.Param("id")
 
-	if productID, err = utils.Atoi(productIDParam); err != nil || productID == 0 {
+	if userID, err = utils.Atoi(userIDParam); err != nil || userID == 0 {
 		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
@@ -35,15 +34,15 @@ func GetProduct(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	dbProduct, err := dbu.SelectProduct(
+	err = dbu.DeleteUser(
 		db,
-		dbm.Product{
-			ID: int64(productID),
+		dbm.User{
+			ID: int64(userID),
 		},
 	)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {
-			m.Error = fmt.Sprintf("%v: product", errs.ErrExistentObject)
+			m.Error = fmt.Sprintf("%v: user", errs.ErrNotExistentObject)
 
 			return echo.NewHTTPError(http.StatusNotFound, m)
 		}
@@ -52,15 +51,7 @@ func GetProduct(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	productI, err := helpers.ParseDBModelToModel(dbProduct)
-	if err != nil {
-		c.Logger().Error(err)
+	m.Message = "Deleted."
 
-		return echo.ErrInternalServerError
-	}
-
-	product := productI.(models.Product)
-
-	m.Content = product
 	return c.JSON(http.StatusOK, m)
 }
