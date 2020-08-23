@@ -15,10 +15,12 @@ var (
 )
 
 func main() {
-	db, err := database.Get()
+	storage, err := database.Get()
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	db := storage.GetDB()
 
 	schemaBytes, err := utils.GetFilebytes(schemaFile)
 	if err != nil {
@@ -51,6 +53,4 @@ func main() {
 
 func init() {
 	initFlags()
-	initSettings()
-	initDatabase()
 }

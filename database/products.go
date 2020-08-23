@@ -37,7 +37,7 @@ func (dS defaultStorage) GetProduct(productToFind models.Product) (product model
 	return
 }
 
-func (dS defaultStorage) GetProducts(limit, offset int) (products models.Products, err error) {
+func (dS defaultStorage) GetProducts(limit, offset uint64) (products models.Products, err error) {
 	products, err = dbu.SelectProducts(dS.db, limit, offset)
 	return
 }

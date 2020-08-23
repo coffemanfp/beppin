@@ -19,7 +19,7 @@ func UpdateUser(c echo.Context) (err error) {
 	userIDParam := c.Param("id")
 	var m models.ResponseMessage
 
-	userID, err := utils.Atoi(userIDParam)
+	userID, err := utils.ParseUint(userIDParam, 64)
 	if err != nil || userID == 0 {
 		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 

@@ -28,7 +28,14 @@ func Set(s Storage) {
 	return
 }
 
-// NewDefault returns the default database storage.
+// New creates a new database storage.
+func New(db *sql.DB) (s Storage) {
+	s = defaultStorage{db: db}
+	storage = s
+	return
+}
+
+// NewDefault creates the default database storage.
 func NewDefault() (s Storage, err error) {
 	settings := config.GetSettings()
 

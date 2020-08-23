@@ -16,11 +16,11 @@ import (
 // DeleteProduct - Delete a product.
 func DeleteProduct(c echo.Context) (err error) {
 	var m models.ResponseMessage
-	var productID int
+	var productID uint64
 
 	productIDParam := c.Param("id")
 
-	if productID, err = utils.Atoi(productIDParam); err != nil || productID == 0 {
+	if productID, err = utils.ParseUint(productIDParam, 64); err != nil || productID == 0 {
 		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)

@@ -19,7 +19,7 @@ func UpdateProduct(c echo.Context) (err error) {
 	productIDParam := c.Param("id")
 	var m models.ResponseMessage
 
-	productID, err := utils.Atoi(productIDParam)
+	productID, err := utils.ParseUint(productIDParam, 64)
 	if err != nil || productID == 0 {
 		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 

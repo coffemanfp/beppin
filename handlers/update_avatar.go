@@ -18,11 +18,11 @@ import (
 func UpdateAvatar(c echo.Context) (err error) {
 	var avatar models.Avatar
 	var m models.ResponseMessage
-	var userID int
+	var userID uint64
 
 	userIDParam := c.Param("id")
 
-	if userID, err = utils.Atoi(userIDParam); err != nil || userID == 0 {
+	if userID, err = utils.ParseUint(userIDParam, 64); err != nil || userID == 0 {
 		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
@@ -51,7 +51,7 @@ func UpdateAvatar(c echo.Context) (err error) {
 
 	// If the user will save their avatar in our file system
 	if avatar.Data != "" && avatar.URL == "" {
-		avatarURL, err = avatar.Save(strconv.Itoa(userID))
+		avatarURL, err = avatar.Save(strconv.Itoa(int(userID)))
 		if err != nil {
 			c.Logger().Error(err)
 

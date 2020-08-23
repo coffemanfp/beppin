@@ -54,7 +54,7 @@ func (dS defaultStorage) GetUser(userToFind models.User) (user models.User, err 
 	return
 }
 
-func (dS defaultStorage) GetUsers(limit, offset int) (users models.Users, err error) {
+func (dS defaultStorage) GetUsers(limit, offset uint64) (users models.Users, err error) {
 	users, err = dbu.SelectUsers(dS.db, limit, offset)
 	return
 }
