@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/coffemanfp/beppin-server/config"
-	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/handlers"
 	"github.com/coffemanfp/beppin-server/models"
 	"github.com/labstack/echo"
@@ -126,9 +125,7 @@ func TestFailedGetProducts(t *testing.T) {
 			c := e.NewContext(req, rec)
 			err := handlers.GetProducts(c)
 
-			assert.NotNil(t, err)
-			assert.Contains(t, err.Error(), errs.ErrInvalidParam)
-			assert.Contains(t, err.Error(), "limit")
+			assertInvalidParam(t, "limit", err)
 		})
 	}
 
@@ -149,9 +146,7 @@ func TestFailedGetProducts(t *testing.T) {
 			c := e.NewContext(req, rec)
 			err := handlers.GetProducts(c)
 
-			assert.NotNil(t, err)
-			assert.Contains(t, err.Error(), errs.ErrInvalidParam)
-			assert.Contains(t, err.Error(), "offset")
+			assertInvalidParam(t, "offset", err)
 		})
 	}
 }
