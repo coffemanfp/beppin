@@ -36,8 +36,8 @@ func (d Database) ValidateDatabase() (valid bool) {
 	return
 }
 
-// GetURL parses the database settigns to a string url.
-func (d Database) GetURL() (url string, err error) {
+// GenURL parses the database settigns to a string url.
+func (d Database) GenURL() (url string, err error) {
 	if d.ValidateDatabase() {
 		url = fmt.Sprintf(
 			"user=%s password=%s dbname=%s host=%s port=%d sslmode=%s",

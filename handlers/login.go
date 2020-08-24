@@ -21,7 +21,6 @@ func Login(c echo.Context) (err error) {
 
 	if err = c.Bind(&user); err != nil {
 		m.Error = errs.ErrInvalidBody
-		fmt.Println(err)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
@@ -64,8 +63,6 @@ func Login(c echo.Context) (err error) {
 	}
 
 	user = userI.(models.User)
-
-	fmt.Println(user)
 
 	claim := models.Claim{
 		User: user,
