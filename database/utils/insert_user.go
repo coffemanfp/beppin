@@ -5,27 +5,10 @@ import (
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/database/models"
-	errs "github.com/coffemanfp/beppin-server/errors"
 )
 
 // InsertUser - Insert a user.
 func InsertUser(db *sql.DB, user models.User) (err error) {
-	identifier := user.GetIdentifier()
-	if identifier == nil {
-		err = fmt.Errorf("failed to insert user: %w (user)", errs.ErrNotProvidedOrInvalidObject)
-		return
-	}
-
-	exists, err := ExistsUser(db, user)
-	if err != nil {
-		return
-	}
-
-	if exists {
-		err = fmt.Errorf("failed to check (%v) user: %w (user)", identifier, errs.ErrExistentObject)
-		return
-	}
-
 	if user.Language.Code != "" {
 		var language models.Language
 		language, err = SelectLanguage(db, user.Language)

@@ -25,6 +25,16 @@ func GetSettings() (s Settings) {
 	return
 }
 
+// SetSettings - Sets the server settings.
+func SetSettings(s *Settings) {
+	if settings == nil {
+		return
+	}
+
+	settings = s
+	return
+}
+
 // SetDefaultSettings populates the default settings values.
 func SetDefaultSettings() {
 	settings = &Settings{
@@ -36,9 +46,9 @@ func SetDefaultSettings() {
 
 		Database: &Database{
 			Port:     5432,
-			Name:     "database_name",
-			User:     "database_user",
-			Password: "database_password",
+			Name:     "beppin_tests",
+			User:     "beppin_tests",
+			Password: "beppin_tests",
 			Host:     "localhost",
 			SslMode:  "disable",
 		},
@@ -49,6 +59,8 @@ func SetDefaultSettings() {
 		"localhost",
 		settings.Port,
 	)
+
+	settings.Database.URL, _ = settings.Database.GetURL()
 }
 
 // SetSettingsByFile - Populates the settings by a file.

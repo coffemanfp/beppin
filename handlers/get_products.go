@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/coffemanfp/beppin-server/database"
-	dbu "github.com/coffemanfp/beppin-server/database/utils"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
@@ -20,9 +19,9 @@ func GetProducts(c echo.Context) (err error) {
 
 	var m models.ResponseMessage
 
-	var limit, offset int
+	var limit, offset uint64
 
-	limit, err = utils.Atoi(limitParam)
+	limit, err = utils.ParseUint(limitParam, 8)
 	if err != nil {
 		m.Error = fmt.Sprintf("%v: limit", errs.ErrInvalidParam)
 
@@ -35,7 +34,7 @@ func GetProducts(c echo.Context) (err error) {
 	// If the limit is not provided, is setted to the default limit.
 	m.NotLimitParamProvided(&limit)
 
-	offset, err = utils.Atoi(offsetParam)
+	offset, err = utils.ParseUint(offsetParam, 64)
 	if err != nil {
 		m.Error = fmt.Sprintf("%v: offset", errs.ErrInvalidParam)
 
@@ -49,7 +48,7 @@ func GetProducts(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	dbProducts, err := dbu.SelectProducts(db, limit, offset)
+	dbProducts, err := db.GetProducts(limit, offset)
 	if err != nil {
 		c.Logger().Error(err)
 

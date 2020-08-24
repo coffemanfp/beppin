@@ -7,7 +7,6 @@ import (
 
 	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
-	dbu "github.com/coffemanfp/beppin-server/database/utils"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
@@ -18,11 +17,11 @@ import (
 // GetUser - Get a user.
 func GetUser(c echo.Context) (err error) {
 	var m models.ResponseMessage
-	var userID int
+	var userID uint64
 
 	userIDParam := c.Param("id")
 
-	if userID, err = utils.Atoi(userIDParam); err != nil || userID == 0 {
+	if userID, err = utils.ParseUint(userIDParam, 64); err != nil || userID == 0 {
 		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
@@ -35,8 +34,7 @@ func GetUser(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	dbuser, err := dbu.SelectUser(
-		db,
+	dbuser, err := db.GetUser(
 		dbm.User{
 			ID: int64(userID),
 		},

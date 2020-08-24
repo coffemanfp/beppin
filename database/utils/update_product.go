@@ -17,18 +17,6 @@ func UpdateProduct(db *sql.DB, productToUpdate, product models.Product) (err err
 		return
 	}
 
-	productToUpdate, err = SelectProduct(
-		db,
-		models.Product{
-			ID: productToUpdate.ID,
-		},
-	)
-	if err != nil {
-		return
-	}
-
-	product = fillProductEmptyFields(product, productToUpdate)
-
 	query := `
 		UPDATE
 			products
@@ -58,20 +46,4 @@ func UpdateProduct(db *sql.DB, productToUpdate, product models.Product) (err err
 		err = fmt.Errorf("failed to execute the update (%v) product statement: %v", identifier, err)
 	}
 	return
-}
-
-func fillProductEmptyFields(product, previousProductData models.Product) models.Product {
-
-	switch "" {
-	case product.Name:
-		product.Name = previousProductData.Name
-	case product.Description:
-		product.Description = previousProductData.Description
-	}
-
-	if product.Categories == nil {
-		product.Categories = previousProductData.Categories
-	}
-
-	return product
 }

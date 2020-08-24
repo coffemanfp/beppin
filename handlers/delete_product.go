@@ -7,7 +7,6 @@ import (
 
 	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
-	dbu "github.com/coffemanfp/beppin-server/database/utils"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/models"
 	"github.com/coffemanfp/beppin-server/utils"
@@ -17,11 +16,11 @@ import (
 // DeleteProduct - Delete a product.
 func DeleteProduct(c echo.Context) (err error) {
 	var m models.ResponseMessage
-	var productID int
+	var productID uint64
 
 	productIDParam := c.Param("id")
 
-	if productID, err = utils.Atoi(productIDParam); err != nil || productID == 0 {
+	if productID, err = utils.ParseUint(productIDParam, 64); err != nil || productID == 0 {
 		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
@@ -34,8 +33,7 @@ func DeleteProduct(c echo.Context) (err error) {
 		return echo.ErrInternalServerError
 	}
 
-	err = dbu.DeleteProduct(
-		db,
+	err = db.DeleteProduct(
 		dbm.Product{
 			ID: int64(productID),
 		},

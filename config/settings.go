@@ -10,8 +10,8 @@ type Settings struct {
 	LogsFile                 string `json:"logsFile" yaml:"logsFile" mapstructure:"logs_file"`
 	SecretKey                string `json:"secret_key" yaml:"secret_key" mapstructure:"secret_key"`
 	Temps                    string `json:"temps" yaml:"temps" mapstructure:"temps"`
-	MaxElementsPerPagination int    `json:"maxElementsPerPagination" yaml:"maxElementsPerPagination" mapstructure:"max_elements_per_pagination"`
-	MaxImageSize             int64  `json:"maxImageSize" yaml:"maxImageSize" mapstructure:"max_image_size"`
+	MaxElementsPerPagination uint64 `json:"maxElementsPerPagination" yaml:"maxElementsPerPagination" mapstructure:"max_elements_per_pagination"`
+	MaxImageSize             uint64 `json:"maxImageSize" yaml:"maxImageSize" mapstructure:"max_image_size"`
 
 	Database *Database `json:"database" yaml:"database"`
 }
@@ -39,7 +39,7 @@ func (s Settings) Validate() (valid bool) {
 
 	switch 0 {
 	case s.Port:
-	case s.MaxElementsPerPagination:
+	case int(s.MaxElementsPerPagination):
 		valid = false
 	}
 

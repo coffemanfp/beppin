@@ -12,16 +12,16 @@ import (
 )
 
 // SelectProducts - Select a products list.
-func SelectProducts(db *sql.DB, limit int, offset int) (products models.Products, err error) {
+func SelectProducts(db *sql.DB, limit, offset uint64) (products models.Products, err error) {
 	query := `
-		SELECT
-			id, user_id, name, description, categories, created_at, updated_at
-		FROM
-			products
-		LIMIT
-			$1
-		OFFSET
-			$2
+	SELECT
+		id, user_id, name, description, categories, created_at, updated_at
+	FROM
+		products
+	LIMIT
+		$1
+	OFFSET
+		$2
 	`
 
 	settings := config.GetSettings()
