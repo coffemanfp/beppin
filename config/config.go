@@ -25,6 +25,16 @@ func GetSettings() (s Settings) {
 	return
 }
 
+// SetSettings - Sets the server settings.
+func SetSettings(s *Settings) {
+	if settings == nil {
+		return
+	}
+
+	settings = s
+	return
+}
+
 // SetDefaultSettings populates the default settings values.
 func SetDefaultSettings() {
 	settings = &Settings{
