@@ -39,8 +39,6 @@ func New(db *sql.DB) (s Storage) {
 func NewDefault() (s Storage, err error) {
 	settings := config.GetSettings()
 
-	fmt.Println(settings.Database)
-
 	if settings.Database == nil || !settings.Database.ValidateDatabase() {
 		err = fmt.Errorf("%w", errs.ErrInvalidSettings)
 		return

@@ -147,7 +147,7 @@ func unmarshalByEnv() (err error) {
 
 	err = bindEnvVars()
 	if err != nil {
-		fmt.Println(err)
+		return
 	}
 
 	err = viper.Unmarshal(&settings)
