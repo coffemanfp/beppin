@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	errs "github.com/coffemanfp/beppin-server/errors"
+	"github.com/coffemanfp/beppin-server/utils"
 
 	"github.com/lib/pq"
 	"github.com/spf13/viper"
@@ -60,7 +61,7 @@ func SetDefaultSettings() {
 		settings.Port,
 	)
 
-	settings.Database.URL, _ = settings.Database.GetURL()
+	settings.Database.URL, _ = settings.Database.GenURL()
 }
 
 // SetSettingsByFile - Populates the settings by a file.
@@ -163,12 +164,11 @@ func unmarshalByEnv() (err error) {
 
 	var databaseURL string
 	if settings.Database.URL == "" {
-		databaseURL, err = settings.Database.GetURL()
+		databaseURL, err = settings.Database.GenURL()
 		if err != nil {
 			return
 		}
-	} else {
-		var databaseURL string
+	} else if utils.ValidateURL(settings.Database.URL) {
 		databaseURL, err = pq.ParseURL(settings.Database.URL)
 		if err != nil {
 			err = fmt.Errorf("failed to parse database url: %v", err)
@@ -178,7 +178,9 @@ func unmarshalByEnv() (err error) {
 		databaseURL += " sslmode=" + settings.Database.SslMode
 	}
 
-	settings.Database.URL = databaseURL
+	if databaseURL != "" {
+		settings.Database.URL = databaseURL
+	}
 	return
 }
 
