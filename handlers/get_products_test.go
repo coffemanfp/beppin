@@ -60,110 +60,92 @@ func TestGetProducts(t *testing.T) {
 
 func TestFailedGetProducts(t *testing.T) {
 	t.Parallel()
-	t.Run("params", func(t *testing.T) {
+	limitTests := []struct {
+		Name  string
+		Limit string
+	}{
+		{
+			Name:  "limit_negative_number",
+			Limit: "-1",
+		},
+		{
+			Name:  "limit_super_negative_number",
+			Limit: "-986544567890",
+		},
+		{
+			Name:  "limit_letters",
+			Limit: "a",
+		},
+		{
+			Name:  "limit_super_letters",
+			Limit: "ajhkklaskldjkasksjdlfkjsdlfkjlasdkjfljsdf",
+		},
+		{
+			Name:  "limit_super_greater_max",
+			Limit: strconv.Itoa(int(config.GetSettings().MaxElementsPerPagination)) + "09876545678909876545678987678",
+		},
+	}
 
-		limitTests := []struct {
-			Name  string
-			Limit string
-		}{
-			{
-				Name:  "limit_negative_number",
-				Limit: "-1",
-			},
-			{
-				Name:  "limit_super_negative_number",
-				Limit: "-986544567890",
-			},
-			{
-				Name:  "limit_letters",
-				Limit: "a",
-			},
-			{
-				Name:  "limit_super_letters",
-				Limit: "ajhkklaskldjkasksjdlfkjsdlfkjlasdkjfljsdf",
-			},
-			{
-				Name:  "limit_super_greater_max",
-				Limit: strconv.Itoa(int(config.GetSettings().MaxElementsPerPagination)) + "09876545678909876545678987678",
-			},
-		}
+	offsetTests := []struct {
+		Name   string
+		Offset string
+	}{
+		{
+			Name:   "offset_negative_number",
+			Offset: "-1",
+		},
+		{
+			Name:   "offset_super_negative_number",
+			Offset: "-986544567890",
+		},
+		{
+			Name:   "offset_letters",
+			Offset: "a",
+		},
+		{
+			Name:   "offset_super_letters",
+			Offset: "ajhkklaskldjkasksjdlfkjsdlfkjlasdkjfljsdf",
+		},
+	}
 
-		offsetTests := []struct {
-			Name   string
-			Offset string
-		}{
-			{
-				Name:   "offset_negative_number",
-				Offset: "-1",
-			},
-			{
-				Name:   "offset_super_negative_number",
-				Offset: "-986544567890",
-			},
-			{
-				Name:   "offset_letters",
-				Offset: "a",
-			},
-			{
-				Name:   "offset_super_letters",
-				Offset: "ajhkklaskldjkasksjdlfkjsdlfkjlasdkjfljsdf",
-			},
-		}
+	for _, ts := range limitTests {
+		ts := ts
+		t.Run(ts.Name, func(t *testing.T) {
+			t.Parallel()
+			// Setup server
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodGet, "/", nil)
 
-		for _, ts := range limitTests {
-			ts := ts
-			t.Run(ts.Name, func(t *testing.T) {
-				t.Parallel()
-				// Setup server
-				e := echo.New()
-				req := httptest.NewRequest(http.MethodGet, "/", nil)
+			query := req.URL.Query()
+			query.Add("limit", ts.Limit)
 
-				query := req.URL.Query()
-				query.Add("limit", ts.Limit)
+			req.URL.RawQuery = query.Encode()
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			err := handlers.GetProducts(c)
 
-				req.URL.RawQuery = query.Encode()
-				rec := httptest.NewRecorder()
-				c := e.NewContext(req, rec)
-				err := handlers.GetProducts(c)
+			assertInvalidParam(t, "limit", err)
+		})
+	}
 
-				assertInvalidParam(t, "limit", err)
-			})
-		}
+	for _, ts := range offsetTests {
+		ts := ts
+		t.Run(ts.Name, func(t *testing.T) {
+			t.Parallel()
+			// Setup server
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodGet, "/", nil)
 
-		for _, ts := range offsetTests {
-			ts := ts
-			t.Run(ts.Name, func(t *testing.T) {
-				t.Parallel()
-				// Setup server
-				e := echo.New()
-				req := httptest.NewRequest(http.MethodGet, "/", nil)
+			query := req.URL.Query()
 
-				query := req.URL.Query()
+			query.Add("offset", ts.Offset)
 
-				query.Add("offset", ts.Offset)
+			req.URL.RawQuery = query.Encode()
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			err := handlers.GetProducts(c)
 
-				req.URL.RawQuery = query.Encode()
-				rec := httptest.NewRecorder()
-				c := e.NewContext(req, rec)
-				err := handlers.GetProducts(c)
-
-				assertInvalidParam(t, "offset", err)
-			})
-		}
-	})
-
-	t.Run("get_database", func(t *testing.T) {
-		// Setup empty settings
-		config.SetSettings(&config.Settings{})
-
-		// Setup server
-		e := echo.New()
-		req := httptest.NewRequest(http.MethodGet, "/", nil)
-
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
-		err := handlers.GetProducts(c)
-
-		assertInvalidParam(t, "offset", err)
-	})
+			assertInvalidParam(t, "offset", err)
+		})
+	}
 }
