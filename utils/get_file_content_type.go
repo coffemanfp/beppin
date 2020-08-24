@@ -7,7 +7,6 @@ import (
 
 // GetFileContentType - Gets the file content type.
 func GetFileContentType(out bytes.Buffer) (contentType string, err error) {
-
 	// Only the first 512 bytes are used to sniff the content type.
 	buffer := make([]byte, 512)
 

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	"github.com/coffemanfp/beppin-server/config"
@@ -59,24 +60,98 @@ func TestGetProducts(t *testing.T) {
 }
 
 func TestFailedGetProducts(t *testing.T) {
-	// Setup server
-	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	t.Parallel()
 
-	query := req.URL.Query()
+	limitTests := []struct {
+		Name  string
+		Limit string
+	}{
+		{
+			Name:  "limit_negative_number",
+			Limit: "-1",
+		},
+		{
+			Name:  "limit_super_negative_number",
+			Limit: "-986544567890",
+		},
+		{
+			Name:  "limit_letters",
+			Limit: "a",
+		},
+		{
+			Name:  "limit_super_letters",
+			Limit: "ajhkklaskldjkasksjdlfkjsdlfkjlasdkjfljsdf",
+		},
+		{
+			Name:  "limit_super_greater_max",
+			Limit: strconv.Itoa(int(config.GetSettings().MaxElementsPerPagination)) + "09876545678909876545678987678",
+		},
+	}
 
-	t.Run("limit_validation", func(t *testing.T) {
-		query.Add("limit", "-1")
+	offsetTests := []struct {
+		Name   string
+		Offset string
+	}{
+		{
+			Name:   "offset_negative_number",
+			Offset: "-1",
+		},
+		{
+			Name:   "offset_super_negative_number",
+			Offset: "-986544567890",
+		},
+		{
+			Name:   "offset_letters",
+			Offset: "a",
+		},
+		{
+			Name:   "offset_super_letters",
+			Offset: "ajhkklaskldjkasksjdlfkjsdlfkjlasdkjfljsdf",
+		},
+	}
 
-		req.URL.RawQuery = query.Encode()
+	for _, ts := range limitTests {
+		ts := ts
+		t.Run(ts.Name, func(t *testing.T) {
+			t.Parallel()
+			// Setup server
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodGet, "/", nil)
 
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+			query := req.URL.Query()
+			query.Add("limit", ts.Limit)
 
-		err := handlers.GetProducts(c)
-		assert.NotNil(t, err)
+			req.URL.RawQuery = query.Encode()
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			err := handlers.GetProducts(c)
 
-		assert.Contains(t, err.Error(), errs.ErrInvalidParam)
-		assert.Contains(t, err.Error(), "limit")
-	})
+			assert.NotNil(t, err)
+			assert.Contains(t, err.Error(), errs.ErrInvalidParam)
+			assert.Contains(t, err.Error(), "limit")
+		})
+	}
+
+	for _, ts := range offsetTests {
+		ts := ts
+		t.Run(ts.Name, func(t *testing.T) {
+			t.Parallel()
+			// Setup server
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodGet, "/", nil)
+
+			query := req.URL.Query()
+
+			query.Add("offset", ts.Offset)
+
+			req.URL.RawQuery = query.Encode()
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			err := handlers.GetProducts(c)
+
+			assert.NotNil(t, err)
+			assert.Contains(t, err.Error(), errs.ErrInvalidParam)
+			assert.Contains(t, err.Error(), "offset")
+		})
+	}
 }
