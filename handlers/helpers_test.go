@@ -1,7 +1,9 @@
 package handlers_test
 
 import (
+	"encoding/json"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/coffemanfp/beppin-server/config"
@@ -11,6 +13,8 @@ import (
 	"github.com/labstack/echo/middleware"
 	"github.com/stretchr/testify/assert"
 )
+
+var token string = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxLCJsYW5ndWFnZSI6ImVzLUVTIiwidXNlcm5hbWUiOiJjb2ZmZW1hbmZwIiwidGhlbWUiOiJsaWdodCJ9fQ.GJcykxeN4yfE7CVi1xu4zVYstPgODCuNtrgq4T11gA4"
 
 func assertInvalidParam(t *testing.T, param string, err error) {
 	t.Helper()
@@ -29,6 +33,14 @@ func assertInternalServerError(t *testing.T, err error) {
 		assert.Equal(t, http.StatusInternalServerError, echoError.Code)
 		assert.Equal(t, echo.ErrInternalServerError.Message, echoError.Message)
 	}
+}
+
+func assertCreated(t *testing.T, rec *httptest.ResponseRecorder) {
+	assert.Equal(t, http.StatusCreated, rec.Code)
+
+	var m models.ResponseMessage
+	assert.Nil(t, json.NewDecoder(rec.Body).Decode(&m))
+	assert.Equal(t, "Created.", m.Message)
 }
 
 func setJWTMiddleware(t *testing.T, e *echo.Echo) {
