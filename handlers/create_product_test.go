@@ -28,10 +28,10 @@ func TestCreateProduct(t *testing.T) {
 
 	setJWTMiddleware(t, e)
 
-	e.POST("/v1/products", handlers.CreateProduct)
+	e.POST("/", handlers.CreateProduct)
 
 	// Now the request
-	req := httptest.NewRequest(http.MethodPost, "/v1/products", strings.NewReader(createProduct))
+	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(createProduct))
 
 	setAuthorizationRequest(t, req, token)
 
