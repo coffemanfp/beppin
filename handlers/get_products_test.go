@@ -17,6 +17,9 @@ import (
 func TestGetProducts(t *testing.T) {
 	// Setup server
 	e := echo.New()
+
+	e.Logger.Debug()
+
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
