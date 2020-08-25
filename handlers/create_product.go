@@ -20,6 +20,7 @@ func CreateProduct(c echo.Context) (err error) {
 
 	if err = c.Bind(&product); err != nil {
 		m.Error = errs.ErrInvalidBody
+		fmt.Println(err)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
@@ -59,6 +60,5 @@ func CreateProduct(c echo.Context) (err error) {
 	}
 
 	m.Message = "Created."
-
 	return c.JSON(http.StatusCreated, m)
 }
