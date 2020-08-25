@@ -5,7 +5,7 @@ import "time"
 // Product - Product for the app.
 type Product struct {
 	ID     int64  `json:"id,omitempty"`
-	UserID int64  `json:"userId,omitempty"`
+	UserID int64  `json:"userID,omitempty"`
 	Offer  *Offer `json:"offer,omitempty"`
 
 	Name        string   `json:"name,omitempty"`
