@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
@@ -39,14 +38,7 @@ func SignUp(c echo.Context) (err error) {
 
 	dbUser := dbUserI.(dbm.User)
 
-	db, err := database.Get()
-	if err != nil {
-		c.Logger().Error(err)
-
-		return echo.ErrInternalServerError
-	}
-
-	err = db.CreateUser(dbUser)
+	err = Storage.CreateUser(dbUser)
 	if err != nil {
 		unwrappedErr := errors.Unwrap(err)
 

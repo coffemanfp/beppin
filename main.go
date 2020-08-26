@@ -6,6 +6,8 @@ import (
 	"net/http"
 
 	"github.com/coffemanfp/beppin-server/config"
+	"github.com/coffemanfp/beppin-server/database"
+	"github.com/coffemanfp/beppin-server/handlers"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/stretchr/gomniauth"
@@ -42,6 +44,9 @@ func main() {
 
 	// Create routes
 	newRouter(e)
+
+	// Pass the database connection to the handlers
+	handlers.Storage, _ = database.Get()
 
 	// Config logger
 	err := config.NewLogger(e, settings.LogsFile)

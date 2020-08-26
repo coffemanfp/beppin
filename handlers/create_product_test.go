@@ -27,6 +27,7 @@ func TestCreateProduct(t *testing.T) {
 	e.Logger.Debug()
 
 	setJWTMiddleware(t, e)
+	setStorage(t)
 
 	e.POST("/", handlers.CreateProduct)
 

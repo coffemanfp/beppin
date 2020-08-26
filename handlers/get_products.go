@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/coffemanfp/beppin-server/database"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
@@ -41,14 +40,7 @@ func GetProducts(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	db, err := database.Get()
-	if err != nil {
-		c.Logger().Error(err)
-
-		return echo.ErrInternalServerError
-	}
-
-	dbProducts, err := db.GetProducts(limit, offset)
+	dbProducts, err := Storage.GetProducts(limit, offset)
 	if err != nil {
 		c.Logger().Error(err)
 

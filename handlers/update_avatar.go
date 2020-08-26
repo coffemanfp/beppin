@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/models"
@@ -42,13 +41,6 @@ func UpdateAvatar(c echo.Context) (err error) {
 
 	avatarURL := avatar.URL
 
-	db, err := database.Get()
-	if err != nil {
-		c.Logger().Error(err)
-
-		return echo.ErrInternalServerError
-	}
-
 	// If the user will save their avatar in our file system
 	if avatar.Data != "" && avatar.URL == "" {
 		avatarURL, err = avatar.Save(strconv.Itoa(int(userID)))
@@ -59,7 +51,7 @@ func UpdateAvatar(c echo.Context) (err error) {
 		}
 	}
 
-	err = db.UpdateAvatar(
+	err = Storage.UpdateAvatar(
 		avatarURL,
 		dbm.User{ID: int64(userID)},
 	)

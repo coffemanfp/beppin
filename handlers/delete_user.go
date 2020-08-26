@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/models"
@@ -26,14 +25,7 @@ func DeleteUser(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	db, err := database.Get()
-	if err != nil {
-		c.Logger().Error(err)
-
-		return echo.ErrInternalServerError
-	}
-
-	err = db.DeleteUser(
+	err = Storage.DeleteUser(
 		dbm.User{
 			ID: int64(userID),
 		},

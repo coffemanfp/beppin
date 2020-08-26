@@ -24,6 +24,8 @@ func TestGetProducts(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
+	setStorage(t)
+
 	assert.Nil(t, handlers.GetProducts(c))
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.NotEmpty(t, rec.Body.String())
@@ -99,6 +101,7 @@ func TestFailedGetProducts(t *testing.T) {
 			req.URL.RawQuery = query.Encode()
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
+			setStorage(t)
 			err := handlers.GetProducts(c)
 
 			assertInvalidParam(t, "limit", err)
@@ -120,6 +123,7 @@ func TestFailedGetProducts(t *testing.T) {
 			req.URL.RawQuery = query.Encode()
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
+			setStorage(t)
 			err := handlers.GetProducts(c)
 
 			assertInvalidParam(t, "offset", err)

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
@@ -43,14 +42,7 @@ func UpdateUser(c echo.Context) (err error) {
 
 	dbUser := dbuserI.(dbm.User)
 
-	db, err := database.Get()
-	if err != nil {
-		c.Logger().Error(err)
-
-		return echo.ErrInternalServerError
-	}
-
-	err = db.UpdateUser(
+	err = Storage.UpdateUser(
 		dbm.User{
 			ID: int64(userID),
 		},

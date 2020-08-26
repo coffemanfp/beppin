@@ -7,7 +7,9 @@ import (
 	"testing"
 
 	"github.com/coffemanfp/beppin-server/config"
+	"github.com/coffemanfp/beppin-server/database"
 	errs "github.com/coffemanfp/beppin-server/errors"
+	"github.com/coffemanfp/beppin-server/handlers"
 	"github.com/coffemanfp/beppin-server/models"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -51,6 +53,13 @@ func setJWTMiddleware(t *testing.T, e *echo.Echo) {
 	}
 
 	e.Use(middleware.JWTWithConfig(jwtConfig))
+}
+
+func setStorage(t *testing.T) {
+	storage, err := database.NewDefault()
+	assert.Nil(t, err)
+	assert.NotNil(t, storage)
+	handlers.Storage = storage
 }
 
 func setAuthorizationRequest(t *testing.T, req *http.Request, token string) {

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
@@ -40,14 +39,7 @@ func CreateProduct(c echo.Context) (err error) {
 
 	dbProduct := dbProductI.(dbm.Product)
 
-	db, err := database.Get()
-	if err != nil {
-		c.Logger().Error(err)
-
-		return echo.ErrInternalServerError
-	}
-
-	err = db.CreateProduct(dbProduct)
+	err = Storage.CreateProduct(dbProduct)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {
 			m.Error = fmt.Sprintf("%v: user", errs.ErrExistentObject)
