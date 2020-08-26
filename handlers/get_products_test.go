@@ -17,6 +17,9 @@ import (
 func TestGetProducts(t *testing.T) {
 	// Setup server
 	e := echo.New()
+
+	e.Logger.Debug()
+
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -26,36 +29,10 @@ func TestGetProducts(t *testing.T) {
 	assert.NotEmpty(t, rec.Body.String())
 
 	var m models.ResponseMessage
+
 	assert.Nil(t, json.NewDecoder(rec.Body).Decode(&m))
-
-	products, ok := m.Content.([]interface{})
-	if !ok {
-		t.Fatalf(
-			"response message content type not expected: expected (%T), gotted (%T)",
-			[]interface{}{},
-			m.Content,
-		)
-	}
-
-	for _, product := range products {
-		if _, ok = m.Content.([]interface{}); !ok {
-			if !ok {
-				t.Fatalf(
-					"response message content type not expected: expected (%T), gotted (%T)",
-					models.Product{},
-					product,
-				)
-			}
-		}
-	}
-
-	if len(products) > int(config.GetSettings().MaxElementsPerPagination) {
-		t.Fatalf(
-			"max elements per pagination exceded: max expected (%d), gotted (%d)",
-			config.GetSettings().MaxElementsPerPagination,
-			len(products),
-		)
-	}
+	assert.NotEmpty(t, m.ContentType)
+	assert.Equal(t, models.TypeProducts, m.ContentType)
 }
 
 func TestFailedGetProducts(t *testing.T) {

@@ -3,14 +3,12 @@ package handlers
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
 
@@ -66,9 +64,6 @@ func Login(c echo.Context) (err error) {
 
 	claim := models.Claim{
 		User: user,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
-		},
 	}
 
 	token, err := claim.GenerateJWT()
@@ -82,6 +77,7 @@ func Login(c echo.Context) (err error) {
 	m.Content = echo.Map{
 		"token": token,
 	}
+	m.ContentType = models.TypeToken
 
 	return c.JSON(http.StatusOK, m)
 }
