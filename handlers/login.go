@@ -77,6 +77,7 @@ func Login(c echo.Context) (err error) {
 	m.Content = echo.Map{
 		"token": token,
 	}
+	m.ContentType = models.TypeToken
 
 	return c.JSON(http.StatusOK, m)
 }
