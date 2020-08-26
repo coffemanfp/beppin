@@ -71,6 +71,7 @@ func GetProducts(c echo.Context) (err error) {
 	}
 
 	m.Content = products
+	m.ContentType = models.TypeProducts
 
 	if m.Message == "" {
 		m.Message = "Ok."

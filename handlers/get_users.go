@@ -71,6 +71,7 @@ func GetUsers(c echo.Context) (err error) {
 	}
 
 	m.Content = users
+	m.ContentType = models.TypeUsers
 
 	if m.Message == "" {
 		m.Message = "Ok."
