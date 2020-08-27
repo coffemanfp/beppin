@@ -15,7 +15,7 @@ func (dS defaultStorage) CreateLanguage(language models.Language) (err error) {
 	}
 
 	if exists {
-		err = fmt.Errorf("failed to check (%s) language: %w", language.Code, errs.ErrExistentObject)
+		err = fmt.Errorf("failed to create (%v) language: %w (language)", language.Code, errs.ErrExistentObject)
 		return
 	}
 

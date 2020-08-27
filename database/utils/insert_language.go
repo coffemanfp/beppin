@@ -16,16 +16,6 @@ func InsertLanguage(db *sql.DB, language models.Language) (err error) {
 		return
 	}
 
-	exists, err := ExistsLanguage(db, language)
-	if err != nil {
-		return
-	}
-
-	if exists {
-		err = fmt.Errorf("failed to check (%v) language: %w (language)", identifier, errs.ErrExistentObject)
-		return
-	}
-
 	query := `
 		INSERT INTO
 			languages(code, status)
