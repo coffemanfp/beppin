@@ -20,11 +20,11 @@ func ExistsLanguage(db *sql.DB, language models.Language) (exists bool, err erro
 		SELECT
 			EXISTS(
 				SELECT
-					id
+					1
 				FROM
 					languages
 				WHERE
-					language_code = $2
+					code = $1
 			)
 	`
 

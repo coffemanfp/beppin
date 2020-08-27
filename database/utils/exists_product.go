@@ -20,7 +20,7 @@ func ExistsProduct(db *sql.DB, product models.Product) (exists bool, err error) 
 		SELECT
 			EXISTS(
 				SELECT
-					id
+					1
 				FROM
 					products
 				WHERE

@@ -20,7 +20,7 @@ func ExistsUser(db *sql.DB, user models.User) (exists bool, err error) {
 		SELECT
 			EXISTS(
 				SELECT
-					id
+					1
 				FROM
 					users
 				WHERE
