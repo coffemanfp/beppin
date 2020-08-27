@@ -18,9 +18,10 @@ var (
 // System errors.
 var (
 	ErrInvalidSettings = errors.New("missing or invalid settings")
+	ErrClosedDatabase  = errors.New("missing or closed database connetion")
 )
 
-// Client errors.
+// Client and server errors.
 var (
 	ErrInvalidBody       = "missing or invalid body"
 	ErrInvalidParam      = "missing or invalid param"
