@@ -1,25 +1,16 @@
 package handlers_test
 
 import (
+	"bytes"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/coffemanfp/beppin-server/handlers"
 	"github.com/labstack/echo"
+	"github.com/stretchr/testify/assert"
 )
-
-var createProduct string = `
-	{
-		"userID": 1,
-		"name": "Product name",
-		"description": "Product description",
-		"categories": [
-			"food"
-		]
-	}
-`
 
 func TestCreateProduct(t *testing.T) {
 	// Setup server
@@ -29,10 +20,20 @@ func TestCreateProduct(t *testing.T) {
 	setJWTMiddleware(t, e)
 	setStorage(t)
 
+	if !existsLanguage(t, exampleLanguage) {
+		insertLanguage(t, exampleLanguage)
+	}
+	if !existsUser(t, exampleUser) {
+		insertUser(t, exampleUser)
+	}
+
 	e.POST("/", handlers.CreateProduct)
 
+	productJSON, err := json.Marshal(exampleProducts[0])
+	assert.Nil(t, err)
+
 	// Now the request
-	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(createProduct))
+	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(productJSON))
 
 	setAuthorizationRequest(t, req, token)
 
