@@ -44,7 +44,7 @@ func CreateProduct(c echo.Context) (err error) {
 		if errors.Is(err, errs.ErrNotExistentObject) {
 			m.Error = fmt.Sprintf("%v: user", errs.ErrNotExistentObject)
 
-			return echo.NewHTTPError(http.StatusConflict, m)
+			return echo.NewHTTPError(http.StatusNotFound, m)
 		}
 		c.Logger().Error(err)
 
