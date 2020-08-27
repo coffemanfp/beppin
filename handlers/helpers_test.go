@@ -74,6 +74,30 @@ func assertInvalidParam(t *testing.T, param string, err error) {
 	assert.Contains(t, err.Error(), param)
 }
 
+func assertInvalidBody(t *testing.T, rec *httptest.ResponseRecorder) {
+	t.Helper()
+
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
+
+	var m models.ResponseMessage
+	assert.Nil(t, json.NewDecoder(rec.Body).Decode(&m))
+	assert.Equal(t, errs.ErrInvalidBody, m.Error)
+}
+
+func assertNotExistent(t *testing.T, rec *httptest.ResponseRecorder, objectName string) {
+	t.Helper()
+
+	assert.Equal(t, http.StatusNotFound, rec.Code)
+
+	var m models.ResponseMessage
+	assert.Nil(t, json.NewDecoder(rec.Body).Decode(&m))
+	assert.Contains(t, m.Error, errs.ErrNotExistentObject.Error())
+
+	if objectName != "" {
+		assert.Contains(t, m.Error, objectName)
+	}
+}
+
 func assertInternalServerError(t *testing.T, err error) {
 	t.Helper()
 
