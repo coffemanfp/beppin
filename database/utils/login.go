@@ -6,10 +6,16 @@ import (
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/database/models"
+	errs "github.com/coffemanfp/beppin-server/errors"
 )
 
 // Login - Select a user by his username and password, and checks if exists.
 func Login(db *sql.DB, userToLogin models.User) (user models.User, match bool, err error) {
+	if db == nil {
+		err = errs.ErrClosedDatabase
+		return
+	}
+
 	match = true
 
 	query := `

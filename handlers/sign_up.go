@@ -32,8 +32,9 @@ func SignUp(c echo.Context) (err error) {
 	dbUserI, err := helpers.ParseModelToDBModel(user)
 	if err != nil {
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
 	dbUser := dbUserI.(dbm.User)
@@ -53,8 +54,9 @@ func SignUp(c echo.Context) (err error) {
 
 		default:
 			c.Logger().Error(err)
+			m.Error = http.StatusText(http.StatusInternalServerError)
 
-			return echo.ErrInternalServerError
+			return echo.NewHTTPError(http.StatusInternalServerError, m)
 		}
 
 	}

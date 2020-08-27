@@ -25,16 +25,18 @@ func LoginWithProvider(c echo.Context) (err error) {
 	if err != nil {
 		err = fmt.Errorf("failed to get (%s) provider: %v", providerParam, err)
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
 	loginURL, err := provider.GetBeginAuthURL(nil, nil)
 	if err != nil {
 		err = fmt.Errorf("failed to get begin auth url for (%s) provider: %v", providerParam, err)
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
 	c.Redirect(http.StatusTemporaryRedirect, loginURL)

@@ -46,8 +46,9 @@ func UpdateAvatar(c echo.Context) (err error) {
 		avatarURL, err = avatar.Save(strconv.Itoa(int(userID)))
 		if err != nil {
 			c.Logger().Error(err)
+			m.Error = http.StatusText(http.StatusInternalServerError)
 
-			return echo.ErrInternalServerError
+			return echo.NewHTTPError(http.StatusInternalServerError, m)
 		}
 	}
 
@@ -61,15 +62,16 @@ func UpdateAvatar(c echo.Context) (err error) {
 
 			return echo.NewHTTPError(http.StatusNotFound, m)
 		}
-
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 	if err != nil {
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
 	m.Message = "Updated."

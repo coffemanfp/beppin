@@ -3,11 +3,13 @@ package handlers_test
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
+	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/handlers"
 	"github.com/coffemanfp/beppin-server/models"
 	"github.com/labstack/echo"
@@ -42,21 +44,27 @@ func TestCreateProduct(t *testing.T) {
 	rec := httptest.NewRecorder()
 	e.ServeHTTP(rec, req)
 
-	assertCreated(t, rec)
+	assertResponseMessage(t, "Created.", decodeResponseMessage(t, rec))
 }
 
 func TestFailedCreateProduct(t *testing.T) {
 	tests := []struct {
-		Name string
-		Body interface{}
+		Name               string
+		Body               interface{}
+		ExpectedStatusCode int
+		ExpectedError      string
 	}{
 		{
-			Name: "invalid_body",
-			Body: "alksdlkadjs",
+			Name:               "invalid_body",
+			Body:               "alksdlkadjs",
+			ExpectedStatusCode: http.StatusBadRequest,
+			ExpectedError:      errs.ErrInvalidBody,
 		},
 		{
-			Name: "empty_product",
-			Body: models.Product{},
+			Name:               "empty_product",
+			Body:               models.Product{},
+			ExpectedStatusCode: http.StatusBadRequest,
+			ExpectedError:      errs.ErrInvalidBody,
 		},
 		{
 			Name: "not_existent_user",
@@ -66,6 +74,8 @@ func TestFailedCreateProduct(t *testing.T) {
 				Description: exampleProducts[0].Description,
 				Categories:  exampleProducts[0].Categories,
 			},
+			ExpectedStatusCode: http.StatusNotFound,
+			ExpectedError:      fmt.Sprintf("%v: user", errs.ErrNotExistentObject),
 		},
 	}
 
@@ -79,10 +89,10 @@ func TestFailedCreateProduct(t *testing.T) {
 
 			e.POST("/", handlers.CreateProduct)
 
+			// Now the request
 			bodyJSON, err := json.Marshal(ts.Body)
 			assert.Nil(t, err)
 
-			// Now the request
 			req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(bodyJSON))
 
 			setAuthorizationRequest(t, req, token)
@@ -90,11 +100,7 @@ func TestFailedCreateProduct(t *testing.T) {
 			rec := httptest.NewRecorder()
 			e.ServeHTTP(rec, req)
 
-			if ts.Name == "not_existent_user" {
-				assertNotExistent(t, rec, "user")
-			} else {
-				assertInvalidBody(t, rec)
-			}
+			assertResponseError(t, ts.ExpectedError, decodeResponseMessage(t, rec))
 		})
 	}
 }

@@ -43,8 +43,9 @@ func GetUsers(c echo.Context) (err error) {
 	dbUsers, err := Storage.GetUsers(limit, offset)
 	if err != nil {
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
 	var users models.Users
@@ -55,8 +56,9 @@ func GetUsers(c echo.Context) (err error) {
 		usersI, err := helpers.ParseDBModelToModel(dbUsers)
 		if err != nil {
 			c.Logger().Error(err)
+			m.Error = http.StatusText(http.StatusInternalServerError)
 
-			return echo.ErrInternalServerError
+			return echo.NewHTTPError(http.StatusInternalServerError, m)
 		}
 
 		users = usersI.(models.Users)

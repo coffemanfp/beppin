@@ -11,6 +11,11 @@ import (
 
 // SelectUser - Selects a user.
 func SelectUser(db *sql.DB, userToFind models.User) (user models.User, err error) {
+	if db == nil {
+		err = errs.ErrClosedDatabase
+		return
+	}
+
 	identifier := userToFind.GetIdentifier()
 	if identifier == nil {
 		err = fmt.Errorf("failed to select user: %w (user)", errs.ErrNotProvidedOrInvalidObject)

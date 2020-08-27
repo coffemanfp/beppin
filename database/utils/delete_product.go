@@ -10,6 +10,11 @@ import (
 
 // DeleteProduct - Deletes a product.
 func DeleteProduct(db *sql.DB, product models.Product) (err error) {
+	if db == nil {
+		err = errs.ErrClosedDatabase
+		return
+	}
+
 	identifier := product.GetIdentifier()
 	if identifier == nil {
 		err = fmt.Errorf("failed to delete product: %w (product)", errs.ErrNotProvidedOrInvalidObject)

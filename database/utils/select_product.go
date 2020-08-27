@@ -12,6 +12,11 @@ import (
 
 // SelectProduct - Selects a product.
 func SelectProduct(db *sql.DB, productToFind models.Product) (product models.Product, err error) {
+	if db == nil {
+		err = errs.ErrClosedDatabase
+		return
+	}
+
 	identifier := productToFind.GetIdentifier()
 	if identifier == nil {
 		err = fmt.Errorf("failed to select product: %w (product)", errs.ErrNotProvidedOrInvalidObject)

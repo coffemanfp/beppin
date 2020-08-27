@@ -10,6 +10,11 @@ import (
 
 // InsertLanguage - Insert a language.
 func InsertLanguage(db *sql.DB, language models.Language) (err error) {
+	if db == nil {
+		err = errs.ErrClosedDatabase
+		return
+	}
+
 	identifier := language.GetIdentifier()
 	if identifier == nil {
 		err = fmt.Errorf("failed to insert language: %w (language)", errs.ErrNotProvidedOrInvalidObject)

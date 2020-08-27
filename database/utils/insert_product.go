@@ -5,10 +5,16 @@ import (
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/database/models"
+	errs "github.com/coffemanfp/beppin-server/errors"
 )
 
 // InsertProduct - Insert a product.
 func InsertProduct(db *sql.DB, product models.Product) (err error) {
+	if db == nil {
+		err = errs.ErrClosedDatabase
+		return
+	}
+
 	query := `
 		INSERT INTO
 			products(user_id, name, description)

@@ -38,15 +38,17 @@ func GetProduct(c echo.Context) (err error) {
 			return echo.NewHTTPError(http.StatusNotFound, m)
 		}
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
 	productI, err := helpers.ParseDBModelToModel(dbProduct)
 	if err != nil {
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
 	product := productI.(models.Product)

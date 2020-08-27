@@ -10,6 +10,11 @@ import (
 
 // DeleteUser - Deletes a user.
 func DeleteUser(db *sql.DB, user models.User) (err error) {
+	if db == nil {
+		err = errs.ErrClosedDatabase
+		return
+	}
+
 	identifier := user.GetIdentifier()
 	if identifier == nil {
 		err = fmt.Errorf("failed to delete user: %w (user)", errs.ErrNotProvidedOrInvalidObject)

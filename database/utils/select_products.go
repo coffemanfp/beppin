@@ -13,6 +13,11 @@ import (
 
 // SelectProducts - Select a products list.
 func SelectProducts(db *sql.DB, limit, offset uint64) (products models.Products, err error) {
+	if db == nil {
+		err = errs.ErrClosedDatabase
+		return
+	}
+
 	query := `
 	SELECT
 		id, user_id, name, description, categories, created_at, updated_at

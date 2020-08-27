@@ -10,6 +10,11 @@ import (
 
 // UpdateAvatar updates the avatar url.
 func UpdateAvatar(db *sql.DB, avatarURL string, userToUpdate models.User) (err error) {
+	if db == nil {
+		err = errs.ErrClosedDatabase
+		return
+	}
+
 	identifier := userToUpdate.GetIdentifier()
 	if identifier == nil {
 		err = fmt.Errorf("failed to update user avatar: %w (user)", errs.ErrNotProvidedOrInvalidObject)

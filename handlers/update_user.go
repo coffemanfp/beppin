@@ -36,8 +36,9 @@ func UpdateUser(c echo.Context) (err error) {
 	dbuserI, err := helpers.ParseModelToDBModel(user)
 	if err != nil {
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
 	dbUser := dbuserI.(dbm.User)
@@ -54,8 +55,9 @@ func UpdateUser(c echo.Context) (err error) {
 			return echo.NewHTTPError(http.StatusNotFound, m)
 		}
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
 	m.Message = "Updated."

@@ -37,8 +37,9 @@ func Login(c echo.Context) (err error) {
 	)
 	if err != nil {
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
 	if !match {
@@ -48,8 +49,9 @@ func Login(c echo.Context) (err error) {
 	userI, err := helpers.ParseDBModelToModel(dbUser)
 	if err != nil {
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
 	user = userI.(models.User)
@@ -61,8 +63,9 @@ func Login(c echo.Context) (err error) {
 	token, err := claim.GenerateJWT()
 	if err != nil {
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
 	m.Message = "Ok."

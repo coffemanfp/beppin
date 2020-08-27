@@ -36,8 +36,9 @@ func UpdateProduct(c echo.Context) (err error) {
 	dbProductI, err := helpers.ParseModelToDBModel(product)
 	if err != nil {
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
 	dbProduct := dbProductI.(dbm.Product)
@@ -55,8 +56,9 @@ func UpdateProduct(c echo.Context) (err error) {
 			return echo.NewHTTPError(http.StatusNotFound, m)
 		}
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
 	m.Message = "Updated."

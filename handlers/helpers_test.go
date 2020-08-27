@@ -10,7 +10,6 @@ import (
 	"github.com/coffemanfp/beppin-server/config"
 	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
-	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/handlers"
 	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
@@ -66,57 +65,27 @@ var exampleProducts = models.Products{
 
 // Server helpers
 
-func assertInvalidParam(t *testing.T, param string, err error) {
+func assertResponseError(t *testing.T, expectedError string, m models.ResponseMessage) {
 	t.Helper()
 
-	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), errs.ErrInvalidParam)
-	assert.Contains(t, err.Error(), param)
-}
-
-func assertInvalidBody(t *testing.T, rec *httptest.ResponseRecorder) {
-	t.Helper()
-
-	assert.Equal(t, http.StatusBadRequest, rec.Code)
-
-	var m models.ResponseMessage
-	assert.Nil(t, json.NewDecoder(rec.Body).Decode(&m))
-	assert.Equal(t, errs.ErrInvalidBody, m.Error)
-}
-
-func assertNotExistent(t *testing.T, rec *httptest.ResponseRecorder, objectName string) {
-	t.Helper()
-
-	assert.Equal(t, http.StatusNotFound, rec.Code)
-
-	var m models.ResponseMessage
-	assert.Nil(t, json.NewDecoder(rec.Body).Decode(&m))
-	assert.Contains(t, m.Error, errs.ErrNotExistentObject.Error())
-
-	if objectName != "" {
-		assert.Contains(t, m.Error, objectName)
+	if assert.NotNil(t, m) {
+		assert.Equal(t, expectedError, m.Error)
 	}
 }
 
-func assertInternalServerError(t *testing.T, err error) {
+func assertResponseMessage(t *testing.T, expectedMessage string, m models.ResponseMessage) {
 	t.Helper()
 
-	if assert.NotNil(t, err) {
-		echoError, ok := err.(*echo.HTTPError)
-		assert.Equal(t, true, ok)
-		assert.Equal(t, http.StatusInternalServerError, echoError.Code)
-		assert.Equal(t, echo.ErrInternalServerError.Message, echoError.Message)
+	if assert.NotNil(t, m) {
+		assert.Equal(t, expectedMessage, m.Message)
 	}
 }
 
-func assertCreated(t *testing.T, rec *httptest.ResponseRecorder) {
+func decodeResponseMessage(t *testing.T, rec *httptest.ResponseRecorder) (m models.ResponseMessage) {
 	t.Helper()
 
-	assert.Equal(t, http.StatusCreated, rec.Code)
-
-	var m models.ResponseMessage
 	assert.Nil(t, json.NewDecoder(rec.Body).Decode(&m))
-	assert.Equal(t, "Created.", m.Message)
+	return
 }
 
 func setJWTMiddleware(t *testing.T, e *echo.Echo) {

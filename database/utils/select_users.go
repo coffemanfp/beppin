@@ -12,6 +12,11 @@ import (
 
 // SelectUsers - Select a users list.
 func SelectUsers(db *sql.DB, limit, offset uint64) (users models.Users, err error) {
+	if db == nil {
+		err = errs.ErrClosedDatabase
+		return
+	}
+
 	query := `
 		SELECT
 			id, language, avatar, username, email, name, last_name, birthday, theme, created_at, updated_at

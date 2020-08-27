@@ -11,6 +11,11 @@ import (
 
 // UpdateProduct - Updates a product.
 func UpdateProduct(db *sql.DB, productToUpdate, product models.Product) (err error) {
+	if db == nil {
+		err = errs.ErrClosedDatabase
+		return
+	}
+
 	identifier := productToUpdate.GetIdentifier()
 	if identifier == nil {
 		err = fmt.Errorf("failed to update product: %w (product)", errs.ErrNotProvidedOrInvalidObject)

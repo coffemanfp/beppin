@@ -43,8 +43,9 @@ func GetProducts(c echo.Context) (err error) {
 	dbProducts, err := Storage.GetProducts(limit, offset)
 	if err != nil {
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
 	var products models.Products
@@ -55,8 +56,9 @@ func GetProducts(c echo.Context) (err error) {
 		productsI, err := helpers.ParseDBModelToModel(dbProducts)
 		if err != nil {
 			c.Logger().Error(err)
+			m.Error = http.StatusText(http.StatusInternalServerError)
 
-			return echo.ErrInternalServerError
+			return echo.NewHTTPError(http.StatusInternalServerError, m)
 		}
 
 		products = productsI.(models.Products)
