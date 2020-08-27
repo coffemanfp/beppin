@@ -8,15 +8,6 @@ import (
 	errs "github.com/coffemanfp/beppin-server/errors"
 )
 
-// ProductStorage reprensents all implementations for product utils.
-// type ProductStorage interface {
-// 	CreateProduct(product models.Product) error
-// 	GetProduct(productToFind models.Product) (models.Product, error)
-// 	GetProducts(limit, offset int) (models.Products, error)
-// 	UpdateProduct(productToUpdate, product models.Product) error
-// 	DeleteProduct(product models.Product) error
-// }
-
 func (dS defaultStorage) CreateProduct(product models.Product) (err error) {
 	exists, err := dS.ExistsUser(models.User{ID: product.UserID})
 	if err != nil {
