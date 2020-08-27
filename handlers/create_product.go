@@ -42,9 +42,9 @@ func CreateProduct(c echo.Context) (err error) {
 	err = Storage.CreateProduct(dbProduct)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {
-			m.Error = fmt.Sprintf("%v: user", errs.ErrExistentObject)
+			m.Error = fmt.Sprintf("%v: user", errs.ErrNotExistentObject)
 
-			return echo.NewHTTPError(http.StatusNotFound, m)
+			return echo.NewHTTPError(http.StatusConflict, m)
 		}
 		c.Logger().Error(err)
 
