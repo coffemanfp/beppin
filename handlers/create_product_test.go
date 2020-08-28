@@ -49,6 +49,8 @@ func TestCreateProduct(t *testing.T) {
 }
 
 func TestFailedCreateProduct(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		Name               string
 		Body               interface{}
@@ -89,7 +91,10 @@ func TestFailedCreateProduct(t *testing.T) {
 	}
 
 	for _, ts := range tests {
+		ts := ts
 		t.Run(ts.Name, func(t *testing.T) {
+			t.Parallel()
+
 			// Setup server
 			e := echo.New()
 			e.Logger.Debug()
