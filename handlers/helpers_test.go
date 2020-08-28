@@ -2,6 +2,7 @@ package handlers_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -39,7 +40,7 @@ var exampleUser = models.User{
 var exampleProducts = models.Products{
 	models.Product{
 		UserID:      1,
-		Name:        "Product name",
+		Name:        fmt.Sprintf("Product at %d", time.Now().UnixNano()),
 		Description: "Product description",
 		Categories: []string{
 			"Food",
@@ -47,7 +48,7 @@ var exampleProducts = models.Products{
 	},
 	models.Product{
 		UserID:      1,
-		Name:        "Product name 2",
+		Name:        fmt.Sprintf("Product at %d", time.Now().UnixNano()),
 		Description: "Product description 2",
 		Categories: []string{
 			"Tech",
@@ -55,7 +56,7 @@ var exampleProducts = models.Products{
 	},
 	models.Product{
 		UserID:      1,
-		Name:        "Product name 3",
+		Name:        fmt.Sprintf("Product at %d", time.Now().UnixNano()),
 		Description: "Product description 3",
 		Categories: []string{
 			"Clothes",

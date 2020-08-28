@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"strconv"
 	"testing"
-	"time"
 
 	"github.com/coffemanfp/beppin-server/config"
 	"github.com/coffemanfp/beppin-server/database"
@@ -27,19 +26,13 @@ func TestGetProducts(t *testing.T) {
 		ExpectedContent interface{}
 	}{
 		{
-			Name:            "without_products",
-			ExpectedContent: models.Products{},
+			Name: "without_products",
 		},
 		{
 			Name:     "with_products",
 			WithData: true,
 			ExpectedContent: models.Products{
-				models.Product{
-					UserID:      exampleProducts[0].UserID,
-					Name:        fmt.Sprintf("Product at %d ", time.Now().Unix()),
-					Description: exampleProducts[0].Description,
-					Categories:  exampleProducts[0].Categories,
-				},
+				exampleProducts[0],
 			},
 		},
 	}
