@@ -3,11 +3,32 @@ package helpers
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	dbm "github.com/coffemanfp/beppin-server/database/models"
 	"github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/models"
 )
+
+// ShouldParseDBModelToModel - Executes the ParseDBModelToModel function and launch a Fataf
+// if there a error.
+func ShouldParseDBModelToModel(dbModel interface{}) (model interface{}) {
+	model, err := ParseDBModelToModel(dbModel)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return
+}
+
+// ShouldParseModelToDBModel - Executes the ParseModelToDBModel function and launch a Fataf
+// if there a error.
+func ShouldParseModelToDBModel(model interface{}) (dbModel interface{}) {
+	dbModel, err := ParseDBModelToModel(model)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return
+}
 
 // ParseDBModelToModel - Parse any valid database model to a normal model.
 func ParseDBModelToModel(dbModel interface{}) (model interface{}, err error) {
