@@ -18,10 +18,9 @@ import (
 )
 
 func TestGetProducts(t *testing.T) {
-	t.Parallel()
-
 	tests := []struct {
 		Name            string
+		QueryParams     url.Values
 		WithData        bool
 		ExpectedContent interface{}
 	}{
@@ -35,13 +34,23 @@ func TestGetProducts(t *testing.T) {
 				exampleProducts[0],
 			},
 		},
+		{
+			Name: "with_limit_param",
+			QueryParams: url.Values{
+				"limit": []string{
+					"1",
+				},
+			},
+			WithData: true,
+			ExpectedContent: models.Products{
+				exampleProducts[0],
+			},
+		},
 	}
 
 	for _, ts := range tests {
-		ts := ts
 
 		t.Run(ts.Name, func(t *testing.T) {
-			t.Parallel()
 
 			// Setup server
 			e := echo.New()
@@ -63,11 +72,17 @@ func TestGetProducts(t *testing.T) {
 			e.GET("/", handlers.GetProducts)
 
 			req := httptest.NewRequest(http.MethodGet, "/", nil)
+
+			req.URL.RawQuery = ts.QueryParams.Encode()
 			rec := httptest.NewRecorder()
 			e.ServeHTTP(rec, req)
 
 			var m models.ResponseMessage
 			m = decodeResponseMessage(t, rec)
+
+			if ts.Name == "with_limit_param" {
+				fmt.Println(m)
+			}
 
 			assert.Equal(t, http.StatusOK, rec.Code)
 			assert.Equal(t, models.TypeProducts, m.ContentType)
@@ -81,6 +96,15 @@ func TestGetProducts(t *testing.T) {
 					}
 				}
 				assert.True(t, exists)
+
+				limitParam := ts.QueryParams.Get("limit")
+
+				if limitParam != "" {
+					limit, err := strconv.Atoi(limitParam)
+					assert.Nil(t, err)
+
+					assert.Equal(t, limit, len(m.Content.([]interface{})))
+				}
 			}
 		})
 	}

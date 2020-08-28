@@ -19,8 +19,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func init() {
+	exampleTime = time.Now()
+}
+
 var token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxLCJsYW5ndWFnZSI6ImVzLUVTIiwidXNlcm5hbWUiOiJjb2ZmZW1hbmZwIiwidGhlbWUiOiJsaWdodCJ9fQ.GJcykxeN4yfE7CVi1xu4zVYstPgODCuNtrgq4T11gA4"
-var exampleTime = time.Now()
+var exampleTime time.Time
 
 var exampleLanguage = models.Language{
 	Code:   "es-ES",
@@ -40,7 +44,7 @@ var exampleUser = models.User{
 var exampleProducts = models.Products{
 	models.Product{
 		UserID:      1,
-		Name:        fmt.Sprintf("Product at %d", time.Now().UnixNano()),
+		Name:        fmt.Sprintf("Product at %d", exampleTime.UnixNano()),
 		Description: "Product description",
 		Categories: []string{
 			"Food",
@@ -48,7 +52,7 @@ var exampleProducts = models.Products{
 	},
 	models.Product{
 		UserID:      1,
-		Name:        fmt.Sprintf("Product at %d", time.Now().UnixNano()),
+		Name:        fmt.Sprintf("Product at %d", exampleTime.UnixNano()),
 		Description: "Product description 2",
 		Categories: []string{
 			"Tech",
@@ -56,7 +60,7 @@ var exampleProducts = models.Products{
 	},
 	models.Product{
 		UserID:      1,
-		Name:        fmt.Sprintf("Product at %d", time.Now().UnixNano()),
+		Name:        fmt.Sprintf("Product at %d", exampleTime.UnixNano()),
 		Description: "Product description 3",
 		Categories: []string{
 			"Clothes",

@@ -23,7 +23,7 @@ func ShouldParseDBModelToModel(dbModel interface{}) (model interface{}) {
 // ShouldParseModelToDBModel - Executes the ParseModelToDBModel function and launch a Fataf
 // if there a error.
 func ShouldParseModelToDBModel(model interface{}) (dbModel interface{}) {
-	dbModel, err := ParseDBModelToModel(model)
+	dbModel, err := ParseModelToDBModel(model)
 	if err != nil {
 		log.Fatalln(err)
 	}
