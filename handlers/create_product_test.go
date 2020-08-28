@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/coffemanfp/beppin-server/database"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/handlers"
 	"github.com/coffemanfp/beppin-server/models"
@@ -51,6 +52,7 @@ func TestFailedCreateProduct(t *testing.T) {
 	tests := []struct {
 		Name               string
 		Body               interface{}
+		WithDatabase       bool
 		ExpectedStatusCode int
 		ExpectedError      string
 	}{
@@ -74,8 +76,15 @@ func TestFailedCreateProduct(t *testing.T) {
 				Description: exampleProducts[0].Description,
 				Categories:  exampleProducts[0].Categories,
 			},
+			WithDatabase:       true,
 			ExpectedStatusCode: http.StatusNotFound,
 			ExpectedError:      fmt.Sprintf("%v: user", errs.ErrNotExistentObject),
+		},
+		{
+			Name:               "without_database",
+			Body:               exampleProducts[0],
+			ExpectedStatusCode: http.StatusInternalServerError,
+			ExpectedError:      http.StatusText(http.StatusInternalServerError),
 		},
 	}
 
@@ -88,6 +97,17 @@ func TestFailedCreateProduct(t *testing.T) {
 			setJWTMiddleware(t, e)
 
 			e.POST("/", handlers.CreateProduct)
+
+			if ts.WithDatabase {
+				var storage database.Storage
+				storage, err := database.NewDefault()
+
+				assert.Nil(t, err)
+
+				handlers.Storage = storage
+			} else {
+				handlers.Storage = database.New(nil)
+			}
 
 			// Now the request
 			bodyJSON, err := json.Marshal(ts.Body)
