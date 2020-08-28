@@ -53,15 +53,7 @@ func GetProducts(c echo.Context) (err error) {
 	if dbProducts == nil {
 		products = make(models.Products, 0)
 	} else {
-		productsI, err := helpers.ParseDBModelToModel(dbProducts)
-		if err != nil {
-			c.Logger().Error(err)
-			m.Error = http.StatusText(http.StatusInternalServerError)
-
-			return echo.NewHTTPError(http.StatusInternalServerError, m)
-		}
-
-		products = productsI.(models.Products)
+		products = helpers.ShouldParseDBModelToModel(dbProducts).(models.Products)
 	}
 
 	m.Content = products

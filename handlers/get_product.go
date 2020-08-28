@@ -43,16 +43,6 @@ func GetProduct(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
-	productI, err := helpers.ParseDBModelToModel(dbProduct)
-	if err != nil {
-		c.Logger().Error(err)
-		m.Error = http.StatusText(http.StatusInternalServerError)
-
-		return echo.NewHTTPError(http.StatusInternalServerError, m)
-	}
-
-	product := productI.(models.Product)
-
-	m.Content = product
+	m.Content = helpers.ShouldParseDBModelToModel(dbProduct).(models.Product)
 	return c.JSON(http.StatusOK, m)
 }

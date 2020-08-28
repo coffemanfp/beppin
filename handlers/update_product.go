@@ -33,21 +33,11 @@ func UpdateProduct(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	dbProductI, err := helpers.ParseModelToDBModel(product)
-	if err != nil {
-		c.Logger().Error(err)
-		m.Error = http.StatusText(http.StatusInternalServerError)
-
-		return echo.NewHTTPError(http.StatusInternalServerError, m)
-	}
-
-	dbProduct := dbProductI.(dbm.Product)
-
 	err = Storage.UpdateProduct(
 		dbm.Product{
 			ID: int64(productID),
 		},
-		dbProduct,
+		helpers.ShouldParseModelToDBModel(product).(dbm.Product),
 	)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {

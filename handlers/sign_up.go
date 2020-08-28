@@ -29,17 +29,9 @@ func SignUp(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	dbUserI, err := helpers.ParseModelToDBModel(user)
-	if err != nil {
-		c.Logger().Error(err)
-		m.Error = http.StatusText(http.StatusInternalServerError)
-
-		return echo.NewHTTPError(http.StatusInternalServerError, m)
-	}
-
-	dbUser := dbUserI.(dbm.User)
-
-	err = Storage.CreateUser(dbUser)
+	err = Storage.CreateUser(
+		helpers.ShouldParseModelToDBModel(user).(dbm.User),
+	)
 	if err != nil {
 		unwrappedErr := errors.Unwrap(err)
 

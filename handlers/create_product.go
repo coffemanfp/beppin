@@ -30,17 +30,9 @@ func CreateProduct(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	dbProductI, err := helpers.ParseModelToDBModel(product)
-	if err != nil {
-		c.Logger().Error(err)
-		m.Error = http.StatusText(http.StatusInternalServerError)
-
-		return echo.NewHTTPError(http.StatusInternalServerError, m)
-	}
-
-	dbProduct := dbProductI.(dbm.Product)
-
-	err = Storage.CreateProduct(dbProduct)
+	err = Storage.CreateProduct(
+		helpers.ShouldParseModelToDBModel(product).(dbm.Product),
+	)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {
 			m.Error = fmt.Sprintf("%v: user", errs.ErrNotExistentObject)

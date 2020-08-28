@@ -53,15 +53,7 @@ func GetUsers(c echo.Context) (err error) {
 	if dbUsers == nil {
 		users = make(models.Users, 0)
 	} else {
-		usersI, err := helpers.ParseDBModelToModel(dbUsers)
-		if err != nil {
-			c.Logger().Error(err)
-			m.Error = http.StatusText(http.StatusInternalServerError)
-
-			return echo.NewHTTPError(http.StatusInternalServerError, m)
-		}
-
-		users = usersI.(models.Users)
+		users = helpers.ShouldParseDBModelToModel(dbUsers).(models.Users)
 	}
 
 	m.Content = users

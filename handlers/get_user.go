@@ -43,17 +43,7 @@ func GetUser(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
-	userI, err := helpers.ParseDBModelToModel(dbuser)
-	if err != nil {
-		c.Logger().Error(err)
-		m.Error = http.StatusText(http.StatusInternalServerError)
-
-		return echo.NewHTTPError(http.StatusInternalServerError, m)
-	}
-
-	user := userI.(models.User)
-
-	m.Content = user
+	m.Content = helpers.ShouldParseDBModelToModel(dbuser).(models.User)
 
 	return c.JSON(http.StatusOK, m)
 }

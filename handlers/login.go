@@ -46,18 +46,8 @@ func Login(c echo.Context) (err error) {
 		return echo.ErrUnauthorized
 	}
 
-	userI, err := helpers.ParseDBModelToModel(dbUser)
-	if err != nil {
-		c.Logger().Error(err)
-		m.Error = http.StatusText(http.StatusInternalServerError)
-
-		return echo.NewHTTPError(http.StatusInternalServerError, m)
-	}
-
-	user = userI.(models.User)
-
 	claim := models.Claim{
-		User: user,
+		User: helpers.ShouldParseDBModelToModel(dbUser).(models.User),
 	}
 
 	token, err := claim.GenerateJWT()

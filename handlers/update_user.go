@@ -33,21 +33,11 @@ func UpdateUser(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	dbuserI, err := helpers.ParseModelToDBModel(user)
-	if err != nil {
-		c.Logger().Error(err)
-		m.Error = http.StatusText(http.StatusInternalServerError)
-
-		return echo.NewHTTPError(http.StatusInternalServerError, m)
-	}
-
-	dbUser := dbuserI.(dbm.User)
-
 	err = Storage.UpdateUser(
 		dbm.User{
 			ID: int64(userID),
 		},
-		dbUser,
+		helpers.ShouldParseModelToDBModel(user).(dbm.User),
 	)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {
