@@ -23,7 +23,7 @@ func SignUp(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	if !user.Validate() {
+	if !user.Validate("signup") {
 		m.Error = errs.ErrInvalidBody
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)

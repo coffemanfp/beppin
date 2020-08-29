@@ -22,7 +22,7 @@ func Login(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	if !user.ValidateLogin() {
+	if !user.Validate("login") {
 		m.Error = fmt.Sprintf("%v", errs.ErrInvalidUserLogin)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
