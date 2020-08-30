@@ -8,7 +8,7 @@ import (
 	errs "github.com/coffemanfp/beppin-server/errors"
 )
 
-func (dS defaultStorage) CreateLanguage(language models.Language) (err error) {
+func (dS defaultStorage) CreateLanguage(language models.Language) (id int, err error) {
 	exists, err := dS.ExistsLanguage(language)
 	if err != nil {
 		return
@@ -19,7 +19,7 @@ func (dS defaultStorage) CreateLanguage(language models.Language) (err error) {
 		return
 	}
 
-	err = dbu.InsertLanguage(dS.db, language)
+	id, err = dbu.InsertLanguage(dS.db, language)
 	return
 }
 
