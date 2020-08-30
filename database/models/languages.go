@@ -4,6 +4,7 @@ import "database/sql"
 
 // Language - Language for the app.
 type Language struct {
+	ID     int64
 	Code   string
 	Status string
 
@@ -13,7 +14,9 @@ type Language struct {
 
 // GetIdentifier gets the first unique identifier it finds in order of importance.
 func (l Language) GetIdentifier() (identifier interface{}) {
-	if l.Code != "" {
+	if l.ID != 0 {
+		identifier = l.ID
+	} else if l.Code != "" {
 		identifier = l.Code
 	}
 

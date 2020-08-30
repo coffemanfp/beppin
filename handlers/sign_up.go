@@ -29,7 +29,7 @@ func SignUp(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	err = Storage.CreateUser(
+	id, err := Storage.CreateUser(
 		helpers.ShouldParseModelToDBModel(user).(dbm.User),
 	)
 	if err != nil {
@@ -37,7 +37,7 @@ func SignUp(c echo.Context) (err error) {
 
 		switch unwrappedErr {
 		case errs.ErrExistentObject:
-			m.Error = fmt.Sprintf("%v: user", errs.ErrNotExistentObject)
+			m.Error = fmt.Sprintf("%v: user", errs.ErrExistentObject)
 			return echo.NewHTTPError(http.StatusConflict, m)
 
 		case errs.ErrNotExistentObject:
@@ -53,6 +53,26 @@ func SignUp(c echo.Context) (err error) {
 
 	}
 
+	// id, language, username, theme
+	claim := models.Claim{
+		User: models.User{
+			ID:       int64(id),
+			Username: user.Username,
+		},
+	}
+
+	token, err := claim.GenerateJWT()
+	if err != nil {
+		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
+
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
+	}
+
 	m.Message = "Created."
+	m.Content = echo.Map{
+		"token": token,
+	}
+	m.ContentType = models.TypeToken
 	return c.JSON(http.StatusCreated, m)
 }

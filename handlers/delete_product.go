@@ -25,7 +25,7 @@ func DeleteProduct(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	err = Storage.DeleteProduct(
+	id, err := Storage.DeleteProduct(
 		dbm.Product{
 			ID: int64(productID),
 		},
@@ -43,5 +43,9 @@ func DeleteProduct(c echo.Context) (err error) {
 	}
 
 	m.Message = "Deleted."
+	m.Content = models.Product{
+		ID: int64(id),
+	}
+	m.ContentType = models.TypeProduct
 	return c.JSON(http.StatusOK, m)
 }

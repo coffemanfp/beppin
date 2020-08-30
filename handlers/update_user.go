@@ -33,7 +33,7 @@ func UpdateUser(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	err = Storage.UpdateUser(
+	id, err := Storage.UpdateUser(
 		dbm.User{
 			ID: int64(userID),
 		},
@@ -51,6 +51,9 @@ func UpdateUser(c echo.Context) (err error) {
 	}
 
 	m.Message = "Updated."
-
+	m.Content = models.User{
+		ID: int64(id),
+	}
+	m.ContentType = models.TypeUser
 	return c.JSON(http.StatusOK, m)
 }

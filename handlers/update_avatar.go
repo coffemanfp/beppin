@@ -52,7 +52,7 @@ func UpdateAvatar(c echo.Context) (err error) {
 		}
 	}
 
-	err = Storage.UpdateAvatar(
+	id, err := Storage.UpdateAvatar(
 		avatarURL,
 		dbm.User{ID: int64(userID)},
 	)
@@ -75,6 +75,9 @@ func UpdateAvatar(c echo.Context) (err error) {
 	}
 
 	m.Message = "Updated."
-
+	m.Content = models.User{
+		ID: int64(id),
+	}
+	m.ContentType = models.TypeUser
 	return c.JSON(http.StatusOK, m)
 }
