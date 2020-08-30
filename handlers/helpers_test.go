@@ -98,7 +98,7 @@ func setJWTMiddleware(t *testing.T, e *echo.Echo) {
 
 	jwtConfig := middleware.JWTConfig{
 		Claims:      &models.Claim{},
-		SigningKey:  []byte(config.GetSettings().SecretKey),
+		SigningKey:  []byte(config.GetVar("secretKey").(string)),
 		TokenLookup: "header:" + echo.HeaderAuthorization,
 	}
 

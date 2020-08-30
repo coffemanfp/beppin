@@ -18,9 +18,7 @@ func GetProducts(c echo.Context) (err error) {
 
 	var m models.ResponseMessage
 
-	var limit, offset uint64
-
-	limit, err = utils.ParseUint(limitParam, 8)
+	limit, err := utils.Atoi(limitParam)
 	if err != nil {
 		m.Error = fmt.Sprintf("%v: limit", errs.ErrInvalidParam)
 
@@ -33,7 +31,7 @@ func GetProducts(c echo.Context) (err error) {
 	// If the limit is not provided, is setted to the default limit.
 	m.NotLimitParamProvided(&limit)
 
-	offset, err = utils.ParseUint(offsetParam, 64)
+	offset, err := utils.Atoi(offsetParam)
 	if err != nil {
 		m.Error = fmt.Sprintf("%v: offset", errs.ErrInvalidParam)
 
