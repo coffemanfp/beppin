@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/coffemanfp/beppin-server/database"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
@@ -19,10 +18,14 @@ func GetProducts(c echo.Context) (err error) {
 
 	var m models.ResponseMessage
 
-	var limit, offset uint64
-
-	limit, err = utils.ParseUint(limitParam, 8)
+	limit, err := utils.Atoi(limitParam)
 	if err != nil {
+		m.Error = fmt.Sprintf("%v: limit", errs.ErrInvalidParam)
+
+		return echo.NewHTTPError(http.StatusBadRequest, m)
+	}
+
+	if limit < 0 {
 		m.Error = fmt.Sprintf("%v: limit", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
@@ -34,25 +37,25 @@ func GetProducts(c echo.Context) (err error) {
 	// If the limit is not provided, is setted to the default limit.
 	m.NotLimitParamProvided(&limit)
 
-	offset, err = utils.ParseUint(offsetParam, 64)
+	offset, err := utils.Atoi(offsetParam)
 	if err != nil {
 		m.Error = fmt.Sprintf("%v: offset", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	db, err := database.Get()
-	if err != nil {
-		c.Logger().Error(err)
+	if offset < 0 {
+		m.Error = fmt.Sprintf("%v: offset", errs.ErrInvalidParam)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	dbProducts, err := db.GetProducts(limit, offset)
+	dbProducts, err := Storage.GetProducts(limit, offset)
 	if err != nil {
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
 	var products models.Products
@@ -60,14 +63,7 @@ func GetProducts(c echo.Context) (err error) {
 	if dbProducts == nil {
 		products = make(models.Products, 0)
 	} else {
-		productsI, err := helpers.ParseDBModelToModel(dbProducts)
-		if err != nil {
-			c.Logger().Error(err)
-
-			return echo.ErrInternalServerError
-		}
-
-		products = productsI.(models.Products)
+		products = helpers.ShouldParseDBModelToModel(dbProducts).(models.Products)
 	}
 
 	m.Content = products

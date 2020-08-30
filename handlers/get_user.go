@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
@@ -17,24 +16,17 @@ import (
 // GetUser - Get a user.
 func GetUser(c echo.Context) (err error) {
 	var m models.ResponseMessage
-	var userID uint64
+	var userID int
 
 	userIDParam := c.Param("id")
 
-	if userID, err = utils.ParseUint(userIDParam, 64); err != nil || userID == 0 {
+	if userID, err = utils.Atoi(userIDParam); err != nil || userID == 0 {
 		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	db, err := database.Get()
-	if err != nil {
-		c.Logger().Error(err)
-
-		return echo.ErrInternalServerError
-	}
-
-	dbuser, err := db.GetUser(
+	dbuser, err := Storage.GetUser(
 		dbm.User{
 			ID: int64(userID),
 		},
@@ -46,20 +38,12 @@ func GetUser(c echo.Context) (err error) {
 			return echo.NewHTTPError(http.StatusNotFound, m)
 		}
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
-	userI, err := helpers.ParseDBModelToModel(dbuser)
-	if err != nil {
-		c.Logger().Error(err)
-
-		return echo.ErrInternalServerError
-	}
-
-	user := userI.(models.User)
-
-	m.Content = user
+	m.Content = helpers.ShouldParseDBModelToModel(dbuser).(models.User)
 
 	return c.JSON(http.StatusOK, m)
 }

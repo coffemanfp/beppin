@@ -1,77 +1,29 @@
 package config
 
-import "net/url"
+// GlobalSettings are the global settings.
+var GlobalSettings *Settings
 
-// Settings - Settings app.
+// Settings represents the global settings.
 type Settings struct {
 	Port                     int    `json:"port" yaml:"port" mapstructure:"port"`
 	Host                     string `json:"host" yaml:"host" mapstructure:"host"`
 	Assets                   string `json:"assets" yaml:"assets" mapstructure:"assets"`
-	LogsFile                 string `json:"logsFile" yaml:"logsFile" mapstructure:"logs_file"`
-	SecretKey                string `json:"secret_key" yaml:"secret_key" mapstructure:"secret_key"`
+	LogsFile                 string `json:"logsFile" yaml:"logsFile" mapstructure:"logsFile"`
+	SecretKey                string `json:"secret_key" yaml:"secret_key" mapstructure:"secretKey"`
 	Temps                    string `json:"temps" yaml:"temps" mapstructure:"temps"`
-	MaxElementsPerPagination uint64 `json:"maxElementsPerPagination" yaml:"maxElementsPerPagination" mapstructure:"max_elements_per_pagination"`
-	MaxImageSize             uint64 `json:"maxImageSize" yaml:"maxImageSize" mapstructure:"max_image_size"`
+	MaxElementsPerPagination int    `json:"maxElementsPerPagination" yaml:"maxElementsPerPagination" mapstructure:"maxElementsPerPagination"`
+	MaxImageSize             int    `json:"maxImageSize" yaml:"maxImageSize" mapstructure:"maxImageSize"`
 
 	Database *Database `json:"database" yaml:"database"`
 }
 
-// Validate - Validates all settings.
-func (s Settings) Validate() (valid bool) {
-	valid = true
-
-	if s.Database != nil {
-		if !s.Database.ValidateDatabase() {
-			valid = false
-			return
-		}
-	} else {
-		valid = false
-		return
-	}
-
-	switch "" {
-	case s.LogsFile:
-	case s.SecretKey:
-		valid = false
-		return
-	}
-
-	switch 0 {
-	case s.Port:
-	case int(s.MaxElementsPerPagination):
-		valid = false
-	}
-
-	if _, err := url.ParseRequestURI(s.Host); err != nil {
-		valid = false
-		return
-	}
-
-	if _, err := url.ParseRequestURI(s.Assets); err != nil {
-		valid = false
-		return
-	}
-
-	return
-}
-
-// ValidateMigrations - Validate only settings for migrations.
-func (s Settings) ValidateMigrations() (valid bool) {
-	valid = true
-
-	if s.Database != nil {
-		if !s.Database.ValidateDatabase() {
-			valid = false
-			return
-		}
-	} else {
-		valid = false
-		return
-	}
-
-	if s.LogsFile == "" {
-		valid = false
-	}
-	return
+// Database represents the database settings.
+type Database struct {
+	Name     string `json:"name" yaml:"name" mapstructure:"db_name"`
+	Port     int    `json:"port" yaml:"port" mapstructure:"db_port"`
+	User     string `json:"user" yaml:"user" mapstructure:"db_user"`
+	Password string `json:"password" yaml:"password" mapstructure:"db_password"`
+	Host     string `json:"host" yaml:"host" mapstructure:"db_host"`
+	SslMode  string `json:"sslMode" yaml:"db_ssl_mode" mapstructure:"db_sslmode"`
+	URL      string `json:"url" yaml:"url" mapstructure:"db_url"`
 }

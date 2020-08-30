@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
@@ -19,7 +18,7 @@ func UpdateUser(c echo.Context) (err error) {
 	userIDParam := c.Param("id")
 	var m models.ResponseMessage
 
-	userID, err := utils.ParseUint(userIDParam, 64)
+	userID, err := utils.Atoi(userIDParam)
 	if err != nil || userID == 0 {
 		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 
@@ -34,27 +33,11 @@ func UpdateUser(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	dbuserI, err := helpers.ParseModelToDBModel(user)
-	if err != nil {
-		c.Logger().Error(err)
-
-		return echo.ErrInternalServerError
-	}
-
-	dbUser := dbuserI.(dbm.User)
-
-	db, err := database.Get()
-	if err != nil {
-		c.Logger().Error(err)
-
-		return echo.ErrInternalServerError
-	}
-
-	err = db.UpdateUser(
+	err = Storage.UpdateUser(
 		dbm.User{
 			ID: int64(userID),
 		},
-		dbUser,
+		helpers.ShouldParseModelToDBModel(user).(dbm.User),
 	)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {
@@ -62,8 +45,9 @@ func UpdateUser(c echo.Context) (err error) {
 			return echo.NewHTTPError(http.StatusNotFound, m)
 		}
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
 	m.Message = "Updated."

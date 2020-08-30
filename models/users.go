@@ -28,29 +28,19 @@ type User struct {
 type Users []User
 
 // Validate - Validates a user.
-func (u User) Validate() (valid bool) {
-	valid = true
-
-	switch "" {
-	case u.Password:
-	case u.Name:
-	case u.LastName:
-		valid = false
-	}
-
-	if valid {
-		valid = u.ValidateLogin()
-	}
-
-	if u.Birthday == nil || u.Birthday.IsZero() {
-		valid = false
+func (u User) Validate(action string) (valid bool) {
+	switch action {
+	case "login":
+		valid = u.validateLogin()
+	case "signup":
+		valid = u.validateSignup()
 	}
 
 	return
 }
 
-// ValidateLogin - Validates a user login.
-func (u User) ValidateLogin() (valid bool) {
+// validateLogin - Validates a user login.
+func (u User) validateLogin() (valid bool) {
 	valid = true
 
 	if u.Password == "" {
@@ -61,6 +51,28 @@ func (u User) ValidateLogin() (valid bool) {
 	switch false {
 	case utils.ValidateEmail(u.Email):
 	case u.ValidateUsername():
+		valid = false
+	}
+
+	return
+}
+
+// validateSignup - Validates a user signup.
+func (u User) validateSignup() (valid bool) {
+	valid = true
+
+	switch "" {
+	case u.Password:
+	case u.Name:
+	case u.LastName:
+		valid = false
+	}
+
+	if valid {
+		valid = u.validateLogin()
+	}
+
+	if u.Birthday == nil || u.Birthday.IsZero() {
 		valid = false
 	}
 

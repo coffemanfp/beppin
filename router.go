@@ -9,7 +9,6 @@ import (
 )
 
 func newRouter(e *echo.Echo) {
-	settings := config.GetSettings()
 
 	// API group
 	r := e.Group("/v1")
@@ -28,7 +27,7 @@ func newRouter(e *echo.Echo) {
 	// JWT Middleware
 	jwtConfig := middleware.JWTConfig{
 		Claims:      &models.Claim{},
-		SigningKey:  []byte(settings.SecretKey),
+		SigningKey:  []byte(config.GlobalSettings.SecretKey),
 		TokenLookup: "header:" + echo.HeaderAuthorization,
 	}
 

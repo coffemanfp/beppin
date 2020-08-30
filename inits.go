@@ -11,21 +11,27 @@ import (
 
 // Flags
 var (
-	configFile string
+	readConfigFile bool
+	readEnvVars    bool
 )
 
 var filesToUpload = make(chan *os.File)
 
 func initSettings() {
-	config.SetDefaultSettings()
-
-	err := config.SetSettingsByEnv()
+	err := config.SetDefaultSettings()
 	if err != nil {
-		log.Fatalln("failed to configure env settings: ", err)
+		log.Fatalln("failed to configure default settings:", err)
 	}
 
-	if configFile != "" {
-		err := config.SetSettingsByFile(configFile)
+	if readEnvVars {
+		err = config.SetSettingsByEnv()
+		if err != nil {
+			log.Fatalln("failed to configure environment vars settings:", err)
+		}
+	}
+
+	if readConfigFile {
+		err := config.SetSettingsByFile()
 		if err != nil {
 			log.Fatalln("failed to configure file settings: ", err)
 		}
@@ -40,7 +46,8 @@ func initDatabase() {
 }
 
 func initFlags() {
-	flag.StringVar(&configFile, "config-file", "", "Config file for the server settings.")
+	flag.BoolVar(&readConfigFile, "read-config-file", true, "Checks if read the config file or not.")
+	flag.BoolVar(&readEnvVars, "read-env-vars", true, "Checks if read the environment vars or not.")
 
 	flag.Parse()
 }

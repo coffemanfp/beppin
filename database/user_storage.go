@@ -8,7 +8,7 @@ type UserStorage interface {
 	Login(userToLogin models.User) (models.User, bool, error)
 	ExistsUser(user models.User) (bool, error)
 	GetUser(userToFind models.User) (models.User, error)
-	GetUsers(limit, offset uint64) (models.Users, error)
+	GetUsers(limit, offset int) (models.Users, error)
 	UpdateUser(userToUpdate, user models.User) error
 	UpdateAvatar(avatarURL string, user models.User) error
 	DeleteUser(userToDelete models.User) error

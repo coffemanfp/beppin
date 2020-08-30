@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
@@ -31,32 +30,19 @@ func CreateProduct(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	dbProductI, err := helpers.ParseModelToDBModel(product)
-	if err != nil {
-		c.Logger().Error(err)
-
-		return echo.ErrInternalServerError
-	}
-
-	dbProduct := dbProductI.(dbm.Product)
-
-	db, err := database.Get()
-	if err != nil {
-		c.Logger().Error(err)
-
-		return echo.ErrInternalServerError
-	}
-
-	err = db.CreateProduct(dbProduct)
+	err = Storage.CreateProduct(
+		helpers.ShouldParseModelToDBModel(product).(dbm.Product),
+	)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {
-			m.Error = fmt.Sprintf("%v: user", errs.ErrExistentObject)
+			m.Error = fmt.Sprintf("%v: user", errs.ErrNotExistentObject)
 
 			return echo.NewHTTPError(http.StatusNotFound, m)
 		}
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
 	m.Message = "Created."

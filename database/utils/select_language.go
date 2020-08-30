@@ -11,6 +11,11 @@ import (
 
 // SelectLanguage - Selects a language.
 func SelectLanguage(db *sql.DB, languageToFind models.Language) (language models.Language, err error) {
+	if db == nil {
+		err = errs.ErrClosedDatabase
+		return
+	}
+
 	identifier := languageToFind.GetIdentifier()
 	if identifier == nil {
 		err = fmt.Errorf("failed to select language: %w (language)", errs.ErrNotProvidedOrInvalidObject)

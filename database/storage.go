@@ -4,8 +4,9 @@ import "database/sql"
 
 // Storage database and database utils.
 type Storage interface {
-	UserStorage
+	LanguageStorage
 	ProductStorage
+	UserStorage
 
 	GetDB() *sql.DB
 	SetDB(db *sql.DB)

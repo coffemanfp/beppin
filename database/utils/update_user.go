@@ -10,6 +10,11 @@ import (
 
 // UpdateUser - Updates a user.
 func UpdateUser(db *sql.DB, userToUpdate, user models.User) (err error) {
+	if db == nil {
+		err = errs.ErrClosedDatabase
+		return
+	}
+
 	identifier := userToUpdate.GetIdentifier()
 	if identifier == nil {
 		err = fmt.Errorf("failed to update user: %w (user)", errs.ErrNotProvidedOrInvalidObject)

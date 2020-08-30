@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/models"
@@ -18,11 +17,11 @@ import (
 func UpdateAvatar(c echo.Context) (err error) {
 	var avatar models.Avatar
 	var m models.ResponseMessage
-	var userID uint64
+	var userID int
 
 	userIDParam := c.Param("id")
 
-	if userID, err = utils.ParseUint(userIDParam, 64); err != nil || userID == 0 {
+	if userID, err = utils.Atoi(userIDParam); err != nil || userID == 0 {
 		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
@@ -42,24 +41,18 @@ func UpdateAvatar(c echo.Context) (err error) {
 
 	avatarURL := avatar.URL
 
-	db, err := database.Get()
-	if err != nil {
-		c.Logger().Error(err)
-
-		return echo.ErrInternalServerError
-	}
-
 	// If the user will save their avatar in our file system
 	if avatar.Data != "" && avatar.URL == "" {
 		avatarURL, err = avatar.Save(strconv.Itoa(int(userID)))
 		if err != nil {
 			c.Logger().Error(err)
+			m.Error = http.StatusText(http.StatusInternalServerError)
 
-			return echo.ErrInternalServerError
+			return echo.NewHTTPError(http.StatusInternalServerError, m)
 		}
 	}
 
-	err = db.UpdateAvatar(
+	err = Storage.UpdateAvatar(
 		avatarURL,
 		dbm.User{ID: int64(userID)},
 	)
@@ -69,15 +62,16 @@ func UpdateAvatar(c echo.Context) (err error) {
 
 			return echo.NewHTTPError(http.StatusNotFound, m)
 		}
-
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 	if err != nil {
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
 	m.Message = "Updated."

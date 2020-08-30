@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
@@ -24,29 +23,15 @@ func SignUp(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	if !user.Validate() {
+	if !user.Validate("signup") {
 		m.Error = errs.ErrInvalidBody
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	dbUserI, err := helpers.ParseModelToDBModel(user)
-	if err != nil {
-		c.Logger().Error(err)
-
-		return echo.ErrInternalServerError
-	}
-
-	dbUser := dbUserI.(dbm.User)
-
-	db, err := database.Get()
-	if err != nil {
-		c.Logger().Error(err)
-
-		return echo.ErrInternalServerError
-	}
-
-	err = db.CreateUser(dbUser)
+	err = Storage.CreateUser(
+		helpers.ShouldParseModelToDBModel(user).(dbm.User),
+	)
 	if err != nil {
 		unwrappedErr := errors.Unwrap(err)
 
@@ -61,8 +46,9 @@ func SignUp(c echo.Context) (err error) {
 
 		default:
 			c.Logger().Error(err)
+			m.Error = http.StatusText(http.StatusInternalServerError)
 
-			return echo.ErrInternalServerError
+			return echo.NewHTTPError(http.StatusInternalServerError, m)
 		}
 
 	}

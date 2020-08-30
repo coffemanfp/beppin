@@ -5,10 +5,16 @@ import (
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/database/models"
+	errs "github.com/coffemanfp/beppin-server/errors"
 )
 
 // InsertUser - Insert a user.
 func InsertUser(db *sql.DB, user models.User) (err error) {
+	if db == nil {
+		err = errs.ErrClosedDatabase
+		return
+	}
+
 	if user.Language.Code != "" {
 		var language models.Language
 		language, err = SelectLanguage(db, user.Language)

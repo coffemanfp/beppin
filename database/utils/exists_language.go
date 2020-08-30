@@ -10,6 +10,11 @@ import (
 
 // ExistsLanguage - Checks if exists a language.
 func ExistsLanguage(db *sql.DB, language models.Language) (exists bool, err error) {
+	if db == nil {
+		err = errs.ErrClosedDatabase
+		return
+	}
+
 	identifier := language.GetIdentifier()
 	if identifier == nil {
 		err = fmt.Errorf("failed to check language: %w (language)", errs.ErrNotProvidedOrInvalidObject)
@@ -20,11 +25,11 @@ func ExistsLanguage(db *sql.DB, language models.Language) (exists bool, err erro
 		SELECT
 			EXISTS(
 				SELECT
-					id
+					1
 				FROM
 					languages
 				WHERE
-					language_code = $2
+					code = $1
 			)
 	`
 

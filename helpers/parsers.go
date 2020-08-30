@@ -3,11 +3,32 @@ package helpers
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	dbm "github.com/coffemanfp/beppin-server/database/models"
 	"github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/models"
 )
+
+// ShouldParseDBModelToModel - Executes the ParseDBModelToModel function and launch a Fataf
+// if there a error.
+func ShouldParseDBModelToModel(dbModel interface{}) (model interface{}) {
+	model, err := ParseDBModelToModel(dbModel)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return
+}
+
+// ShouldParseModelToDBModel - Executes the ParseModelToDBModel function and launch a Fataf
+// if there a error.
+func ShouldParseModelToDBModel(model interface{}) (dbModel interface{}) {
+	dbModel, err := ParseModelToDBModel(model)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return
+}
 
 // ParseDBModelToModel - Parse any valid database model to a normal model.
 func ParseDBModelToModel(dbModel interface{}) (model interface{}, err error) {
@@ -31,6 +52,11 @@ func ParseDBModelToModel(dbModel interface{}) (model interface{}, err error) {
 	case dbm.Offers:
 		model = parseDBOffersToOffers(dbModel.(dbm.Offers))
 
+	// Languages
+	case dbm.Language:
+		dbModel = parseDBLanguageToLanguage(dbModel.(dbm.Language))
+	case dbm.Languages:
+		dbModel = parseDBLanguagesToLanguages(dbModel.(dbm.Languages))
 	default:
 		err = fmt.Errorf("failed to parse database model (%T) to normal model: %w", model, errors.ErrNotSupportedType)
 	}
@@ -41,12 +67,29 @@ func ParseDBModelToModel(dbModel interface{}) (model interface{}, err error) {
 // ParseModelToDBModel - Parse any valid normal model to a database model.
 func ParseModelToDBModel(model interface{}) (dbModel interface{}, err error) {
 	switch model.(type) {
+	// Users
 	case models.User:
 		dbModel = parseUserToDBUser(model.(models.User))
+	case models.Users:
+		model = parseUsersToDBUsers(model.(models.Users))
+
+	// Products
 	case models.Product:
 		dbModel = parseProductToDBProduct(model.(models.Product))
+	case models.Products:
+		model = parseProductsToDBProducts(model.(models.Products))
+
+	// Offers
 	case models.Offer:
 		dbModel = parseOfferToDBOffer(model.(models.Offer))
+	case models.Offers:
+		model = parseOffersToDBOffers(model.(models.Offers))
+
+	// Languages
+	case models.Language:
+		dbModel = parseLanguageToDBLanguage(model.(models.Language))
+	case models.Languages:
+		dbModel = parseLanguagesToDBLanguages(model.(models.Languages))
 	default:
 		err = fmt.Errorf("failed to parse normal model (%T) to database model: %w", model, errors.ErrNotSupportedType)
 	}
@@ -296,6 +339,60 @@ func parseOffersToDBOffers(offers models.Offers) (dbOffers dbm.Offers) {
 	for _, offer := range offers {
 		dbOffer = parseOfferToDBOffer(offer)
 		dbOffers = append(dbOffers, dbOffer)
+	}
+	return
+}
+
+// Language parsers
+
+func parseDBLanguageToLanguage(dbLanguage dbm.Language) (language models.Language) {
+	language = models.Language{
+		Code:   dbLanguage.Code,
+		Status: dbLanguage.Status,
+
+		CreatedAt: &dbLanguage.CreatedAt.Time,
+		UpdatedAt: &dbLanguage.UpdatedAt.Time,
+	}
+	return
+}
+
+func parseDBLanguagesToLanguages(dbLanguages dbm.Languages) (languages models.Languages) {
+	var language models.Language
+
+	for _, dbLanguage := range dbLanguages {
+		language = parseDBLanguageToLanguage(dbLanguage)
+		languages = append(languages, language)
+	}
+	return
+}
+
+func parseLanguageToDBLanguage(language models.Language) (dbLanguage dbm.Language) {
+	dbLanguage = dbm.Language{
+		Code:   language.Code,
+		Status: language.Status,
+	}
+
+	if language.CreatedAt != nil {
+		if &language.CreatedAt != nil {
+			dbLanguage.CreatedAt.Time = *language.CreatedAt
+		}
+	}
+
+	if language.UpdatedAt != nil {
+		if &language.UpdatedAt != nil {
+			dbLanguage.UpdatedAt.Time = *language.UpdatedAt
+		}
+	}
+
+	return
+}
+
+func parseLanguagesToDBLanguages(languages models.Languages) (dbLanguages dbm.Languages) {
+	var dbLanguage dbm.Language
+
+	for _, language := range languages {
+		dbLanguage = parseLanguageToDBLanguage(language)
+		dbLanguages = append(dbLanguages, dbLanguage)
 	}
 	return
 }

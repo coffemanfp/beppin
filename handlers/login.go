@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/coffemanfp/beppin-server/database"
 	dbm "github.com/coffemanfp/beppin-server/database/models"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
@@ -23,20 +22,13 @@ func Login(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	if !user.ValidateLogin() {
+	if !user.Validate("login") {
 		m.Error = fmt.Sprintf("%v", errs.ErrInvalidUserLogin)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	db, err := database.Get()
-	if err != nil {
-		c.Logger().Error(err)
-
-		return echo.ErrInternalServerError
-	}
-
-	dbUser, match, err := db.Login(
+	dbUser, match, err := Storage.Login(
 		dbm.User{
 			Username: user.Username,
 			Email:    user.Email,
@@ -45,32 +37,25 @@ func Login(c echo.Context) (err error) {
 	)
 	if err != nil {
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
 	if !match {
 		return echo.ErrUnauthorized
 	}
 
-	userI, err := helpers.ParseDBModelToModel(dbUser)
-	if err != nil {
-		c.Logger().Error(err)
-
-		return echo.ErrInternalServerError
-	}
-
-	user = userI.(models.User)
-
 	claim := models.Claim{
-		User: user,
+		User: helpers.ShouldParseDBModelToModel(dbUser).(models.User),
 	}
 
 	token, err := claim.GenerateJWT()
 	if err != nil {
 		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
 	m.Message = "Ok."

@@ -5,13 +5,17 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/coffemanfp/beppin-server/config"
 	"github.com/coffemanfp/beppin-server/database/models"
 	errs "github.com/coffemanfp/beppin-server/errors"
 )
 
 // SelectUsers - Select a users list.
-func SelectUsers(db *sql.DB, limit, offset uint64) (users models.Users, err error) {
+func SelectUsers(db *sql.DB, limit, offset int) (users models.Users, err error) {
+	if db == nil {
+		err = errs.ErrClosedDatabase
+		return
+	}
+
 	query := `
 		SELECT
 			id, language, avatar, username, email, name, last_name, birthday, theme, created_at, updated_at
@@ -22,12 +26,6 @@ func SelectUsers(db *sql.DB, limit, offset uint64) (users models.Users, err erro
 		OFFSET
 			$2
 	`
-
-	settings := config.GetSettings()
-
-	if limit == 0 {
-		limit = settings.MaxElementsPerPagination
-	}
 
 	stmt, err := db.Prepare(query)
 	if err != nil {

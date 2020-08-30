@@ -10,6 +10,11 @@ import (
 
 // ExistsUser - Checks if exists a user.
 func ExistsUser(db *sql.DB, user models.User) (exists bool, err error) {
+	if db == nil {
+		err = errs.ErrClosedDatabase
+		return
+	}
+
 	identifier := user.GetIdentifier()
 	if identifier == nil {
 		err = fmt.Errorf("failed to check user: %w (user)", errs.ErrNotProvidedOrInvalidObject)
@@ -20,7 +25,7 @@ func ExistsUser(db *sql.DB, user models.User) (exists bool, err error) {
 		SELECT
 			EXISTS(
 				SELECT
-					id
+					1
 				FROM
 					users
 				WHERE
