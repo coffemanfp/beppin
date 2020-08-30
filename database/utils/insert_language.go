@@ -9,7 +9,7 @@ import (
 )
 
 // InsertLanguage - Insert a language.
-func InsertLanguage(db *sql.DB, language models.Language) (err error) {
+func InsertLanguage(db *sql.DB, language models.Language) (id int, err error) {
 	if db == nil {
 		err = errs.ErrClosedDatabase
 		return
@@ -28,6 +28,8 @@ func InsertLanguage(db *sql.DB, language models.Language) (err error) {
 			($1, $2)
 		ON CONFLICT DO
 			NOTHING
+		RETURNING
+			id
 	`
 
 	stmt, err := db.Prepare(query)
@@ -37,10 +39,10 @@ func InsertLanguage(db *sql.DB, language models.Language) (err error) {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(
+	err = stmt.QueryRow(
 		language.Code,
 		language.Status,
-	)
+	).Scan(&id)
 	if err != nil {
 		err = fmt.Errorf("failed to execute insert (%v) language statement: %v", identifier, err)
 	}

@@ -15,11 +15,9 @@ type Claim struct {
 
 // GenerateJWT - Generates a JSON Web Token.
 func (c *Claim) GenerateJWT() (result string, err error) {
-	settings := config.GetSettings()
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
 
-	result, err = token.SignedString([]byte(settings.SecretKey))
+	result, err = token.SignedString([]byte(config.GlobalSettings.SecretKey))
 	if err != nil {
 		err = fmt.Errorf("failed to sign token:\n%v", err)
 	}

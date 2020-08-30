@@ -5,14 +5,13 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/coffemanfp/beppin-server/config"
 	"github.com/coffemanfp/beppin-server/database/models"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/lib/pq"
 )
 
 // SelectProducts - Select a products list.
-func SelectProducts(db *sql.DB, limit, offset uint64) (products models.Products, err error) {
+func SelectProducts(db *sql.DB, limit, offset int) (products models.Products, err error) {
 	if db == nil {
 		err = errs.ErrClosedDatabase
 		return
@@ -28,12 +27,6 @@ func SelectProducts(db *sql.DB, limit, offset uint64) (products models.Products,
 	OFFSET
 		$2
 	`
-
-	settings := config.GetSettings()
-
-	if limit == 0 {
-		limit = settings.MaxElementsPerPagination
-	}
 
 	stmt, err := db.Prepare(query)
 	if err != nil {

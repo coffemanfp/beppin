@@ -21,6 +21,7 @@ import (
 
 func init() {
 	exampleTime = time.Now()
+	config.SetDefaultSettings()
 }
 
 var token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxLCJsYW5ndWFnZSI6ImVzLUVTIiwidXNlcm5hbWUiOiJjb2ZmZW1hbmZwIiwidGhlbWUiOiJsaWdodCJ9fQ.GJcykxeN4yfE7CVi1xu4zVYstPgODCuNtrgq4T11gA4"
@@ -32,6 +33,7 @@ var exampleLanguage = models.Language{
 }
 
 var exampleUser = models.User{
+	ID:       1,
 	Language: "es-ES",
 	Name:     "Franklin",
 	Username: "coffemanfp",
@@ -98,7 +100,7 @@ func setJWTMiddleware(t *testing.T, e *echo.Echo) {
 
 	jwtConfig := middleware.JWTConfig{
 		Claims:      &models.Claim{},
-		SigningKey:  []byte(config.GetSettings().SecretKey),
+		SigningKey:  []byte(config.GlobalSettings.SecretKey),
 		TokenLookup: "header:" + echo.HeaderAuthorization,
 	}
 
@@ -123,13 +125,15 @@ func setStorage(t *testing.T) {
 	handlers.Storage = storage
 }
 
-func insertUser(t *testing.T, user models.User) {
+func insertUser(t *testing.T, user models.User) (id int) {
 	t.Helper()
 
 	userDB, err := helpers.ParseModelToDBModel(user)
 	assert.Nil(t, err)
 
-	assert.Nil(t, handlers.Storage.CreateUser(userDB.(dbm.User)))
+	id, err = handlers.Storage.CreateUser(userDB.(dbm.User))
+	assert.Nil(t, err)
+	return
 }
 
 func existsUser(t *testing.T, user models.User) (exists bool) {
@@ -143,13 +147,15 @@ func existsUser(t *testing.T, user models.User) (exists bool) {
 	return
 }
 
-func insertLanguage(t *testing.T, language models.Language) {
+func insertLanguage(t *testing.T, language models.Language) (id int) {
 	t.Helper()
 
 	languageDB, err := helpers.ParseModelToDBModel(language)
 	assert.Nil(t, err)
 
-	assert.Nil(t, handlers.Storage.CreateLanguage(languageDB.(dbm.Language)))
+	id, err = handlers.Storage.CreateLanguage(languageDB.(dbm.Language))
+	assert.Nil(t, err)
+	return
 }
 
 func existsLanguage(t *testing.T, language models.Language) (exists bool) {
@@ -163,11 +169,14 @@ func existsLanguage(t *testing.T, language models.Language) (exists bool) {
 	return
 }
 
-func insertProduct(t *testing.T, product models.Product) {
+func insertProduct(t *testing.T, product models.Product) (id int) {
 	t.Helper()
 
 	productDB, err := helpers.ParseModelToDBModel(product)
 	assert.Nil(t, err)
 
-	assert.Nil(t, handlers.Storage.CreateProduct(productDB.(dbm.Product)))
+	id, err = handlers.Storage.CreateProduct(productDB.(dbm.Product))
+	assert.Nil(t, err)
+	fmt.Println(err)
+	return
 }

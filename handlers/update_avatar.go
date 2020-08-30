@@ -17,11 +17,11 @@ import (
 func UpdateAvatar(c echo.Context) (err error) {
 	var avatar models.Avatar
 	var m models.ResponseMessage
-	var userID uint64
+	var userID int
 
 	userIDParam := c.Param("id")
 
-	if userID, err = utils.ParseUint(userIDParam, 64); err != nil || userID == 0 {
+	if userID, err = utils.Atoi(userIDParam); err != nil || userID == 0 {
 		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
@@ -52,7 +52,7 @@ func UpdateAvatar(c echo.Context) (err error) {
 		}
 	}
 
-	err = Storage.UpdateAvatar(
+	id, err := Storage.UpdateAvatar(
 		avatarURL,
 		dbm.User{ID: int64(userID)},
 	)
@@ -75,6 +75,9 @@ func UpdateAvatar(c echo.Context) (err error) {
 	}
 
 	m.Message = "Updated."
-
+	m.Content = models.User{
+		ID: int64(id),
+	}
+	m.ContentType = models.TypeUser
 	return c.JSON(http.StatusOK, m)
 }

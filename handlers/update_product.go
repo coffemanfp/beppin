@@ -18,7 +18,7 @@ func UpdateProduct(c echo.Context) (err error) {
 	productIDParam := c.Param("id")
 	var m models.ResponseMessage
 
-	productID, err := utils.ParseUint(productIDParam, 64)
+	productID, err := utils.Atoi(productIDParam)
 	if err != nil || productID == 0 {
 		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 
@@ -33,7 +33,7 @@ func UpdateProduct(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	err = Storage.UpdateProduct(
+	id, err := Storage.UpdateProduct(
 		dbm.Product{
 			ID: int64(productID),
 		},
@@ -52,6 +52,9 @@ func UpdateProduct(c echo.Context) (err error) {
 	}
 
 	m.Message = "Updated."
-
+	m.Content = models.Product{
+		ID: int64(id),
+	}
+	m.ContentType = models.TypeProduct
 	return c.JSON(http.StatusOK, m)
 }

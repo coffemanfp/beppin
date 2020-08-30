@@ -8,7 +8,7 @@ import (
 	errs "github.com/coffemanfp/beppin-server/errors"
 )
 
-func (dS defaultStorage) CreateProduct(product models.Product) (err error) {
+func (dS defaultStorage) CreateProduct(product models.Product) (id int, err error) {
 	exists, err := dS.ExistsUser(models.User{ID: product.UserID})
 	if err != nil {
 		return
@@ -19,7 +19,7 @@ func (dS defaultStorage) CreateProduct(product models.Product) (err error) {
 		return
 	}
 
-	err = dbu.InsertProduct(dS.db, product)
+	id, err = dbu.InsertProduct(dS.db, product)
 	return
 }
 
@@ -28,12 +28,12 @@ func (dS defaultStorage) GetProduct(productToFind models.Product) (product model
 	return
 }
 
-func (dS defaultStorage) GetProducts(limit, offset uint64) (products models.Products, err error) {
+func (dS defaultStorage) GetProducts(limit, offset int) (products models.Products, err error) {
 	products, err = dbu.SelectProducts(dS.db, limit, offset)
 	return
 }
 
-func (dS defaultStorage) UpdateProduct(productToUpdate, product models.Product) (err error) {
+func (dS defaultStorage) UpdateProduct(productToUpdate, product models.Product) (id int, err error) {
 	productToUpdate, err = dS.GetProduct(
 		models.Product{
 			ID: productToUpdate.ID,
@@ -45,12 +45,12 @@ func (dS defaultStorage) UpdateProduct(productToUpdate, product models.Product) 
 
 	product = fillProductEmptyFields(product, productToUpdate)
 
-	err = dbu.UpdateProduct(dS.db, productToUpdate, product)
+	id, err = dbu.UpdateProduct(dS.db, productToUpdate, product)
 	return
 }
 
-func (dS defaultStorage) DeleteProduct(productToDelete models.Product) (err error) {
-	err = dbu.DeleteProduct(dS.db, productToDelete)
+func (dS defaultStorage) DeleteProduct(productToDelete models.Product) (id int, err error) {
+	id, err = dbu.DeleteProduct(dS.db, productToDelete)
 	return
 }
 

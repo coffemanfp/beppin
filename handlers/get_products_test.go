@@ -64,7 +64,8 @@ func TestGetProducts(t *testing.T) {
 					insertLanguage(t, exampleLanguage)
 				}
 				if !existsUser(t, exampleUser) {
-					insertUser(t, exampleUser)
+					id := insertUser(t, exampleUser)
+					ts.ExpectedContent.(models.Products)[0].UserID = int64(id)
 				}
 				insertProduct(t, ts.ExpectedContent.(models.Products)[0])
 			}
@@ -79,10 +80,6 @@ func TestGetProducts(t *testing.T) {
 
 			var m models.ResponseMessage
 			m = decodeResponseMessage(t, rec)
-
-			if ts.Name == "with_limit_param" {
-				fmt.Println(m)
-			}
 
 			assert.Equal(t, http.StatusOK, rec.Code)
 			assert.Equal(t, models.TypeProducts, m.ContentType)
@@ -121,6 +118,7 @@ func TestFailedGetProducts(t *testing.T) {
 		ExpectedStatusCode int
 		ExpectedError      string
 		WithDatabase       bool
+		WithProducts       bool
 	}{
 		{
 			Name: "limit_negative_number",
@@ -166,7 +164,7 @@ func TestFailedGetProducts(t *testing.T) {
 			Name: "limit_super_greater_max",
 			QueryParams: url.Values{
 				"limit": []string{
-					strconv.Itoa(int(config.GetSettings().MaxElementsPerPagination)) + "09876545678909876545678987678",
+					strconv.Itoa(config.GlobalSettings.MaxElementsPerPagination) + "09876545678909876545678987678",
 				},
 			},
 			ExpectedStatusCode: http.StatusBadRequest,
@@ -236,6 +234,17 @@ func TestFailedGetProducts(t *testing.T) {
 				assert.Nil(t, err)
 
 				handlers.Storage = storage
+
+				if ts.WithProducts {
+					if !existsLanguage(t, exampleLanguage) {
+						insertLanguage(t, exampleLanguage)
+					}
+					if !existsUser(t, exampleUser) {
+						insertUser(t, exampleUser)
+					}
+
+					insertProduct(t, exampleProducts[0])
+				}
 			} else {
 				handlers.Storage = database.New(nil)
 			}

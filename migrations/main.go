@@ -7,13 +7,6 @@ import (
 	"github.com/coffemanfp/beppin-server/utils"
 )
 
-var (
-	withExamples bool
-	configFile   string
-	schemaFile   string
-	examplesFile string
-)
-
 func main() {
 	storage, err := database.Get()
 	if err != nil {
@@ -53,4 +46,5 @@ func main() {
 
 func init() {
 	initFlags()
+	initSettings()
 }

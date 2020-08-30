@@ -8,7 +8,7 @@ import (
 	errs "github.com/coffemanfp/beppin-server/errors"
 )
 
-func (dS defaultStorage) CreateUser(user models.User) (err error) {
+func (dS defaultStorage) CreateUser(user models.User) (id int, err error) {
 	identifier := user.GetIdentifier()
 	if identifier == nil {
 		err = fmt.Errorf("failed to create user: %w (user)", errs.ErrNotProvidedOrInvalidObject)
@@ -35,7 +35,7 @@ func (dS defaultStorage) CreateUser(user models.User) (err error) {
 		user.Language = language
 	}
 
-	err = dbu.InsertUser(dS.db, user)
+	id, err = dbu.InsertUser(dS.db, user)
 	return
 }
 
@@ -54,12 +54,12 @@ func (dS defaultStorage) GetUser(userToFind models.User) (user models.User, err 
 	return
 }
 
-func (dS defaultStorage) GetUsers(limit, offset uint64) (users models.Users, err error) {
+func (dS defaultStorage) GetUsers(limit, offset int) (users models.Users, err error) {
 	users, err = dbu.SelectUsers(dS.db, limit, offset)
 	return
 }
 
-func (dS defaultStorage) UpdateUser(userToUpdate, user models.User) (err error) {
+func (dS defaultStorage) UpdateUser(userToUpdate, user models.User) (id int, err error) {
 	previousUserData, err := dbu.SelectUser(dS.db, userToUpdate)
 	if err != nil {
 		return
@@ -67,11 +67,11 @@ func (dS defaultStorage) UpdateUser(userToUpdate, user models.User) (err error) 
 
 	user = fillUserEmptyFields(user, previousUserData)
 
-	err = dbu.UpdateUser(dS.db, userToUpdate, user)
+	id, err = dbu.UpdateUser(dS.db, userToUpdate, user)
 	return
 }
 
-func (dS defaultStorage) UpdateAvatar(avatarURL string, userToUpdate models.User) (err error) {
+func (dS defaultStorage) UpdateAvatar(avatarURL string, userToUpdate models.User) (id int, err error) {
 	identifier := userToUpdate.GetIdentifier()
 	if identifier == nil {
 		err = fmt.Errorf("failed to check user: %w (user)", errs.ErrNotProvidedOrInvalidObject)
@@ -88,12 +88,12 @@ func (dS defaultStorage) UpdateAvatar(avatarURL string, userToUpdate models.User
 		return
 	}
 
-	err = dbu.UpdateAvatar(dS.db, avatarURL, userToUpdate)
+	id, err = dbu.UpdateAvatar(dS.db, avatarURL, userToUpdate)
 	return
 }
 
-func (dS defaultStorage) DeleteUser(userToDelete models.User) (err error) {
-	err = dbu.DeleteUser(dS.db, userToDelete)
+func (dS defaultStorage) DeleteUser(userToDelete models.User) (id int, err error) {
+	id, err = dbu.DeleteUser(dS.db, userToDelete)
 	return
 }
 
