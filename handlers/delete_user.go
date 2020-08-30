@@ -25,7 +25,7 @@ func DeleteUser(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	err = Storage.DeleteUser(
+	id, err := Storage.DeleteUser(
 		dbm.User{
 			ID: int64(userID),
 		},
@@ -43,6 +43,10 @@ func DeleteUser(c echo.Context) (err error) {
 	}
 
 	m.Message = "Deleted."
+	m.Content = models.User{
+		ID: int64(id),
+	}
+	m.ContentType = models.TypeUser
 
 	return c.JSON(http.StatusOK, m)
 }

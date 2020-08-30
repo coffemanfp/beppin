@@ -46,7 +46,7 @@ func initDatabase() {
 }
 
 func initFlags() {
-	flag.BoolVar(&readConfigFile, "read-config-file", true, "Checks if read the config file or not.")
+	flag.BoolVar(&readConfigFile, "read-config-file", false, "Checks if read the config file or not.")
 	flag.BoolVar(&readEnvVars, "read-env-vars", true, "Checks if read the environment vars or not.")
 
 	flag.Parse()

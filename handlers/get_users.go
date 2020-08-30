@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/coffemanfp/beppin-server/config"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/coffemanfp/beppin-server/helpers"
 	"github.com/coffemanfp/beppin-server/models"
@@ -15,6 +16,7 @@ import (
 func GetUsers(c echo.Context) (err error) {
 	limitParam := c.QueryParam("limit")
 	offsetParam := c.QueryParam("offset")
+	maxElementsPerPagination := config.GlobalSettings.MaxElementsPerPagination
 
 	var m models.ResponseMessage
 
@@ -25,11 +27,24 @@ func GetUsers(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	// If the limit param is exceeded, is setted to the default limit.
-	m.LimitParamExceeded(&limit)
-
 	// If the limit is not provided, is setted to the default limit.
-	m.NotLimitParamProvided(&limit)
+	if limit == 0 {
+		limit = maxElementsPerPagination
+		m.Message = fmt.Sprintf(
+			"%s: setted to %d",
+			models.MessageNotLimitParam,
+			maxElementsPerPagination,
+		)
+
+		// If the limit param is exceeded, is setted to the default limit.
+	} else if limit > maxElementsPerPagination {
+		limit = maxElementsPerPagination
+		m.Message = fmt.Sprintf(
+			"%s: setted to %d",
+			models.MessageLimitParamExceeded,
+			maxElementsPerPagination,
+		)
+	}
 
 	offset, err := utils.Atoi(offsetParam)
 	if err != nil {

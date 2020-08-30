@@ -5,4 +5,4 @@ go build -o ../bin/migrations
 cd ../
 
 echo 'Starting migrations...'
-./bin/migrations
+./bin/migrations --read-env-vars=false

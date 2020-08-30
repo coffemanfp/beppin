@@ -2,6 +2,7 @@ package utils
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/database/models"
@@ -9,7 +10,7 @@ import (
 )
 
 // DeleteUser - Deletes a user.
-func DeleteUser(db *sql.DB, user models.User) (err error) {
+func DeleteUser(db *sql.DB, user models.User) (id int, err error) {
 	if db == nil {
 		err = errs.ErrClosedDatabase
 		return
@@ -26,6 +27,8 @@ func DeleteUser(db *sql.DB, user models.User) (err error) {
 			users
 		WHERE
 			users.id = $1 OR users.username = $2 OR users.email = $3
+		RETURNING
+			id
 	`
 
 	stmt, err := db.Prepare(query)
@@ -35,19 +38,18 @@ func DeleteUser(db *sql.DB, user models.User) (err error) {
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(user.ID, user.Username, user.Email)
+	err = stmt.QueryRow(user.ID, user.Username, user.Email).Scan(&id)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			err = fmt.Errorf("failed to delete (%v) user: %w (user)", identifier, errs.ErrNotExistentObject)
+			return
+		}
+
 		err = fmt.Errorf("failed to delete (%v) user: %v", identifier, err)
 		return
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		err = fmt.Errorf("failed to get the rows affected number: %v", err)
-		return
-	}
-
-	if rowsAffected == 0 {
+	if id == 0 {
 		err = fmt.Errorf("failed to delete (%v) user: %w (user)", identifier, errs.ErrNotExistentObject)
 	}
 	return

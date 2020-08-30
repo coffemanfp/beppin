@@ -33,6 +33,7 @@ var exampleLanguage = models.Language{
 }
 
 var exampleUser = models.User{
+	ID:       1,
 	Language: "es-ES",
 	Name:     "Franklin",
 	Username: "coffemanfp",
@@ -124,13 +125,15 @@ func setStorage(t *testing.T) {
 	handlers.Storage = storage
 }
 
-func insertUser(t *testing.T, user models.User) {
+func insertUser(t *testing.T, user models.User) (id int) {
 	t.Helper()
 
 	userDB, err := helpers.ParseModelToDBModel(user)
 	assert.Nil(t, err)
 
-	assert.Nil(t, handlers.Storage.CreateUser(userDB.(dbm.User)))
+	id, err = handlers.Storage.CreateUser(userDB.(dbm.User))
+	assert.Nil(t, err)
+	return
 }
 
 func existsUser(t *testing.T, user models.User) (exists bool) {
@@ -144,13 +147,15 @@ func existsUser(t *testing.T, user models.User) (exists bool) {
 	return
 }
 
-func insertLanguage(t *testing.T, language models.Language) {
+func insertLanguage(t *testing.T, language models.Language) (id int) {
 	t.Helper()
 
 	languageDB, err := helpers.ParseModelToDBModel(language)
 	assert.Nil(t, err)
 
-	assert.Nil(t, handlers.Storage.CreateLanguage(languageDB.(dbm.Language)))
+	id, err = handlers.Storage.CreateLanguage(languageDB.(dbm.Language))
+	assert.Nil(t, err)
+	return
 }
 
 func existsLanguage(t *testing.T, language models.Language) (exists bool) {
@@ -164,11 +169,14 @@ func existsLanguage(t *testing.T, language models.Language) (exists bool) {
 	return
 }
 
-func insertProduct(t *testing.T, product models.Product) {
+func insertProduct(t *testing.T, product models.Product) (id int) {
 	t.Helper()
 
 	productDB, err := helpers.ParseModelToDBModel(product)
 	assert.Nil(t, err)
 
-	assert.Nil(t, handlers.Storage.CreateProduct(productDB.(dbm.Product)))
+	id, err = handlers.Storage.CreateProduct(productDB.(dbm.Product))
+	assert.Nil(t, err)
+	fmt.Println(err)
+	return
 }
