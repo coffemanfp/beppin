@@ -347,6 +347,7 @@ func parseOffersToDBOffers(offers models.Offers) (dbOffers dbm.Offers) {
 
 func parseDBLanguageToLanguage(dbLanguage dbm.Language) (language models.Language) {
 	language = models.Language{
+		ID:     dbLanguage.ID,
 		Code:   dbLanguage.Code,
 		Status: dbLanguage.Status,
 
@@ -368,6 +369,7 @@ func parseDBLanguagesToLanguages(dbLanguages dbm.Languages) (languages models.La
 
 func parseLanguageToDBLanguage(language models.Language) (dbLanguage dbm.Language) {
 	dbLanguage = dbm.Language{
+		ID:     language.ID,
 		Code:   language.Code,
 		Status: language.Status,
 	}
