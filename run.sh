@@ -1,3 +1,3 @@
 #!/bin/bash
 
-go build -o ./bin/beppin-server && ./bin/beppin-server --read-config-file=false
+go build -o ./bin/beppin-server && ./bin/beppin-server --read-config-file=false --read-env-vars=false
