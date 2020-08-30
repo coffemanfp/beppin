@@ -37,14 +37,12 @@ func New(db *sql.DB) (s Storage) {
 
 // NewDefault creates the default database storage.
 func NewDefault() (s Storage, err error) {
-	settings := config.GetSettings()
-
-	if settings.Database == nil || !settings.Database.ValidateDatabase() {
+	if !config.ValidateSettings("database") {
 		err = fmt.Errorf("%w", errs.ErrInvalidSettings)
 		return
 	}
 
-	db, err := sql.Open("postgres", settings.Database.URL)
+	db, err := sql.Open("postgres", config.GetVar("db_url").(string))
 	if err != nil {
 		err = fmt.Errorf("error opening a database connection: %v", err)
 		return

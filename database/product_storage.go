@@ -6,7 +6,7 @@ import "github.com/coffemanfp/beppin-server/database/models"
 type ProductStorage interface {
 	CreateProduct(product models.Product) error
 	GetProduct(productToFind models.Product) (models.Product, error)
-	GetProducts(limit, offset uint64) (models.Products, error)
+	GetProducts(limit, offset int) (models.Products, error)
 	UpdateProduct(productToUpdate, product models.Product) error
 	DeleteProduct(product models.Product) error
 }

@@ -21,8 +21,7 @@ func validateDatabase() (valid bool) {
 		viper.GetString("db_user") == "" ||
 		viper.GetString("db_password") == "" ||
 		viper.GetString("db_host") == "" ||
-		viper.GetString("db_sslMode") == "" ||
-		viper.GetString("db_url") == "" {
+		viper.GetString("db_sslMode") == "" {
 		valid = false
 	}
 	return

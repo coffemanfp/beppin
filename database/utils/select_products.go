@@ -12,7 +12,7 @@ import (
 )
 
 // SelectProducts - Select a products list.
-func SelectProducts(db *sql.DB, limit, offset uint64) (products models.Products, err error) {
+func SelectProducts(db *sql.DB, limit, offset int) (products models.Products, err error) {
 	if db == nil {
 		err = errs.ErrClosedDatabase
 		return
@@ -29,10 +29,8 @@ func SelectProducts(db *sql.DB, limit, offset uint64) (products models.Products,
 		$2
 	`
 
-	settings := config.GetSettings()
-
 	if limit == 0 {
-		limit = settings.MaxElementsPerPagination
+		limit = config.GetVar("maxElementsPerPagination").(int)
 	}
 
 	stmt, err := db.Prepare(query)

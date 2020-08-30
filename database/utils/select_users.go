@@ -11,7 +11,7 @@ import (
 )
 
 // SelectUsers - Select a users list.
-func SelectUsers(db *sql.DB, limit, offset uint64) (users models.Users, err error) {
+func SelectUsers(db *sql.DB, limit, offset int) (users models.Users, err error) {
 	if db == nil {
 		err = errs.ErrClosedDatabase
 		return
@@ -28,10 +28,8 @@ func SelectUsers(db *sql.DB, limit, offset uint64) (users models.Users, err erro
 			$2
 	`
 
-	settings := config.GetSettings()
-
 	if limit == 0 {
-		limit = settings.MaxElementsPerPagination
+		limit = config.GetVar("maxElementsPerPagination").(int)
 	}
 
 	stmt, err := db.Prepare(query)

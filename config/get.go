@@ -33,6 +33,8 @@ func GetVar(name string) (value interface{}) {
 		value = viper.GetString("db_host")
 	case "db_sslMode":
 		value = viper.GetString("db_sslMode")
+	case "db_url":
+		value = viper.GetString("db_url")
 	}
 	return
 }

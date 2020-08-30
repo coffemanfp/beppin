@@ -37,35 +37,31 @@ type ResponseMessage struct {
 }
 
 // NotLimitParamProvided - Sets a message saying that the limit parameter has not been provided.
-func (m *ResponseMessage) NotLimitParamProvided(limit *uint64) {
+func (m *ResponseMessage) NotLimitParamProvided(limit *int) {
 	if *limit > 0 {
 		return
 	}
 
-	settings := config.GetSettings()
-
 	m.Message = fmt.Sprintf(
 		"Not limit param provided, setted to %d",
-		settings.MaxElementsPerPagination,
+		config.GetVar("maxElementsPerPagination").(int),
 	)
-
-	*limit = uint64(settings.MaxElementsPerPagination)
 	return
 }
 
 // LimitParamExceeded - Sets a message saying that the limit parameter has  been provided.
-func (m *ResponseMessage) LimitParamExceeded(limit *uint64) {
-	settings := config.GetSettings()
+func (m *ResponseMessage) LimitParamExceeded(limit *int) {
+	maxElementsPerPagination := config.GetVar("maxElementsPerPagination").(int)
 
-	if *limit < settings.MaxElementsPerPagination {
+	if *limit < maxElementsPerPagination {
 		return
 	}
 
 	m.Message = fmt.Sprintf(
 		"Limit of elements exceeded, setted to %d",
-		settings.MaxElementsPerPagination,
+		maxElementsPerPagination,
 	)
 
-	*limit = uint64(settings.MaxElementsPerPagination)
+	*limit = maxElementsPerPagination
 	return
 }
