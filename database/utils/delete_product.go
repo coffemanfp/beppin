@@ -9,7 +9,7 @@ import (
 )
 
 // DeleteProduct - Deletes a product.
-func DeleteProduct(db *sql.DB, product models.Product) (err error) {
+func DeleteProduct(db *sql.DB, product models.Product) (id int, err error) {
 	if db == nil {
 		err = errs.ErrClosedDatabase
 		return
@@ -26,6 +26,8 @@ func DeleteProduct(db *sql.DB, product models.Product) (err error) {
 			products
 		WHERE
 			id = $1
+		RETURNING
+			id
 	`
 
 	stmt, err := db.Prepare(query)
@@ -35,19 +37,13 @@ func DeleteProduct(db *sql.DB, product models.Product) (err error) {
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(product.ID)
+	err = stmt.QueryRow(product.ID).Scan(&id)
 	if err != nil {
 		err = fmt.Errorf("failed to delete (%v) product: %v", identifier, err)
 		return
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		err = fmt.Errorf("failed to get the rows affected number: %v", err)
-		return
-	}
-
-	if rowsAffected == 0 {
+	if id == 0 {
 		err = fmt.Errorf("failed to delete (%v) product: %w (product)", identifier, errs.ErrNotExistentObject)
 	}
 	return

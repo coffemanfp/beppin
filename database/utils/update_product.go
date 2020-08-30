@@ -10,7 +10,7 @@ import (
 )
 
 // UpdateProduct - Updates a product.
-func UpdateProduct(db *sql.DB, productToUpdate, product models.Product) (err error) {
+func UpdateProduct(db *sql.DB, productToUpdate, product models.Product) (id int, err error) {
 	if db == nil {
 		err = errs.ErrClosedDatabase
 		return
@@ -32,6 +32,8 @@ func UpdateProduct(db *sql.DB, productToUpdate, product models.Product) (err err
 			updated_at = NOW()
 		WHERE 
 			id =  $4
+		RETURNING
+			id
 	`
 
 	stmt, err := db.Prepare(query)
@@ -41,12 +43,12 @@ func UpdateProduct(db *sql.DB, productToUpdate, product models.Product) (err err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(
+	err = stmt.QueryRow(
 		product.Name,
 		product.Description,
 		pq.Array(product.Categories),
 		productToUpdate.ID,
-	)
+	).Scan(&id)
 	if err != nil {
 		err = fmt.Errorf("failed to execute the update (%v) product statement: %v", identifier, err)
 	}
