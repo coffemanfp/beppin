@@ -7,6 +7,8 @@ import (
 // SetSettingsByEnv sets the env settings by environment vars.
 func SetSettingsByEnv() {
 	viper.SetEnvPrefix("beppin")
+	viper.AutomaticEnv()
+
 	viper.BindEnv(
 		"port",
 		"host",
@@ -23,5 +25,6 @@ func SetSettingsByEnv() {
 		"db_password",
 		"db_host",
 		"db_sslMode",
+		"db_url",
 	)
 }
