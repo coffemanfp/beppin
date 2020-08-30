@@ -2,6 +2,7 @@ package utils
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/database/models"
@@ -50,7 +51,13 @@ func UpdateProduct(db *sql.DB, productToUpdate, product models.Product) (id int,
 		productToUpdate.ID,
 	).Scan(&id)
 	if err != nil {
-		err = fmt.Errorf("failed to execute the update (%v) product statement: %v", identifier, err)
+		if errors.Is(err, sql.ErrNoRows) {
+			err = fmt.Errorf("failed to update (%v) product: %w (product)", identifier, errs.ErrNotExistentObject)
+			return
+		}
+
+		err = fmt.Errorf("failed to update (%v) product: %v", identifier, err)
+		return
 	}
 	return
 }

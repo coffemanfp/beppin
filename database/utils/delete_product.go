@@ -2,6 +2,7 @@ package utils
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/database/models"
@@ -39,6 +40,11 @@ func DeleteProduct(db *sql.DB, product models.Product) (id int, err error) {
 
 	err = stmt.QueryRow(product.ID).Scan(&id)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			err = fmt.Errorf("failed to delete (%v) product: %w (product)", identifier, errs.ErrNotExistentObject)
+			return
+		}
+
 		err = fmt.Errorf("failed to delete (%v) product: %v", identifier, err)
 		return
 	}

@@ -2,6 +2,7 @@ package utils
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/coffemanfp/beppin-server/database/models"
@@ -9,7 +10,7 @@ import (
 )
 
 // UpdateUser - Updates a user.
-func UpdateUser(db *sql.DB, userToUpdate, user models.User) (err error) {
+func UpdateUser(db *sql.DB, userToUpdate, user models.User) (id int, err error) {
 	if db == nil {
 		err = errs.ErrClosedDatabase
 		return
@@ -37,6 +38,8 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (err error) {
 			updated_at = NOW()
 		WHERE 
 			id = $10 OR username = $11 OR email = $12
+		RETUNING
+			id
 	`)
 
 	stmt, err := db.Prepare(query)
@@ -46,7 +49,7 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (err error) {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(
+	err = stmt.QueryRow(
 		user.Language.Code,
 		user.AvatarURL,
 		user.Username,
@@ -59,9 +62,15 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (err error) {
 		userToUpdate.ID,
 		userToUpdate.Username,
 		userToUpdate.Email,
-	)
+	).Scan(&id)
 	if err != nil {
-		err = fmt.Errorf("failed to execute the update (%v) user statement: %v", identifier, err)
+		if errors.Is(err, sql.ErrNoRows) {
+			err = fmt.Errorf("failed to update (%v) user: %w (user)", identifier, errs.ErrNotExistentObject)
+			return
+		}
+
+		err = fmt.Errorf("failed to update (%v) user: %v", identifier, err)
+		return
 	}
 	return
 }
