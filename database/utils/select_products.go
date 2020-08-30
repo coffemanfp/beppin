@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/coffemanfp/beppin-server/config"
 	"github.com/coffemanfp/beppin-server/database/models"
 	errs "github.com/coffemanfp/beppin-server/errors"
 	"github.com/lib/pq"
@@ -28,10 +27,6 @@ func SelectProducts(db *sql.DB, limit, offset int) (products models.Products, er
 	OFFSET
 		$2
 	`
-
-	if limit == 0 {
-		limit = config.GetVar("maxElementsPerPagination").(int)
-	}
 
 	stmt, err := db.Prepare(query)
 	if err != nil {

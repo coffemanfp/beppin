@@ -5,7 +5,7 @@ import (
 )
 
 // SetSettingsByEnv sets the env settings by environment vars.
-func SetSettingsByEnv() {
+func SetSettingsByEnv() (err error) {
 	viper.SetEnvPrefix("beppin")
 	viper.AutomaticEnv()
 
@@ -27,4 +27,12 @@ func SetSettingsByEnv() {
 		"db_sslMode",
 		"db_url",
 	)
+
+	err = viper.Unmarshal(&GlobalSettings)
+	if err != nil {
+		return
+	}
+
+	err = viper.Unmarshal(&GlobalSettings.Database)
+	return
 }

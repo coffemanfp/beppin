@@ -27,7 +27,7 @@ func newRouter(e *echo.Echo) {
 	// JWT Middleware
 	jwtConfig := middleware.JWTConfig{
 		Claims:      &models.Claim{},
-		SigningKey:  []byte(config.GetVar("secretKey").(string)),
+		SigningKey:  []byte(config.GlobalSettings.SecretKey),
 		TokenLookup: "header:" + echo.HeaderAuthorization,
 	}
 

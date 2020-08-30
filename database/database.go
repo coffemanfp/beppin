@@ -42,7 +42,7 @@ func NewDefault() (s Storage, err error) {
 		return
 	}
 
-	db, err := sql.Open("postgres", config.GetVar("db_url").(string))
+	db, err := sql.Open("postgres", config.GlobalSettings.Database.URL)
 	if err != nil {
 		err = fmt.Errorf("error opening a database connection: %v", err)
 		return

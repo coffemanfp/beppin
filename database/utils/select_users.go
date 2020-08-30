@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/coffemanfp/beppin-server/config"
 	"github.com/coffemanfp/beppin-server/database/models"
 	errs "github.com/coffemanfp/beppin-server/errors"
 )
@@ -27,10 +26,6 @@ func SelectUsers(db *sql.DB, limit, offset int) (users models.Users, err error) 
 		OFFSET
 			$2
 	`
-
-	if limit == 0 {
-		limit = config.GetVar("maxElementsPerPagination").(int)
-	}
 
 	stmt, err := db.Prepare(query)
 	if err != nil {

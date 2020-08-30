@@ -26,7 +26,7 @@ func (a Avatar) Save(userIdentifier string) (avatarURL string, err error) {
 	}
 
 	avatarPath := path.Join(
-		config.GetVar("assets").(string),
+		config.GlobalSettings.Assets,
 		"avatars",
 		userIdentifier,
 	)
@@ -36,7 +36,7 @@ func (a Avatar) Save(userIdentifier string) (avatarURL string, err error) {
 		err = fmt.Errorf("failed to write avatar file: %v", err)
 	}
 
-	avatarURLToParse, err := url.Parse(config.GetVar("host").(string))
+	avatarURLToParse, err := url.Parse(config.GlobalSettings.Host)
 	if err != nil {
 		err = fmt.Errorf("failed to parse host url: %v", err)
 		return

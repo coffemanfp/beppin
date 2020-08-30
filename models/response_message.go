@@ -44,14 +44,14 @@ func (m *ResponseMessage) NotLimitParamProvided(limit *int) {
 
 	m.Message = fmt.Sprintf(
 		"Not limit param provided, setted to %d",
-		config.GetVar("maxElementsPerPagination").(int),
+		config.GlobalSettings.MaxElementsPerPagination,
 	)
 	return
 }
 
 // LimitParamExceeded - Sets a message saying that the limit parameter has  been provided.
 func (m *ResponseMessage) LimitParamExceeded(limit *int) {
-	maxElementsPerPagination := config.GetVar("maxElementsPerPagination").(int)
+	maxElementsPerPagination := config.GlobalSettings.MaxElementsPerPagination
 
 	if *limit < maxElementsPerPagination {
 		return

@@ -7,7 +7,7 @@ import (
 )
 
 // SetDefaultSettings sets the default settings.
-func SetDefaultSettings() {
+func SetDefaultSettings() (err error) {
 	viper.SetDefault("port", 8080)
 	viper.SetDefault(
 		"host",
@@ -43,4 +43,11 @@ func SetDefaultSettings() {
 		),
 	)
 
+	err = viper.Unmarshal(&GlobalSettings)
+	if err != nil {
+		return
+	}
+
+	err = viper.Unmarshal(&GlobalSettings.Database)
+	return
 }

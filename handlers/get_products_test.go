@@ -166,7 +166,7 @@ func TestFailedGetProducts(t *testing.T) {
 			Name: "limit_super_greater_max",
 			QueryParams: url.Values{
 				"limit": []string{
-					strconv.Itoa(config.GetVar("maxElementsPerPagination").(int)) + "09876545678909876545678987678",
+					strconv.Itoa(config.GlobalSettings.MaxElementsPerPagination) + "09876545678909876545678987678",
 				},
 			},
 			ExpectedStatusCode: http.StatusBadRequest,

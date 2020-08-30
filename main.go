@@ -16,7 +16,7 @@ import (
 func main() {
 	e := echo.New()
 
-	gomniauth.SetSecurityKey(config.GetVar("secretKey").(string))
+	gomniauth.SetSecurityKey(config.GlobalSettings.SecretKey)
 
 	// Middlewares
 	{
@@ -47,13 +47,13 @@ func main() {
 	handlers.Storage, _ = database.Get()
 
 	// Config logger
-	err := config.NewLogger(e, config.GetVar("logsFile").(string))
+	err := config.NewLogger(e, config.GlobalSettings.LogsFile)
 	if err != nil {
 		log.Fatalf("failed to set logger: %v", err)
 	}
 
 	// Run server and print if fails.
-	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.GetVar("port").(int))))
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.GlobalSettings.Port)))
 }
 
 func init() {

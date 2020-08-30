@@ -18,5 +18,12 @@ func SetSettingsByFile() (err error) {
 	if err != nil {
 		err = fmt.Errorf("failed to read the config file: \n%v", err)
 	}
+
+	err = viper.Unmarshal(&GlobalSettings)
+	if err != nil {
+		return
+	}
+
+	err = viper.Unmarshal(&GlobalSettings.Database)
 	return
 }

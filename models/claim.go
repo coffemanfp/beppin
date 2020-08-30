@@ -17,7 +17,7 @@ type Claim struct {
 func (c *Claim) GenerateJWT() (result string, err error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
 
-	result, err = token.SignedString([]byte(config.GetVar("secretKey").(string)))
+	result, err = token.SignedString([]byte(config.GlobalSettings.SecretKey))
 	if err != nil {
 		err = fmt.Errorf("failed to sign token:\n%v", err)
 	}

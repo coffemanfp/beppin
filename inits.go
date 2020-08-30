@@ -18,10 +18,16 @@ var (
 var filesToUpload = make(chan *os.File)
 
 func initSettings() {
-	config.SetDefaultSettings()
+	err := config.SetDefaultSettings()
+	if err != nil {
+		log.Fatalln("failed to configure default settings:", err)
+	}
 
 	if readEnvVars {
-		config.SetSettingsByEnv()
+		err = config.SetSettingsByEnv()
+		if err != nil {
+			log.Fatalln("failed to configure environment vars settings:", err)
+		}
 	}
 
 	if readConfigFile {
