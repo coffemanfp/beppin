@@ -25,6 +25,12 @@ func GetProducts(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
+	if limit < 0 {
+		m.Error = fmt.Sprintf("%v: limit", errs.ErrInvalidParam)
+
+		return echo.NewHTTPError(http.StatusBadRequest, m)
+	}
+
 	// If the limit param is exceeded, is setted to the default limit.
 	m.LimitParamExceeded(&limit)
 
@@ -33,6 +39,12 @@ func GetProducts(c echo.Context) (err error) {
 
 	offset, err := utils.Atoi(offsetParam)
 	if err != nil {
+		m.Error = fmt.Sprintf("%v: offset", errs.ErrInvalidParam)
+
+		return echo.NewHTTPError(http.StatusBadRequest, m)
+	}
+
+	if offset < 0 {
 		m.Error = fmt.Sprintf("%v: offset", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
