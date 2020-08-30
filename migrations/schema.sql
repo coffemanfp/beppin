@@ -13,6 +13,7 @@ EXCEPTION
 END$$;
 
 CREATE TABLE IF NOT EXISTS languages (
+    id SERIAL,
     code CHAR(5),
     status LANGUAGE_STATUS DEFAULT 'unavailable',
 
