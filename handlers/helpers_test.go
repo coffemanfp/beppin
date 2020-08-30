@@ -172,3 +172,13 @@ func insertProduct(t *testing.T, product models.Product) {
 
 	assert.Nil(t, handlers.Storage.CreateProduct(productDB.(dbm.Product)))
 }
+
+func getProduct(t *testing.T, id int) (product models.Product, err error) {
+	t.Helper()
+
+	productDB, err := handlers.Storage.GetProduct(dbm.Product{ID: int64(id)})
+	assert.Nil(t, err)
+
+	product = helpers.ShouldParseDBModelToModel(productDB).(models.Product)
+	return
+}
