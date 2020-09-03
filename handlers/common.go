@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/coffemanfp/beppin-server/database"
+	"github.com/coffemanfp/beppin/database"
 )
 
 // Storage is a fast-access database storage

@@ -3,7 +3,7 @@ package utils_test
 import (
 	"testing"
 
-	"github.com/coffemanfp/beppin-server/utils"
+	"github.com/coffemanfp/beppin/utils"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -1,74 +1,34 @@
 package handlers_test
 
 import (
+	"bytes"
+	"database/sql"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
-	"github.com/coffemanfp/beppin-server/config"
-	"github.com/coffemanfp/beppin-server/database"
-	dbm "github.com/coffemanfp/beppin-server/database/models"
-	"github.com/coffemanfp/beppin-server/handlers"
-	"github.com/coffemanfp/beppin-server/helpers"
-	"github.com/coffemanfp/beppin-server/models"
+	"github.com/DATA-DOG/go-txdb"
+	"github.com/coffemanfp/beppin/config"
+	"github.com/coffemanfp/beppin/database"
+	dbm "github.com/coffemanfp/beppin/database/models"
+	"github.com/coffemanfp/beppin/handlers"
+	"github.com/coffemanfp/beppin/helpers"
+	"github.com/coffemanfp/beppin/models"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	_ "github.com/lib/pq"
+	"github.com/romanyx/polluter"
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/yaml.v2"
 )
 
 func init() {
-	exampleTime = time.Now()
 	config.SetDefaultSettings()
+	txdb.Register("beppin_test", "postgres", config.GlobalSettings.Database.URL)
 }
 
 var token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxLCJsYW5ndWFnZSI6ImVzLUVTIiwidXNlcm5hbWUiOiJjb2ZmZW1hbmZwIiwidGhlbWUiOiJsaWdodCJ9fQ.GJcykxeN4yfE7CVi1xu4zVYstPgODCuNtrgq4T11gA4"
-var exampleTime time.Time
-
-var exampleLanguage = models.Language{
-	Code:   "es-ES",
-	Status: "available",
-}
-
-var exampleUser = models.User{
-	ID:       1,
-	Language: "es-ES",
-	Name:     "Franklin",
-	Username: "coffemanfp",
-	Password: "24061502",
-	LastName: "Peñaranda",
-	Theme:    "dark",
-	Birthday: &exampleTime,
-}
-
-var exampleProducts = models.Products{
-	models.Product{
-		UserID:      1,
-		Name:        fmt.Sprintf("Product at %d", exampleTime.UnixNano()),
-		Description: "Product description",
-		Categories: []string{
-			"Food",
-		},
-	},
-	models.Product{
-		UserID:      1,
-		Name:        fmt.Sprintf("Product at %d", exampleTime.UnixNano()),
-		Description: "Product description 2",
-		Categories: []string{
-			"Tech",
-		},
-	},
-	models.Product{
-		UserID:      1,
-		Name:        fmt.Sprintf("Product at %d", exampleTime.UnixNano()),
-		Description: "Product description 3",
-		Categories: []string{
-			"Clothes",
-		},
-	},
-}
 
 // Server helpers
 
@@ -119,20 +79,21 @@ func setAuthorizationRequest(t *testing.T, req *http.Request, token string) {
 func setStorage(t *testing.T) {
 	t.Helper()
 
-	storage, err := database.NewDefault()
-	assert.Nil(t, err)
+	storage := database.New(db)
 	assert.NotNil(t, storage)
+
 	handlers.Storage = storage
 }
 
-func insertUser(t *testing.T, user models.User) (id int) {
+func insertUser(t *testing.T, db *sql.DB, user models.User) {
 	t.Helper()
 
-	userDB, err := helpers.ParseModelToDBModel(user)
+	userBytes, err := yaml.Marshal(user)
 	assert.Nil(t, err)
 
-	id, err = handlers.Storage.CreateUser(userDB.(dbm.User))
-	assert.Nil(t, err)
+	p := polluter.New(polluter.PostgresEngine(db))
+
+	assert.Nil(t, p.Pollute(bytes.NewReader(userBytes)))
 	return
 }
 
@@ -177,7 +138,6 @@ func insertProduct(t *testing.T, product models.Product) (id int) {
 
 	id, err = handlers.Storage.CreateProduct(productDB.(dbm.Product))
 	assert.Nil(t, err)
-	fmt.Println(err)
 	return
 }
 
@@ -189,4 +149,38 @@ func getProduct(t *testing.T, id int) (product models.Product, err error) {
 
 	product = helpers.ShouldParseDBModelToModel(productDB).(models.Product)
 	return
+}
+
+func restartSequences(t *testing.T, db *sql.DB) {
+	t.Helper()
+
+	query := `
+	SELECT
+		'ALTER SEQUENCE "' || c.relname || '" RESTART'
+	FROM
+		pg_class c
+	WHERE
+		c.relkind = 'S'
+	`
+
+	stmt, err := db.Prepare(query)
+	assert.Nil(t, err)
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	assert.Nil(t, err)
+
+	var queryRestartSequence string
+
+	for rows.Next() {
+		err = rows.Scan(&queryRestartSequence)
+		assert.Nil(t, err)
+
+		stmtRestartSequence, err := db.Prepare(queryRestartSequence)
+		assert.Nil(t, err)
+		defer stmtRestartSequence.Close()
+
+		_, err = stmtRestartSequence.Exec()
+		assert.Nil(t, err)
+	}
 }

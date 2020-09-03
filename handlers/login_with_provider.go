@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	errs "github.com/coffemanfp/beppin-server/errors"
-	"github.com/coffemanfp/beppin-server/models"
+	errs "github.com/coffemanfp/beppin/errors"
+	"github.com/coffemanfp/beppin/models"
 	"github.com/labstack/echo"
 	"github.com/stretchr/gomniauth"
 )

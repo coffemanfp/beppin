@@ -1,1 +1,1 @@
-web: bin/beppin-server
+web: bin/beppin

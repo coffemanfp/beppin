@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/coffemanfp/beppin-server/config"
-	"github.com/coffemanfp/beppin-server/handlers"
-	"github.com/coffemanfp/beppin-server/models"
+	"github.com/coffemanfp/beppin/config"
+	"github.com/coffemanfp/beppin/handlers"
+	"github.com/coffemanfp/beppin/models"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )

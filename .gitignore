@@ -11,7 +11,7 @@ logs/
 *.so
 *.dylib
 bin/
-beppin-server
+beppin
 
 # Test and test binary, built with `go test -c`
 *.test

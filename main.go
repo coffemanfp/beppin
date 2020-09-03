@@ -5,9 +5,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/coffemanfp/beppin-server/config"
-	"github.com/coffemanfp/beppin-server/database"
-	"github.com/coffemanfp/beppin-server/handlers"
+	"github.com/coffemanfp/beppin/config"
+	"github.com/coffemanfp/beppin/database"
+	"github.com/coffemanfp/beppin/handlers"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/stretchr/gomniauth"

@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/coffemanfp/beppin-server/config"
-	errs "github.com/coffemanfp/beppin-server/errors"
+	"github.com/coffemanfp/beppin/config"
+	errs "github.com/coffemanfp/beppin/errors"
 )
 
 var storage Storage

@@ -3,7 +3,7 @@ package models
 import (
 	"fmt"
 
-	"github.com/coffemanfp/beppin-server/config"
+	"github.com/coffemanfp/beppin/config"
 	"github.com/dgrijalva/jwt-go"
 )
 

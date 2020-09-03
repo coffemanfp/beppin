@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/coffemanfp/beppin-server/config"
-	errs "github.com/coffemanfp/beppin-server/errors"
-	"github.com/coffemanfp/beppin-server/helpers"
-	"github.com/coffemanfp/beppin-server/models"
-	"github.com/coffemanfp/beppin-server/utils"
+	"github.com/coffemanfp/beppin/config"
+	errs "github.com/coffemanfp/beppin/errors"
+	"github.com/coffemanfp/beppin/helpers"
+	"github.com/coffemanfp/beppin/models"
+	"github.com/coffemanfp/beppin/utils"
 	"github.com/labstack/echo"
 )
 

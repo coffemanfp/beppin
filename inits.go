@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/coffemanfp/beppin-server/config"
-	"github.com/coffemanfp/beppin-server/database"
+	"github.com/coffemanfp/beppin/config"
+	"github.com/coffemanfp/beppin/database"
 )
 
 // Flags

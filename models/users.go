@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/coffemanfp/beppin-server/utils"
+	"github.com/coffemanfp/beppin/utils"
 )
 
 // User - User for the app.

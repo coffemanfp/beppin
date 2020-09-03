@@ -3,9 +3,9 @@ package database
 import (
 	"fmt"
 
-	"github.com/coffemanfp/beppin-server/database/models"
-	dbu "github.com/coffemanfp/beppin-server/database/utils"
-	errs "github.com/coffemanfp/beppin-server/errors"
+	"github.com/coffemanfp/beppin/database/models"
+	dbu "github.com/coffemanfp/beppin/database/utils"
+	errs "github.com/coffemanfp/beppin/errors"
 )
 
 func (dS defaultStorage) CreateUser(user models.User) (id int, err error) {
