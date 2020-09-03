@@ -1,0 +1,19 @@
+---
+- language: es-ES
+  name: Glendys
+  last_name: Añez
+  username: glendysanez
+  email: glendysanez@gmail.com
+  password: '1234'
+  birthday: RAW=NOW()
+
+- language: en-EN
+  name: Franklin
+  last_name: Peñaranda
+  username: coffemanfp
+  email: coffemanfp@gmail.com
+  password: '1234'
+  birthday: RAW=NOW()
+  theme: dark
+
+
