@@ -9,48 +9,43 @@ import (
 	"testing"
 	"time"
 
-	"github.com/coffemanfp/beppin-server/database"
-	errs "github.com/coffemanfp/beppin-server/errors"
-	"github.com/coffemanfp/beppin-server/handlers"
-	"github.com/coffemanfp/beppin-server/models"
+	"github.com/coffemanfp/beppin/database"
+	errs "github.com/coffemanfp/beppin/errors"
+	"github.com/coffemanfp/beppin/handlers"
+	"github.com/coffemanfp/beppin/models"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateProduct(t *testing.T) {
 	// Setup server
-	e := echo.New()
-	e.Logger.Debug()
 
-	setJWTMiddleware(t, e)
-	setStorage(t)
+	for i := 0; i < 20; i++ {
+		e := echo.New()
+		e.Logger.Debug()
 
-	if !existsLanguage(t, exampleLanguage) {
-		insertLanguage(t, exampleLanguage)
+		setJWTMiddleware(t, e)
+		setStorage(t)
+
+		e.POST("/", handlers.CreateProduct)
+
+		productJSON, err := json.Marshal(exampleProducts[0])
+		assert.Nil(t, err)
+
+		// Now the request
+		req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(productJSON))
+
+		setAuthorizationRequest(t, req, token)
+
+		rec := httptest.NewRecorder()
+		e.ServeHTTP(rec, req)
+
+		assertResponseMessage(t, "Created.", decodeResponseMessage(t, rec))
+		assert.Equal(t, http.StatusCreated, rec.Code)
 	}
-	if !existsUser(t, exampleUser) {
-		insertUser(t, exampleUser)
-	}
-
-	e.POST("/", handlers.CreateProduct)
-
-	productJSON, err := json.Marshal(exampleProducts[0])
-	assert.Nil(t, err)
-
-	// Now the request
-	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(productJSON))
-
-	setAuthorizationRequest(t, req, token)
-
-	rec := httptest.NewRecorder()
-	e.ServeHTTP(rec, req)
-
-	assertResponseMessage(t, "Created.", decodeResponseMessage(t, rec))
 }
 
 func TestFailedCreateProduct(t *testing.T) {
-	t.Parallel()
-
 	tests := []struct {
 		Name               string
 		Body               interface{}
@@ -91,9 +86,7 @@ func TestFailedCreateProduct(t *testing.T) {
 	}
 
 	for _, ts := range tests {
-		ts := ts
 		t.Run(ts.Name, func(t *testing.T) {
-			t.Parallel()
 
 			// Setup server
 			e := echo.New()
@@ -104,12 +97,7 @@ func TestFailedCreateProduct(t *testing.T) {
 			e.POST("/", handlers.CreateProduct)
 
 			if ts.WithDatabase {
-				var storage database.Storage
-				storage, err := database.NewDefault()
-
-				assert.Nil(t, err)
-
-				handlers.Storage = storage
+				setStorage(t)
 			} else {
 				handlers.Storage = database.New(nil)
 			}
