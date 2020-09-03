@@ -6,7 +6,7 @@ import "database/sql"
 type User struct {
 	ID        int64
 	Language  Language
-	AvatarURL string
+	AvatarURL *sql.NullString
 
 	Username  string
 	Password  string
