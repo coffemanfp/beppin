@@ -1,6 +1,6 @@
 package database
 
-import "github.com/coffemanfp/beppin-server/database/models"
+import "github.com/coffemanfp/beppin/database/models"
 
 // LanguageStorage reprensents all implementations for language utils.
 type LanguageStorage interface {

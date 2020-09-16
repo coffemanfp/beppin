@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/coffemanfp/beppin-server/utils"
+	"github.com/coffemanfp/beppin/utils"
 	"github.com/labstack/echo"
 )
 

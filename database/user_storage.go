@@ -1,6 +1,6 @@
 package database
 
-import "github.com/coffemanfp/beppin-server/database/models"
+import "github.com/coffemanfp/beppin/database/models"
 
 // UserStorage reprensents all implementations for user utils.
 type UserStorage interface {

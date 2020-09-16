@@ -8,8 +8,8 @@ import (
 	"path"
 	"strings"
 
-	"github.com/coffemanfp/beppin-server/config"
-	errs "github.com/coffemanfp/beppin-server/errors"
+	"github.com/coffemanfp/beppin/config"
+	errs "github.com/coffemanfp/beppin/errors"
 )
 
 // Avatar represents a user avatar

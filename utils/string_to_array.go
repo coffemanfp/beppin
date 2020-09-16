@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	errs "github.com/coffemanfp/beppin-server/errors"
+	errs "github.com/coffemanfp/beppin/errors"
 )
 
 // StringToArray - Convert a string in a array.

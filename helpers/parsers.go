@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	dbm "github.com/coffemanfp/beppin-server/database/models"
-	"github.com/coffemanfp/beppin-server/errors"
-	"github.com/coffemanfp/beppin-server/models"
+	dbm "github.com/coffemanfp/beppin/database/models"
+	"github.com/coffemanfp/beppin/errors"
+	"github.com/coffemanfp/beppin/models"
 )
 
 // ShouldParseDBModelToModel - Executes the ParseDBModelToModel function and launch a Fataf
@@ -32,6 +32,10 @@ func ShouldParseModelToDBModel(model interface{}) (dbModel interface{}) {
 
 // ParseDBModelToModel - Parse any valid database model to a normal model.
 func ParseDBModelToModel(dbModel interface{}) (model interface{}, err error) {
+	if dbModel == nil {
+		return
+	}
+
 	switch dbModel.(type) {
 	// Users
 	case dbm.User:
@@ -54,9 +58,9 @@ func ParseDBModelToModel(dbModel interface{}) (model interface{}, err error) {
 
 	// Languages
 	case dbm.Language:
-		dbModel = parseDBLanguageToLanguage(dbModel.(dbm.Language))
+		model = parseDBLanguageToLanguage(dbModel.(dbm.Language))
 	case dbm.Languages:
-		dbModel = parseDBLanguagesToLanguages(dbModel.(dbm.Languages))
+		model = parseDBLanguagesToLanguages(dbModel.(dbm.Languages))
 	default:
 		err = fmt.Errorf("failed to parse database model (%T) to normal model: %w", model, errors.ErrNotSupportedType)
 	}
@@ -66,6 +70,10 @@ func ParseDBModelToModel(dbModel interface{}) (model interface{}, err error) {
 
 // ParseModelToDBModel - Parse any valid normal model to a database model.
 func ParseModelToDBModel(model interface{}) (dbModel interface{}, err error) {
+	if model == nil {
+		return
+	}
+
 	switch model.(type) {
 	// Users
 	case models.User:
@@ -129,8 +137,8 @@ func parseDBUserToUser(dbUser dbm.User) (user models.User) {
 		}
 	}
 
-	if dbUser.AvatarURL != "" {
-		user.Avatar = &models.Avatar{URL: dbUser.AvatarURL}
+	if dbUser.AvatarURL != nil {
+		user.Avatar = &models.Avatar{URL: dbUser.AvatarURL.String}
 	}
 
 	return
@@ -161,17 +169,13 @@ func parseUserToDBUser(user models.User) (dbUser dbm.User) {
 	}
 
 	if user.CreatedAt != nil {
-		if &dbUser.CreatedAt.Time != nil {
-			dbUser.CreatedAt = new(sql.NullTime)
-			dbUser.CreatedAt.Time = *user.CreatedAt
-		}
+		dbUser.CreatedAt = new(sql.NullTime)
+		dbUser.CreatedAt.Time = *user.CreatedAt
 	}
 
 	if user.UpdatedAt != nil {
-		if &dbUser.UpdatedAt != nil {
-			dbUser.UpdatedAt = new(sql.NullTime)
-			dbUser.UpdatedAt.Time = *user.UpdatedAt
-		}
+		dbUser.UpdatedAt = new(sql.NullTime)
+		dbUser.UpdatedAt.Time = *user.UpdatedAt
 	}
 
 	if user.Birthday != nil {
@@ -180,7 +184,8 @@ func parseUserToDBUser(user models.User) (dbUser dbm.User) {
 	}
 
 	if user.Avatar != nil {
-		dbUser.AvatarURL = user.Avatar.URL
+		dbUser.AvatarURL = new(sql.NullString)
+		dbUser.AvatarURL.String = user.Avatar.URL
 	}
 	return
 }
@@ -247,15 +252,13 @@ func parseProductToDBProduct(product models.Product) (dbProduct dbm.Product) {
 	}
 
 	if product.CreatedAt != nil {
-		if &product.CreatedAt != nil {
-			dbProduct.CreatedAt.Time = *product.CreatedAt
-		}
+		dbProduct.CreatedAt = new(sql.NullTime)
+		dbProduct.CreatedAt.Time = *product.CreatedAt
 	}
 
 	if product.UpdatedAt != nil {
-		if &product.UpdatedAt != nil {
-			dbProduct.UpdatedAt.Time = *product.UpdatedAt
-		}
+		dbProduct.UpdatedAt = new(sql.NullTime)
+		dbProduct.UpdatedAt.Time = *product.UpdatedAt
 	}
 
 	var dbOffer dbm.Offer
@@ -313,15 +316,13 @@ func parseOfferToDBOffer(offer models.Offer) (dbOffer dbm.Offer) {
 	dbOffer.ExpiratedAt.Time = *offer.ExpiratedAt
 
 	if offer.CreatedAt != nil {
-		if &offer.CreatedAt != nil {
-			dbOffer.CreatedAt.Time = *offer.CreatedAt
-		}
+		dbOffer.CreatedAt = new(sql.NullTime)
+		dbOffer.CreatedAt.Time = *offer.CreatedAt
 	}
 
 	if offer.UpdatedAt != nil {
-		if &offer.UpdatedAt != nil {
-			dbOffer.UpdatedAt.Time = *offer.UpdatedAt
-		}
+		dbOffer.UpdatedAt = new(sql.NullTime)
+		dbOffer.UpdatedAt.Time = *offer.UpdatedAt
 	}
 
 	if offer.ExpiratedAt != nil {
@@ -350,9 +351,18 @@ func parseDBLanguageToLanguage(dbLanguage dbm.Language) (language models.Languag
 		ID:     dbLanguage.ID,
 		Code:   dbLanguage.Code,
 		Status: dbLanguage.Status,
+	}
 
-		CreatedAt: &dbLanguage.CreatedAt.Time,
-		UpdatedAt: &dbLanguage.UpdatedAt.Time,
+	if dbLanguage.CreatedAt != nil {
+		if &dbLanguage.CreatedAt.Time != nil {
+			language.CreatedAt = &dbLanguage.CreatedAt.Time
+		}
+	}
+
+	if dbLanguage.UpdatedAt != nil {
+		if &dbLanguage.UpdatedAt.Time != nil {
+			language.UpdatedAt = &dbLanguage.UpdatedAt.Time
+		}
 	}
 	return
 }
@@ -375,15 +385,13 @@ func parseLanguageToDBLanguage(language models.Language) (dbLanguage dbm.Languag
 	}
 
 	if language.CreatedAt != nil {
-		if &language.CreatedAt != nil {
-			dbLanguage.CreatedAt.Time = *language.CreatedAt
-		}
+		dbLanguage.CreatedAt = new(sql.NullTime)
+		dbLanguage.CreatedAt.Time = *language.CreatedAt
 	}
 
 	if language.UpdatedAt != nil {
-		if &language.UpdatedAt != nil {
-			dbLanguage.UpdatedAt.Time = *language.UpdatedAt
-		}
+		dbLanguage.UpdatedAt = new(sql.NullTime)
+		dbLanguage.UpdatedAt.Time = *language.UpdatedAt
 	}
 
 	return

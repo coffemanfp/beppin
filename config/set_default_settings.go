@@ -25,9 +25,9 @@ func SetDefaultSettings() (err error) {
 
 	// Database
 	viper.SetDefault("db_port", 5432)
-	viper.SetDefault("db_name", "beppin_tests")
-	viper.SetDefault("db_user", "beppin_tests")
-	viper.SetDefault("db_password", "beppin_tests")
+	viper.SetDefault("db_name", "beppin_test")
+	viper.SetDefault("db_user", "beppin_test")
+	viper.SetDefault("db_password", "beppin_test")
 	viper.SetDefault("db_host", "localhost")
 	viper.SetDefault("db_sslMode", "disable")
 	viper.SetDefault(

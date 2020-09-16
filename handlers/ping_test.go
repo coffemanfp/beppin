@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/coffemanfp/beppin-server/handlers"
+	"github.com/coffemanfp/beppin/handlers"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 )

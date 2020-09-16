@@ -7,22 +7,23 @@ import (
 	"net/url"
 	"strconv"
 	"testing"
+	"time"
 
-	"github.com/coffemanfp/beppin-server/config"
-	"github.com/coffemanfp/beppin-server/database"
-	errs "github.com/coffemanfp/beppin-server/errors"
-	"github.com/coffemanfp/beppin-server/handlers"
-	"github.com/coffemanfp/beppin-server/models"
+	"github.com/coffemanfp/beppin/config"
+	"github.com/coffemanfp/beppin/database"
+	errs "github.com/coffemanfp/beppin/errors"
+	"github.com/coffemanfp/beppin/handlers"
+	"github.com/coffemanfp/beppin/models"
 	"github.com/labstack/echo"
+	"github.com/mitchellh/mapstructure"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetProducts(t *testing.T) {
 	tests := []struct {
-		Name            string
-		QueryParams     url.Values
-		WithData        bool
-		ExpectedContent interface{}
+		Name        string
+		QueryParams url.Values
+		WithData    bool
 	}{
 		{
 			Name: "without_products",
@@ -30,21 +31,15 @@ func TestGetProducts(t *testing.T) {
 		{
 			Name:     "with_products",
 			WithData: true,
-			ExpectedContent: models.Products{
-				exampleProducts[0],
-			},
 		},
 		{
 			Name: "with_limit_param",
 			QueryParams: url.Values{
 				"limit": []string{
-					"1",
+					"10",
 				},
 			},
 			WithData: true,
-			ExpectedContent: models.Products{
-				exampleProducts[0],
-			},
 		},
 	}
 
@@ -57,18 +52,6 @@ func TestGetProducts(t *testing.T) {
 			e.Logger.Debug()
 
 			setStorage(t)
-
-			if ts.WithData {
-
-				if !existsLanguage(t, exampleLanguage) {
-					insertLanguage(t, exampleLanguage)
-				}
-				if !existsUser(t, exampleUser) {
-					id := insertUser(t, exampleUser)
-					ts.ExpectedContent.(models.Products)[0].UserID = int64(id)
-				}
-				insertProduct(t, ts.ExpectedContent.(models.Products)[0])
-			}
 
 			e.GET("/", handlers.GetProducts)
 
@@ -84,24 +67,26 @@ func TestGetProducts(t *testing.T) {
 			assert.Equal(t, http.StatusOK, rec.Code)
 			assert.Equal(t, models.TypeProducts, m.ContentType)
 
-			if ts.WithData {
-				var exists bool
+			var product models.Product
 
-				for _, productContent := range m.Content.([]interface{}) {
-					if productContent.(map[string]interface{})["name"] == ts.ExpectedContent.(models.Products)[0].Name {
-						exists = true
-					}
-				}
-				assert.True(t, exists)
+			decoder, err := mapstructure.NewDecoder(
+				&mapstructure.DecoderConfig{
+					Result:     &product,
+					DecodeHook: mapstructure.StringToTimeHookFunc(time.RFC3339),
+				},
+			)
+			assert.Nil(t, err)
 
-				limitParam := ts.QueryParams.Get("limit")
+			err = decoder.Decode(m.Content.([]interface{})[0])
+			assert.Nil(t, err)
 
-				if limitParam != "" {
-					limit, err := strconv.Atoi(limitParam)
-					assert.Nil(t, err)
+			limitParam := ts.QueryParams.Get("limit")
 
-					assert.Equal(t, limit, len(m.Content.([]interface{})))
-				}
+			if limitParam != "" {
+				limit, err := strconv.Atoi(limitParam)
+				assert.Nil(t, err)
+
+				assert.GreaterOrEqual(t, limit, len(m.Content.([]interface{})))
 			}
 		})
 	}
@@ -235,16 +220,16 @@ func TestFailedGetProducts(t *testing.T) {
 
 				handlers.Storage = storage
 
-				if ts.WithProducts {
-					if !existsLanguage(t, exampleLanguage) {
-						insertLanguage(t, exampleLanguage)
-					}
-					if !existsUser(t, exampleUser) {
-						insertUser(t, exampleUser)
-					}
+				// if ts.WithProducts {
+				// 	if !existsLanguage(t, exampleLanguage) {
+				// 		insertLanguage(t, exampleLanguage)
+				// 	}
+				// 	if !existsUser(t, exampleUser) {
+				// 		insertUser(t, db, exampleUser)
+				// 	}
 
-					insertProduct(t, exampleProducts[0])
-				}
+				// 	insertProduct(t, exampleProducts[0])
+				// }
 			} else {
 				handlers.Storage = database.New(nil)
 			}

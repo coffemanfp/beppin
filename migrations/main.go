@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/coffemanfp/beppin-server/database"
-	"github.com/coffemanfp/beppin-server/utils"
+	"github.com/coffemanfp/beppin/database"
+	"github.com/coffemanfp/beppin/utils"
 )
 
 func main() {

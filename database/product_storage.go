@@ -1,6 +1,6 @@
 package database
 
-import "github.com/coffemanfp/beppin-server/database/models"
+import "github.com/coffemanfp/beppin/database/models"
 
 // ProductStorage reprensents all implementations for product utils.
 type ProductStorage interface {

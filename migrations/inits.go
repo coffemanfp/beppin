@@ -4,7 +4,7 @@ import (
 	"flag"
 	"log"
 
-	"github.com/coffemanfp/beppin-server/config"
+	"github.com/coffemanfp/beppin/config"
 )
 
 var (

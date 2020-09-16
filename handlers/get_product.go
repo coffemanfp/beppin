@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"net/http"
 
-	dbm "github.com/coffemanfp/beppin-server/database/models"
-	errs "github.com/coffemanfp/beppin-server/errors"
-	"github.com/coffemanfp/beppin-server/helpers"
-	"github.com/coffemanfp/beppin-server/models"
-	"github.com/coffemanfp/beppin-server/utils"
+	dbm "github.com/coffemanfp/beppin/database/models"
+	errs "github.com/coffemanfp/beppin/errors"
+	"github.com/coffemanfp/beppin/helpers"
+	"github.com/coffemanfp/beppin/models"
+	"github.com/coffemanfp/beppin/utils"
 	"github.com/labstack/echo"
 )
 
