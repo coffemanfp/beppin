@@ -21,7 +21,7 @@ func main() {
 	// Middlewares
 	{
 		e.Use(
-			// middleware.Logger(),
+			middleware.Logger(),
 			middleware.Recover(),
 			middleware.CORSWithConfig(middleware.CORSConfig{
 				AllowOrigins: []string{"*"},

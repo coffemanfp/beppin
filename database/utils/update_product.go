@@ -30,9 +30,10 @@ func UpdateProduct(db *sql.DB, productToUpdate, product models.Product) (id int,
 			name = $1,
 			description = $2,
 			categories = $3,
+			price = $4
 			updated_at = NOW()
 		WHERE 
-			id =  $4
+			id =  $5
 		RETURNING
 			id
 	`
@@ -48,6 +49,7 @@ func UpdateProduct(db *sql.DB, productToUpdate, product models.Product) (id int,
 		product.Name,
 		product.Description,
 		pq.Array(product.Categories),
+		product.Price,
 		productToUpdate.ID,
 	).Scan(&id)
 	if err != nil {

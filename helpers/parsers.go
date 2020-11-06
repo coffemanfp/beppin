@@ -209,6 +209,7 @@ func parseDBProductToProduct(dbProduct dbm.Product) (product models.Product) {
 		Name:        dbProduct.Name,
 		Description: dbProduct.Description,
 		Categories:  dbProduct.Categories,
+		Price:       dbProduct.Price,
 	}
 
 	if dbProduct.CreatedAt != nil {

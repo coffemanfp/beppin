@@ -11,6 +11,7 @@ type Product struct {
 	Name        string
 	Description string
 	Categories  []string
+	Price       float64
 
 	CreatedAt *sql.NullTime
 	UpdatedAt *sql.NullTime
@@ -23,6 +24,10 @@ func (p Product) ValidateUpdate() (valid bool) {
 	switch "" {
 	case p.Name:
 	case p.Description:
+		valid = false
+	}
+
+	if p.Price == 0 {
 		valid = false
 	}
 

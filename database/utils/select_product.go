@@ -25,7 +25,7 @@ func SelectProduct(db *sql.DB, productToFind models.Product) (product models.Pro
 
 	query := `
 		SELECT
-			id, user_id, name, description, categories, created_at, updated_at
+			id, user_id, name, description, categories, price, created_at, updated_at
 		FROM
 			products
 		WHERE
@@ -46,6 +46,7 @@ func SelectProduct(db *sql.DB, productToFind models.Product) (product models.Pro
 		&product.Name,
 		&product.Description,
 		(*pq.StringArray)(&product.Categories),
+		&product.Price,
 		&product.CreatedAt,
 		&product.UpdatedAt,
 	)

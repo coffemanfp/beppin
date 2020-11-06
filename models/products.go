@@ -8,9 +8,10 @@ type Product struct {
 	UserID int64  `json:"userID,omitempty"`
 	Offer  *Offer `json:"offer,omitempty"`
 
-	Name        string   `json:"name,omitempty"`
+	Name        string   `json:"name"`
 	Description string   `json:"description,omitempty"`
 	Categories  []string `json:"categories,omitempty"`
+	Price       float64  `json:"price"`
 
 	CreatedAt *time.Time `json:"createdAt,omitempty"`
 	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
@@ -30,7 +31,9 @@ func (p Product) Validate() (valid bool) {
 		return
 	}
 
-	if p.UserID == 0 {
+	switch 0 {
+	case int(p.UserID):
+	case int(p.Price):
 		valid = false
 	}
 	return

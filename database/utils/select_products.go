@@ -19,7 +19,7 @@ func SelectProducts(db *sql.DB, limit, offset int) (products models.Products, er
 
 	query := `
 	SELECT
-		id, user_id, name, description, categories, created_at, updated_at
+		id, user_id, name, description, categories, price, created_at, updated_at
 	FROM
 		products
 	LIMIT
@@ -55,6 +55,7 @@ func SelectProducts(db *sql.DB, limit, offset int) (products models.Products, er
 			&product.Name,
 			&product.Description,
 			pq.Array(&product.Categories),
+			&product.Price,
 			&product.CreatedAt,
 			&product.UpdatedAt,
 		)
