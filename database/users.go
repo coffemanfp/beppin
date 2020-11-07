@@ -119,6 +119,8 @@ func fillUserEmptyFields(user, previousUserData models.User) models.User {
 
 	case user.Theme:
 		user.Theme = previousUserData.Theme
+	case user.Currency:
+		user.Currency = previousUserData.Currency
 	}
 
 	if user.Birthday == nil {

@@ -24,7 +24,7 @@ func SelectUser(db *sql.DB, userToFind models.User) (user models.User, err error
 
 	query := `
 		SELECT
-			id, language, avatar, username, email, name, last_name, birthday, theme, created_at, updated_at
+			id, language, avatar, username, email, name, last_name, birthday, theme, currency, created_at, updated_at
 		FROM
 			users
 		WHERE
@@ -53,6 +53,7 @@ func SelectUser(db *sql.DB, userToFind models.User) (user models.User, err error
 		&user.LastName,
 		&user.Birthday,
 		&user.Theme,
+		&user.Currency,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)

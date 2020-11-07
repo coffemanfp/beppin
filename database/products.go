@@ -67,5 +67,9 @@ func fillProductEmptyFields(product, previousProductData models.Product) models.
 		product.Categories = previousProductData.Categories
 	}
 
+	if product.Price == 0 {
+		product.Price = previousProductData.Price
+	}
+
 	return product
 }

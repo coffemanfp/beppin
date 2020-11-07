@@ -12,14 +12,16 @@ type User struct {
 	ID       int64  `json:"id,omitempty"`
 	Language string `json:"language,omitempty"`
 
-	Avatar    *Avatar    `json:"avatar,omitempty"`
-	Username  string     `json:"username,omitempty"`
-	Password  string     `json:"password,omitempty"`
-	Email     string     `json:"email,omitempty"`
-	Name      string     `json:"name,omitempty"`
-	LastName  string     `json:"lastName,omitempty"`
-	Birthday  *time.Time `json:"birthday,omitempty"`
-	Theme     string     `json:"theme,omitempty"`
+	Avatar   *Avatar    `json:"avatar,omitempty"`
+	Username string     `json:"username,omitempty"`
+	Password string     `json:"password,omitempty"`
+	Email    string     `json:"email,omitempty"`
+	Name     string     `json:"name,omitempty"`
+	LastName string     `json:"lastName,omitempty"`
+	Birthday *time.Time `json:"birthday,omitempty"`
+	Theme    string     `json:"theme,omitempty"`
+	Currency string     `json:"currency,omitempty"`
+
 	CreatedAt *time.Time `json:"createdAt,omitempty"`
 	UpdatedAt *time.Time `json:"UpdatedAt,omitempty"`
 }

@@ -35,9 +35,10 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (id int, err error) 
 			last_name = $7,
 			birthday = $8,
 			theme = $9,
+			currency = $10
 			updated_at = NOW()
 		WHERE 
-			id = $10 OR username = $11 OR email = $12
+			id = $11 OR username = $12 OR email = $13
 		RETUNING
 			id
 	`)
@@ -59,6 +60,7 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (id int, err error) 
 		user.LastName,
 		user.Birthday,
 		user.Theme,
+		user.Currency,
 		userToUpdate.ID,
 		userToUpdate.Username,
 		userToUpdate.Email,

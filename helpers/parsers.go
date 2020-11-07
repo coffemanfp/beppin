@@ -117,6 +117,7 @@ func parseDBUserToUser(dbUser dbm.User) (user models.User) {
 		Name:     dbUser.Name,
 		LastName: dbUser.LastName,
 		Theme:    dbUser.Theme,
+		Currency: dbUser.Currency,
 	}
 
 	if dbUser.CreatedAt != nil {
@@ -166,6 +167,7 @@ func parseUserToDBUser(user models.User) (dbUser dbm.User) {
 		Name:     user.Name,
 		LastName: user.LastName,
 		Theme:    user.Theme,
+		Currency: user.Currency,
 	}
 
 	if user.CreatedAt != nil {
@@ -250,6 +252,7 @@ func parseProductToDBProduct(product models.Product) (dbProduct dbm.Product) {
 		Name:        product.Name,
 		Description: product.Description,
 		Categories:  product.Categories,
+		Price:       product.Price,
 	}
 
 	if product.CreatedAt != nil {

@@ -8,13 +8,15 @@ type User struct {
 	Language  Language
 	AvatarURL *sql.NullString
 
-	Username  string
-	Password  string
-	Name      string
-	Email     string
-	LastName  string
-	Birthday  *sql.NullTime
-	Theme     string
+	Username string
+	Password string
+	Name     string
+	Email    string
+	LastName string
+	Birthday *sql.NullTime
+	Theme    string
+	Currency string
+
 	CreatedAt *sql.NullTime
 	UpdatedAt *sql.NullTime
 }
