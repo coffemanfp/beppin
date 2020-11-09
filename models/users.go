@@ -23,7 +23,7 @@ type User struct {
 	Currency string     `json:"currency,omitempty"`
 
 	CreatedAt *time.Time `json:"createdAt,omitempty"`
-	UpdatedAt *time.Time `json:"UpdatedAt,omitempty"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
 }
 
 // Users - Alias for a user array.
@@ -50,12 +50,9 @@ func (u User) validateLogin() (valid bool) {
 		return
 	}
 
-	switch false {
-	case utils.ValidateEmail(u.Email):
-	case u.ValidateUsername():
+	if !(utils.ValidateEmail(u.Email) || u.ValidateUsername()) {
 		valid = false
 	}
-
 	return
 }
 
@@ -63,18 +60,7 @@ func (u User) validateLogin() (valid bool) {
 func (u User) validateSignup() (valid bool) {
 	valid = true
 
-	switch "" {
-	case u.Password:
-	case u.Name:
-	case u.LastName:
-		valid = false
-	}
-
-	if valid {
-		valid = u.validateLogin()
-	}
-
-	if u.Birthday == nil || u.Birthday.IsZero() {
+	if u.Username == "" || u.Email == "" || u.Password == "" {
 		valid = false
 	}
 

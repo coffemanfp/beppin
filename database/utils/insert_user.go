@@ -9,7 +9,7 @@ import (
 )
 
 // InsertUser - Insert a user.
-func InsertUser(db *sql.DB, user models.User) (id int, err error) {
+func InsertUser(db *sql.DB, user models.User) (newUser models.User, err error) {
 	if db == nil {
 		err = errs.ErrClosedDatabase
 		return
@@ -27,11 +27,11 @@ func InsertUser(db *sql.DB, user models.User) (id int, err error) {
 
 	query := `
 		INSERT INTO
-			users(language, username, password, email, name, last_name, birthday, theme)
+			users(username, password, email)
 		VALUES
-			($1, $2, $3, $4, $5, $6, $7, $8)
+			($1, $2, $3)
 		RETURNING
-			id
+			id, language, username, theme, currency
 	`
 
 	stmt, err := db.Prepare(query)
@@ -42,15 +42,17 @@ func InsertUser(db *sql.DB, user models.User) (id int, err error) {
 	defer stmt.Close()
 
 	err = stmt.QueryRow(
-		user.Language.Code,
 		user.Username,
 		user.Password,
-		user.Name,
 		user.Email,
-		user.LastName,
-		user.Birthday.Time,
-		user.Theme,
-	).Scan(&id)
+	).Scan(
+		&newUser.ID,
+		&newUser.Language.Code,
+		&newUser.Username,
+		&newUser.Theme,
+		&newUser.Currency,
+	)
+
 	if err != nil {
 		err = fmt.Errorf("failed to execute insert user statement: %v", err)
 	}

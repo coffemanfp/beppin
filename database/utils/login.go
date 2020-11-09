@@ -20,7 +20,7 @@ func Login(db *sql.DB, userToLogin models.User) (user models.User, match bool, e
 
 	query := `
 		SELECT
-			id, language, username, theme
+			id, language, username, theme, currency
 		FROM
 			users
 		WHERE
@@ -44,6 +44,7 @@ func Login(db *sql.DB, userToLogin models.User) (user models.User, match bool, e
 		&user.Language.Code,
 		&user.Username,
 		&user.Theme,
+		&user.Currency,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

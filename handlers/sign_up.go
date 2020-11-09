@@ -29,7 +29,7 @@ func SignUp(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	id, err := Storage.CreateUser(
+	newUser, err := Storage.CreateUser(
 		helpers.ShouldParseModelToDBModel(user).(dbm.User),
 	)
 	if err != nil {
@@ -53,12 +53,8 @@ func SignUp(c echo.Context) (err error) {
 
 	}
 
-	// id, language, username, theme
 	claim := models.Claim{
-		User: models.User{
-			ID:       int64(id),
-			Username: user.Username,
-		},
+		User: helpers.ShouldParseDBModelToModel(newUser).(models.User),
 	}
 
 	token, err := claim.GenerateJWT()

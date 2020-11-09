@@ -8,7 +8,7 @@ import (
 	errs "github.com/coffemanfp/beppin/errors"
 )
 
-func (dS defaultStorage) CreateUser(user models.User) (id int, err error) {
+func (dS defaultStorage) CreateUser(user models.User) (newUser models.User, err error) {
 	identifier := user.GetIdentifier()
 	if identifier == nil {
 		err = fmt.Errorf("failed to create user: %w (user)", errs.ErrNotProvidedOrInvalidObject)
@@ -35,7 +35,7 @@ func (dS defaultStorage) CreateUser(user models.User) (id int, err error) {
 		user.Language = language
 	}
 
-	id, err = dbu.InsertUser(dS.db, user)
+	newUser, err = dbu.InsertUser(dS.db, user)
 	return
 }
 

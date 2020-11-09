@@ -14,7 +14,7 @@ END$$;
 
 CREATE TABLE IF NOT EXISTS languages (
     id SERIAL,
-    code CHAR(5),
+    code CHAR(5) NOT NULL UNIQUE,
     status LANGUAGE_STATUS DEFAULT 'unavailable',
 
     created_at TIMESTAMP NOT NULl DEFAULT NOW(),
@@ -31,10 +31,11 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(25) NOT NULL UNIQUE,
     password VARCHAR(75) NOT NULL,
     email VARCHAR(60) NOT NULL UNIQUE,
-    name VARCHAR(25) NOT NULL,
-    last_name VARCHAR(25) NOT NULL,
-    birthday TIMESTAMP NOT NULL,
+    name VARCHAR(25),
+    last_name VARCHAR(25),
+    birthday TIMESTAMP,
     theme VARCHAR DEFAULT 'light',
+    currency VARCHAR DEFAULT 'USD',
 
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP,
