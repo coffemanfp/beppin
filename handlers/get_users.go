@@ -6,7 +6,6 @@ import (
 
 	"github.com/coffemanfp/beppin/config"
 	errs "github.com/coffemanfp/beppin/errors"
-	"github.com/coffemanfp/beppin/helpers"
 	"github.com/coffemanfp/beppin/models"
 	"github.com/coffemanfp/beppin/utils"
 	"github.com/labstack/echo"
@@ -61,15 +60,11 @@ func GetUsers(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
-	var users models.Users
-
 	if dbUsers == nil {
-		users = make(models.Users, 0)
-	} else {
-		users = helpers.ShouldParseDBModelToModel(dbUsers).(models.Users)
+		dbUsers = make(models.Users, 0)
 	}
 
-	m.Content = users
+	m.Content = dbUsers
 	m.ContentType = models.TypeUsers
 
 	if m.Message == "" {

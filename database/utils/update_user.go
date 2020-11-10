@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/coffemanfp/beppin/database/models"
 	errs "github.com/coffemanfp/beppin/errors"
+	"github.com/coffemanfp/beppin/models"
 )
 
 // UpdateUser - Updates a user.
-func UpdateUser(db *sql.DB, userToUpdate, user models.User) (id int, err error) {
+func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.User, err error) {
 	if db == nil {
 		err = errs.ErrClosedDatabase
 		return
@@ -35,9 +35,10 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (id int, err error) 
 			last_name = $7,
 			birthday = $8,
 			theme = $9,
+			currency = $10
 			updated_at = NOW()
 		WHERE 
-			id = $10 OR username = $11 OR email = $12
+			id = $11 OR username = $12 OR email = $13
 		RETUNING
 			id
 	`)
@@ -49,9 +50,11 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (id int, err error) 
 	}
 	defer stmt.Close()
 
+	var id int64
+
 	err = stmt.QueryRow(
-		user.Language.Code,
-		user.AvatarURL,
+		user.Language,
+		user.Avatar.URL,
 		user.Username,
 		user.Password,
 		user.Email,
@@ -59,6 +62,7 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (id int, err error) 
 		user.LastName,
 		user.Birthday,
 		user.Theme,
+		user.Currency,
 		userToUpdate.ID,
 		userToUpdate.Username,
 		userToUpdate.Email,
@@ -72,5 +76,8 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (id int, err error) 
 		err = fmt.Errorf("failed to update (%v) user: %v", identifier, err)
 		return
 	}
+
+	userUpdated = user
+	userUpdated.ID = id
 	return
 }

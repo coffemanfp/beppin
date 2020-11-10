@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	dbm "github.com/coffemanfp/beppin/database/models"
 	errs "github.com/coffemanfp/beppin/errors"
 	"github.com/coffemanfp/beppin/models"
 	"github.com/coffemanfp/beppin/utils"
@@ -26,7 +25,7 @@ func DeleteUser(c echo.Context) (err error) {
 	}
 
 	id, err := Storage.DeleteUser(
-		dbm.User{
+		models.User{
 			ID: int64(userID),
 		},
 	)

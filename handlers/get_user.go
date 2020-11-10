@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	dbm "github.com/coffemanfp/beppin/database/models"
 	errs "github.com/coffemanfp/beppin/errors"
-	"github.com/coffemanfp/beppin/helpers"
 	"github.com/coffemanfp/beppin/models"
 	"github.com/coffemanfp/beppin/utils"
 	"github.com/labstack/echo"
@@ -26,8 +24,8 @@ func GetUser(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	dbuser, err := Storage.GetUser(
-		dbm.User{
+	dbUser, err := Storage.GetUser(
+		models.User{
 			ID: int64(userID),
 		},
 	)
@@ -43,7 +41,7 @@ func GetUser(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
-	m.Content = helpers.ShouldParseDBModelToModel(dbuser).(models.User)
+	m.Content = dbUser
 
 	return c.JSON(http.StatusOK, m)
 }

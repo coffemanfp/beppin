@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strconv"
 
-	dbm "github.com/coffemanfp/beppin/database/models"
 	errs "github.com/coffemanfp/beppin/errors"
 	"github.com/coffemanfp/beppin/models"
 	"github.com/coffemanfp/beppin/utils"
@@ -52,9 +51,15 @@ func UpdateAvatar(c echo.Context) (err error) {
 		}
 	}
 
-	id, err := Storage.UpdateAvatar(
-		avatarURL,
-		dbm.User{ID: int64(userID)},
+	dbUser, err := Storage.UpdateUser(
+		models.User{
+			Avatar: &models.Avatar{
+				URL: avatarURL,
+			},
+		},
+		models.User{
+			ID: int64(userID),
+		},
 	)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {
@@ -74,10 +79,22 @@ func UpdateAvatar(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
-	m.Message = "Updated."
-	m.Content = models.User{
-		ID: int64(id),
+	claim := models.Claim{
+		User: dbUser,
 	}
-	m.ContentType = models.TypeUser
+
+	token, err := claim.GenerateJWT()
+	if err != nil {
+		c.Logger().Error(err)
+		m.Error = http.StatusText(http.StatusInternalServerError)
+
+		return echo.NewHTTPError(http.StatusInternalServerError, m)
+	}
+
+	m.Message = "Updated."
+	m.Content = echo.Map{
+		"token": token,
+	}
+	m.ContentType = models.TypeToken
 	return c.JSON(http.StatusOK, m)
 }

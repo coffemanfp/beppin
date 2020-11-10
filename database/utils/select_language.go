@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/coffemanfp/beppin/database/models"
 	errs "github.com/coffemanfp/beppin/errors"
+	"github.com/coffemanfp/beppin/models"
 )
 
 // SelectLanguage - Selects a language.
@@ -39,11 +39,14 @@ func SelectLanguage(db *sql.DB, languageToFind models.Language) (language models
 	}
 	defer stmt.Close()
 
+	// Helper value for null database retorning
+	var updatedAt *sql.NullTime
+
 	err = stmt.QueryRow(languageToFind.Code).Scan(
 		&language.Code,
 		&language.Status,
 		&language.CreatedAt,
-		&language.UpdatedAt,
+		&updatedAt,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -52,6 +55,11 @@ func SelectLanguage(db *sql.DB, languageToFind models.Language) (language models
 		}
 
 		err = fmt.Errorf("failed to select (%v) language: %v", identifier, err)
+	}
+
+	// Check if isn't empty to access its value
+	if updatedAt != nil {
+		language.CreatedAt = &updatedAt.Time
 	}
 	return
 }

@@ -50,3 +50,14 @@ func (l Language) ValidateCode() (valid bool) {
 	valid = rx.MatchString(l.Code)
 	return
 }
+
+// GetIdentifier gets the first unique identifier it finds in order of importance.
+func (l Language) GetIdentifier() (identifier interface{}) {
+	if l.ID != 0 {
+		identifier = l.ID
+	} else if l.Code != "" {
+		identifier = l.Code
+	}
+
+	return
+}

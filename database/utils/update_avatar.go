@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/coffemanfp/beppin/database/models"
+	"github.com/coffemanfp/beppin/models"
 	errs "github.com/coffemanfp/beppin/errors"
 )
 

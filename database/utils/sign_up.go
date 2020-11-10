@@ -4,34 +4,34 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/coffemanfp/beppin/database/models"
 	errs "github.com/coffemanfp/beppin/errors"
+	"github.com/coffemanfp/beppin/models"
 )
 
-// InsertUser - Insert a user.
-func InsertUser(db *sql.DB, user models.User) (id int, err error) {
+// SignUp - Inserts a basic user and returns the token data.
+func SignUp(db *sql.DB, user models.User) (newUser models.User, err error) {
 	if db == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
 
-	if user.Language.Code != "" {
+	if user.Language != "" {
 		var language models.Language
-		language, err = SelectLanguage(db, user.Language)
+		language, err = SelectLanguage(db, models.Language{Code: user.Language})
 		if err != nil {
 			return
 		}
 
-		user.Language = language
+		user.Language = language.Code
 	}
 
 	query := `
 		INSERT INTO
-			users(language, username, password, email, name, last_name, birthday, theme)
+			users(username, password, email)
 		VALUES
-			($1, $2, $3, $4, $5, $6, $7, $8)
+			($1, $2, $3)
 		RETURNING
-			id
+			id, avatar, language, username, email, theme, currency
 	`
 
 	stmt, err := db.Prepare(query)
@@ -42,15 +42,19 @@ func InsertUser(db *sql.DB, user models.User) (id int, err error) {
 	defer stmt.Close()
 
 	err = stmt.QueryRow(
-		user.Language.Code,
 		user.Username,
 		user.Password,
-		user.Name,
 		user.Email,
-		user.LastName,
-		user.Birthday.Time,
-		user.Theme,
-	).Scan(&id)
+	).Scan(
+		&newUser.ID,
+		&newUser.Avatar,
+		&newUser.Language,
+		&newUser.Username,
+		&newUser.Email,
+		&newUser.Theme,
+		&newUser.Currency,
+	)
+
 	if err != nil {
 		err = fmt.Errorf("failed to execute insert user statement: %v", err)
 	}

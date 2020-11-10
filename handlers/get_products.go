@@ -6,7 +6,6 @@ import (
 
 	"github.com/coffemanfp/beppin/config"
 	errs "github.com/coffemanfp/beppin/errors"
-	"github.com/coffemanfp/beppin/helpers"
 	"github.com/coffemanfp/beppin/models"
 	"github.com/coffemanfp/beppin/utils"
 	"github.com/labstack/echo"
@@ -71,15 +70,11 @@ func GetProducts(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
-	var products models.Products
-
 	if dbProducts == nil {
-		products = make(models.Products, 0)
-	} else {
-		products = helpers.ShouldParseDBModelToModel(dbProducts).(models.Products)
+		dbProducts = make(models.Products, 0)
 	}
 
-	m.Content = products
+	m.Content = dbProducts
 	m.ContentType = models.TypeProducts
 
 	if m.Message == "" {

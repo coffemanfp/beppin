@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 
-	"github.com/coffemanfp/beppin/database/models"
+	"github.com/coffemanfp/beppin/models"
 	dbu "github.com/coffemanfp/beppin/database/utils"
 	errs "github.com/coffemanfp/beppin/errors"
 )
@@ -65,6 +65,10 @@ func fillProductEmptyFields(product, previousProductData models.Product) models.
 
 	if product.Categories == nil {
 		product.Categories = previousProductData.Categories
+	}
+
+	if product.Price == 0 {
+		product.Price = previousProductData.Price
 	}
 
 	return product

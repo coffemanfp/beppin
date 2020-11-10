@@ -8,9 +8,10 @@ type Product struct {
 	UserID int64  `json:"userID,omitempty"`
 	Offer  *Offer `json:"offer,omitempty"`
 
-	Name        string   `json:"name,omitempty"`
+	Name        string   `json:"name"`
 	Description string   `json:"description,omitempty"`
 	Categories  []string `json:"categories,omitempty"`
+	Price       float64  `json:"price"`
 
 	CreatedAt *time.Time `json:"createdAt,omitempty"`
 	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
@@ -23,15 +24,21 @@ type Products []Product
 func (p Product) Validate() (valid bool) {
 	valid = true
 
-	switch "" {
-	case p.Name:
-	case p.Description:
+	if p.Name == "" || p.Description == "" {
 		valid = false
-		return
 	}
 
-	if p.UserID == 0 {
+	if p.UserID == 0 || p.Price == 0 {
 		valid = false
 	}
+	return
+}
+
+// GetIdentifier gets the first unique identifier it finds in order of importance.
+func (p Product) GetIdentifier() (identifier interface{}) {
+	if p.ID != 0 {
+		identifier = p.ID
+	}
+
 	return
 }

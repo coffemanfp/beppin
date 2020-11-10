@@ -12,16 +12,18 @@ type User struct {
 	ID       int64  `json:"id,omitempty"`
 	Language string `json:"language,omitempty"`
 
-	Avatar    *Avatar    `json:"avatar,omitempty"`
-	Username  string     `json:"username,omitempty"`
-	Password  string     `json:"password,omitempty"`
-	Email     string     `json:"email,omitempty"`
-	Name      string     `json:"name,omitempty"`
-	LastName  string     `json:"lastName,omitempty"`
-	Birthday  *time.Time `json:"birthday,omitempty"`
-	Theme     string     `json:"theme,omitempty"`
+	Avatar   *Avatar    `json:"avatar,omitempty"`
+	Username string     `json:"username,omitempty"`
+	Password string     `json:"password,omitempty"`
+	Email    string     `json:"email,omitempty"`
+	Name     string     `json:"name,omitempty"`
+	LastName string     `json:"lastName,omitempty"`
+	Birthday *time.Time `json:"birthday,omitempty"`
+	Theme    string     `json:"theme,omitempty"`
+	Currency string     `json:"currency,omitempty"`
+
 	CreatedAt *time.Time `json:"createdAt,omitempty"`
-	UpdatedAt *time.Time `json:"UpdatedAt,omitempty"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
 }
 
 // Users - Alias for a user array.
@@ -48,12 +50,9 @@ func (u User) validateLogin() (valid bool) {
 		return
 	}
 
-	switch false {
-	case utils.ValidateEmail(u.Email):
-	case u.ValidateUsername():
+	if !(utils.ValidateEmail(u.Email) || u.ValidateUsername()) {
 		valid = false
 	}
-
 	return
 }
 
@@ -61,18 +60,7 @@ func (u User) validateLogin() (valid bool) {
 func (u User) validateSignup() (valid bool) {
 	valid = true
 
-	switch "" {
-	case u.Password:
-	case u.Name:
-	case u.LastName:
-		valid = false
-	}
-
-	if valid {
-		valid = u.validateLogin()
-	}
-
-	if u.Birthday == nil || u.Birthday.IsZero() {
+	if u.Username == "" || u.Email == "" || u.Password == "" {
 		valid = false
 	}
 
@@ -88,5 +76,19 @@ func (u User) ValidateUsername() (valid bool) {
 	re := regexp.MustCompile(`^[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*$`)
 
 	valid = re.MatchString(u.Username)
+	return
+}
+
+// GetIdentifier gets the first unique identifier it finds in order of importance.
+func (u User) GetIdentifier() (identifier interface{}) {
+
+	if u.ID != 0 {
+		identifier = u.ID
+	} else if u.Username != "" {
+		identifier = u.Username
+	} else if u.Email != "" {
+		identifier = u.Email
+	}
+
 	return
 }
