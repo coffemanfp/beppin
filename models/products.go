@@ -24,16 +24,11 @@ type Products []Product
 func (p Product) Validate() (valid bool) {
 	valid = true
 
-	switch "" {
-	case p.Name:
-	case p.Description:
+	if p.Name == "" || p.Description == "" {
 		valid = false
-		return
 	}
 
-	switch 0 {
-	case int(p.UserID):
-	case int(p.Price):
+	if p.UserID == 0 || p.Price == 0 {
 		valid = false
 	}
 	return

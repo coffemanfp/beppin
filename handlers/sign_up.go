@@ -27,7 +27,7 @@ func SignUp(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	newUser, err := Storage.CreateUser(
+	newUser, err := Storage.SignUp(
 		user,
 	)
 	if err != nil {

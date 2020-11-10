@@ -8,8 +8,8 @@ import (
 	"github.com/coffemanfp/beppin/models"
 )
 
-// InsertUser - Insert a user.
-func InsertUser(db *sql.DB, user models.User) (newUser models.User, err error) {
+// SignUp - Inserts a basic user and returns the token data.
+func SignUp(db *sql.DB, user models.User) (newUser models.User, err error) {
 	if db == nil {
 		err = errs.ErrClosedDatabase
 		return

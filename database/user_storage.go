@@ -4,7 +4,7 @@ import "github.com/coffemanfp/beppin/models"
 
 // UserStorage reprensents all implementations for user utils.
 type UserStorage interface {
-	CreateUser(user models.User) (models.User, error)
+	SignUp(user models.User) (models.User, error)
 	Login(userToLogin models.User) (models.User, bool, error)
 	ExistsUser(user models.User) (bool, error)
 	GetUser(userToFind models.User) (models.User, error)
