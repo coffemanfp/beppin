@@ -30,13 +30,11 @@ type Languages []Language
 func (l Language) Validate() (valid bool) {
 	valid = true
 
-	switch l.Status {
-	case LanguageUnavailable:
-	case LanguageInProgress:
-	case LanguageAvailable:
-	default:
+	// If it is not equal to any
+	if !(l.Status == LanguageUnavailable ||
+		l.Status == LanguageInProgress ||
+		l.Status == LanguageAvailable) {
 		valid = false
-		return
 	}
 
 	valid = l.ValidateCode()
