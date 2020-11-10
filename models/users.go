@@ -50,6 +50,7 @@ func (u User) validateLogin() (valid bool) {
 		return
 	}
 
+	// If it is not equal to any
 	if !(utils.ValidateEmail(u.Email) || u.ValidateUsername()) {
 		valid = false
 	}
@@ -60,7 +61,9 @@ func (u User) validateLogin() (valid bool) {
 func (u User) validateSignup() (valid bool) {
 	valid = true
 
-	if u.Username == "" || u.Email == "" || u.Password == "" {
+	if u.Username == "" ||
+		u.Email == "" ||
+		u.Password == "" {
 		valid = false
 	}
 
