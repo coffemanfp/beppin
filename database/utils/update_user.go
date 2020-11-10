@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/coffemanfp/beppin/database/models"
 	errs "github.com/coffemanfp/beppin/errors"
+	"github.com/coffemanfp/beppin/models"
 )
 
 // UpdateUser - Updates a user.
-func UpdateUser(db *sql.DB, userToUpdate, user models.User) (id int, err error) {
+func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.User, err error) {
 	if db == nil {
 		err = errs.ErrClosedDatabase
 		return
@@ -50,9 +50,11 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (id int, err error) 
 	}
 	defer stmt.Close()
 
+	var id int64
+
 	err = stmt.QueryRow(
-		user.Language.Code,
-		user.AvatarURL,
+		user.Language,
+		user.Avatar.URL,
 		user.Username,
 		user.Password,
 		user.Email,
@@ -74,5 +76,8 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (id int, err error) 
 		err = fmt.Errorf("failed to update (%v) user: %v", identifier, err)
 		return
 	}
+
+	userUpdated = user
+	userUpdated.ID = id
 	return
 }

@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	dbm "github.com/coffemanfp/beppin/database/models"
 	errs "github.com/coffemanfp/beppin/errors"
-	"github.com/coffemanfp/beppin/helpers"
 	"github.com/coffemanfp/beppin/models"
 	"github.com/labstack/echo"
 )
@@ -30,7 +28,7 @@ func SignUp(c echo.Context) (err error) {
 	}
 
 	newUser, err := Storage.CreateUser(
-		helpers.ShouldParseModelToDBModel(user).(dbm.User),
+		user,
 	)
 	if err != nil {
 		unwrappedErr := errors.Unwrap(err)
@@ -54,7 +52,7 @@ func SignUp(c echo.Context) (err error) {
 	}
 
 	claim := models.Claim{
-		User: helpers.ShouldParseDBModelToModel(newUser).(models.User),
+		User: newUser,
 	}
 
 	token, err := claim.GenerateJWT()

@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	dbm "github.com/coffemanfp/beppin/database/models"
 	errs "github.com/coffemanfp/beppin/errors"
-	"github.com/coffemanfp/beppin/helpers"
 	"github.com/coffemanfp/beppin/models"
 	"github.com/coffemanfp/beppin/utils"
 	"github.com/labstack/echo"
@@ -34,10 +32,10 @@ func UpdateProduct(c echo.Context) (err error) {
 	}
 
 	id, err := Storage.UpdateProduct(
-		dbm.Product{
+		models.Product{
 			ID: int64(productID),
 		},
-		helpers.ShouldParseModelToDBModel(product).(dbm.Product),
+		product,
 	)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {

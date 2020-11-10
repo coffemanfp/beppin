@@ -1,6 +1,6 @@
 package database
 
-import "github.com/coffemanfp/beppin/database/models"
+import "github.com/coffemanfp/beppin/models"
 
 // UserStorage reprensents all implementations for user utils.
 type UserStorage interface {
@@ -9,7 +9,7 @@ type UserStorage interface {
 	ExistsUser(user models.User) (bool, error)
 	GetUser(userToFind models.User) (models.User, error)
 	GetUsers(limit, offset int) (models.Users, error)
-	UpdateUser(userToUpdate, user models.User) (int, error)
+	UpdateUser(userToUpdate, user models.User) (models.User, error)
 	UpdateAvatar(avatarURL string, user models.User) (int, error)
 	DeleteUser(userToDelete models.User) (int, error)
 }

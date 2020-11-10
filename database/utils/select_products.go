@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/coffemanfp/beppin/database/models"
 	errs "github.com/coffemanfp/beppin/errors"
+	"github.com/coffemanfp/beppin/models"
 	"github.com/lib/pq"
 )
 
@@ -22,6 +22,8 @@ func SelectProducts(db *sql.DB, limit, offset int) (products models.Products, er
 		id, user_id, name, description, categories, price, created_at, updated_at
 	FROM
 		products
+	ORDER BY
+		id
 	LIMIT
 		$1
 	OFFSET
@@ -48,6 +50,9 @@ func SelectProducts(db *sql.DB, limit, offset int) (products models.Products, er
 
 	var product models.Product
 
+	// Helper value for null database retorning
+	var updatedAt *sql.NullTime
+
 	for rows.Next() {
 		err = rows.Scan(
 			&product.ID,
@@ -56,15 +61,22 @@ func SelectProducts(db *sql.DB, limit, offset int) (products models.Products, er
 			&product.Description,
 			pq.Array(&product.Categories),
 			&product.Price,
+			&updatedAt,
 			&product.CreatedAt,
-			&product.UpdatedAt,
 		)
 		if err != nil {
 			err = fmt.Errorf("failed to scan product: %v", err)
 			return
 		}
 
+		// Check if isn't empty to access its value
+		if updatedAt != nil {
+			product.UpdatedAt = &updatedAt.Time
+		}
+
 		products = append(products, product)
+		// Empty the value to avoid overwrite
+		product = models.Product{}
 	}
 
 	return

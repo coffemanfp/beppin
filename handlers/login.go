@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	dbm "github.com/coffemanfp/beppin/database/models"
 	errs "github.com/coffemanfp/beppin/errors"
-	"github.com/coffemanfp/beppin/helpers"
 	"github.com/coffemanfp/beppin/models"
 	"github.com/labstack/echo"
 )
@@ -29,11 +27,7 @@ func Login(c echo.Context) (err error) {
 	}
 
 	dbUser, match, err := Storage.Login(
-		dbm.User{
-			Username: user.Username,
-			Email:    user.Email,
-			Password: user.Password,
-		},
+		user,
 	)
 	if err != nil {
 		c.Logger().Error(err)
@@ -47,7 +41,7 @@ func Login(c echo.Context) (err error) {
 	}
 
 	claim := models.Claim{
-		User: helpers.ShouldParseDBModelToModel(dbUser).(models.User),
+		User: dbUser,
 	}
 
 	token, err := claim.GenerateJWT()

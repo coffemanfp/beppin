@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 
-	"github.com/coffemanfp/beppin/database/models"
+	"github.com/coffemanfp/beppin/models"
 	dbu "github.com/coffemanfp/beppin/database/utils"
 	errs "github.com/coffemanfp/beppin/errors"
 )

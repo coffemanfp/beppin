@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/coffemanfp/beppin/database/models"
 	errs "github.com/coffemanfp/beppin/errors"
+	"github.com/coffemanfp/beppin/models"
 	"github.com/lib/pq"
 )
 
@@ -40,6 +40,9 @@ func SelectProduct(db *sql.DB, productToFind models.Product) (product models.Pro
 	}
 	defer stmt.Close()
 
+	// Helper value for null database retorning
+	var updatedAt *sql.NullTime
+
 	err = stmt.QueryRow(productToFind.ID).Scan(
 		&product.ID,
 		&product.UserID,
@@ -48,7 +51,7 @@ func SelectProduct(db *sql.DB, productToFind models.Product) (product models.Pro
 		(*pq.StringArray)(&product.Categories),
 		&product.Price,
 		&product.CreatedAt,
-		&product.UpdatedAt,
+		&updatedAt,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -57,6 +60,11 @@ func SelectProduct(db *sql.DB, productToFind models.Product) (product models.Pro
 		}
 
 		err = fmt.Errorf("failed to select (%v) product: %v", identifier, err)
+	}
+
+	// Check if isn't empty to access its value
+	if updatedAt != nil {
+		product.UpdatedAt = &updatedAt.Time
 	}
 	return
 }

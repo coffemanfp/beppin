@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	dbm "github.com/coffemanfp/beppin/database/models"
 	errs "github.com/coffemanfp/beppin/errors"
-	"github.com/coffemanfp/beppin/helpers"
 	"github.com/coffemanfp/beppin/models"
 	"github.com/coffemanfp/beppin/utils"
 	"github.com/labstack/echo"
@@ -27,7 +25,7 @@ func GetProduct(c echo.Context) (err error) {
 	}
 
 	dbProduct, err := Storage.GetProduct(
-		dbm.Product{
+		models.Product{
 			ID: int64(productID),
 		},
 	)
@@ -43,6 +41,7 @@ func GetProduct(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
-	m.Content = helpers.ShouldParseDBModelToModel(dbProduct).(models.Product)
+	m.Content = dbProduct
+	m.ContentType = models.TypeProduct
 	return c.JSON(http.StatusOK, m)
 }

@@ -78,3 +78,17 @@ func (u User) ValidateUsername() (valid bool) {
 	valid = re.MatchString(u.Username)
 	return
 }
+
+// GetIdentifier gets the first unique identifier it finds in order of importance.
+func (u User) GetIdentifier() (identifier interface{}) {
+
+	if u.ID != 0 {
+		identifier = u.ID
+	} else if u.Username != "" {
+		identifier = u.Username
+	} else if u.Email != "" {
+		identifier = u.Email
+	}
+
+	return
+}

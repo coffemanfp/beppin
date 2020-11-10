@@ -38,3 +38,12 @@ func (p Product) Validate() (valid bool) {
 	}
 	return
 }
+
+// GetIdentifier gets the first unique identifier it finds in order of importance.
+func (p Product) GetIdentifier() (identifier interface{}) {
+	if p.ID != 0 {
+		identifier = p.ID
+	}
+
+	return
+}

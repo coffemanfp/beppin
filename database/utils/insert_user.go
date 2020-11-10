@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/coffemanfp/beppin/database/models"
 	errs "github.com/coffemanfp/beppin/errors"
+	"github.com/coffemanfp/beppin/models"
 )
 
 // InsertUser - Insert a user.
@@ -15,14 +15,14 @@ func InsertUser(db *sql.DB, user models.User) (newUser models.User, err error) {
 		return
 	}
 
-	if user.Language.Code != "" {
+	if user.Language != "" {
 		var language models.Language
-		language, err = SelectLanguage(db, user.Language)
+		language, err = SelectLanguage(db, models.Language{Code: user.Language})
 		if err != nil {
 			return
 		}
 
-		user.Language = language
+		user.Language = language.Code
 	}
 
 	query := `
@@ -31,7 +31,7 @@ func InsertUser(db *sql.DB, user models.User) (newUser models.User, err error) {
 		VALUES
 			($1, $2, $3)
 		RETURNING
-			id, language, username, theme, currency
+			id, avatar, language, username, email, theme, currency
 	`
 
 	stmt, err := db.Prepare(query)
@@ -47,8 +47,10 @@ func InsertUser(db *sql.DB, user models.User) (newUser models.User, err error) {
 		user.Email,
 	).Scan(
 		&newUser.ID,
-		&newUser.Language.Code,
+		&newUser.Avatar,
+		&newUser.Language,
 		&newUser.Username,
+		&newUser.Email,
 		&newUser.Theme,
 		&newUser.Currency,
 	)

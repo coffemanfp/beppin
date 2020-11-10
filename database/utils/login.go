@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/coffemanfp/beppin/database/models"
 	errs "github.com/coffemanfp/beppin/errors"
+	"github.com/coffemanfp/beppin/models"
 )
 
 // Login - Select a user by his username and password, and checks if exists.
@@ -20,7 +20,7 @@ func Login(db *sql.DB, userToLogin models.User) (user models.User, match bool, e
 
 	query := `
 		SELECT
-			id, language, username, theme, currency
+			id, avatar, language, username, email, theme, currency
 		FROM
 			users
 		WHERE
@@ -41,8 +41,10 @@ func Login(db *sql.DB, userToLogin models.User) (user models.User, match bool, e
 		userToLogin.Email,
 	).Scan(
 		&user.ID,
-		&user.Language.Code,
+		&user.Avatar,
+		&user.Language,
 		&user.Username,
+		&user.Email,
 		&user.Theme,
 		&user.Currency,
 	)

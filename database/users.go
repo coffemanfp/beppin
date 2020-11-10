@@ -3,9 +3,9 @@ package database
 import (
 	"fmt"
 
-	"github.com/coffemanfp/beppin/database/models"
 	dbu "github.com/coffemanfp/beppin/database/utils"
 	errs "github.com/coffemanfp/beppin/errors"
+	"github.com/coffemanfp/beppin/models"
 )
 
 func (dS defaultStorage) CreateUser(user models.User) (newUser models.User, err error) {
@@ -25,14 +25,14 @@ func (dS defaultStorage) CreateUser(user models.User) (newUser models.User, err 
 		return
 	}
 
-	if user.Language.Code != "" {
+	if user.Language != "" {
 		var language models.Language
-		language, err = dbu.SelectLanguage(dS.db, user.Language)
+		language, err = dbu.SelectLanguage(dS.db, models.Language{Code: user.Language})
 		if err != nil {
 			return
 		}
 
-		user.Language = language
+		user.Language = language.Code
 	}
 
 	newUser, err = dbu.InsertUser(dS.db, user)
@@ -59,7 +59,7 @@ func (dS defaultStorage) GetUsers(limit, offset int) (users models.Users, err er
 	return
 }
 
-func (dS defaultStorage) UpdateUser(userToUpdate, user models.User) (id int, err error) {
+func (dS defaultStorage) UpdateUser(userToUpdate, user models.User) (userUpdated models.User, err error) {
 	previousUserData, err := dbu.SelectUser(dS.db, userToUpdate)
 	if err != nil {
 		return
@@ -67,7 +67,7 @@ func (dS defaultStorage) UpdateUser(userToUpdate, user models.User) (id int, err
 
 	user = fillUserEmptyFields(user, previousUserData)
 
-	id, err = dbu.UpdateUser(dS.db, userToUpdate, user)
+	userUpdated, err = dbu.UpdateUser(dS.db, userToUpdate, user)
 	return
 }
 
@@ -99,8 +99,8 @@ func (dS defaultStorage) DeleteUser(userToDelete models.User) (id int, err error
 
 func fillUserEmptyFields(user, previousUserData models.User) models.User {
 	switch "" {
-	case user.Language.Code:
-		user.Language.Code = previousUserData.Language.Code
+	case user.Language:
+		user.Language = previousUserData.Language
 
 	case user.Username:
 		user.Username = previousUserData.Username
@@ -122,6 +122,8 @@ func fillUserEmptyFields(user, previousUserData models.User) models.User {
 	case user.Currency:
 		user.Currency = previousUserData.Currency
 	}
+
+	//t := time.Time{}
 
 	if user.Birthday == nil {
 		user.Birthday = previousUserData.Birthday
