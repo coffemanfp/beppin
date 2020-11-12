@@ -3,9 +3,9 @@ package database
 import (
 	"fmt"
 
-	"github.com/coffemanfp/beppin/models"
 	dbu "github.com/coffemanfp/beppin/database/utils"
 	errs "github.com/coffemanfp/beppin/errors"
+	"github.com/coffemanfp/beppin/models"
 )
 
 func (dS defaultStorage) CreateProduct(product models.Product) (id int, err error) {
@@ -34,17 +34,6 @@ func (dS defaultStorage) GetProducts(limit, offset int) (products models.Product
 }
 
 func (dS defaultStorage) UpdateProduct(productToUpdate, product models.Product) (id int, err error) {
-	productToUpdate, err = dS.GetProduct(
-		models.Product{
-			ID: productToUpdate.ID,
-		},
-	)
-	if err != nil {
-		return
-	}
-
-	product = fillProductEmptyFields(product, productToUpdate)
-
 	id, err = dbu.UpdateProduct(dS.db, productToUpdate, product)
 	return
 }
@@ -52,24 +41,4 @@ func (dS defaultStorage) UpdateProduct(productToUpdate, product models.Product) 
 func (dS defaultStorage) DeleteProduct(productToDelete models.Product) (id int, err error) {
 	id, err = dbu.DeleteProduct(dS.db, productToDelete)
 	return
-}
-
-func fillProductEmptyFields(product, previousProductData models.Product) models.Product {
-
-	switch "" {
-	case product.Name:
-		product.Name = previousProductData.Name
-	case product.Description:
-		product.Description = previousProductData.Description
-	}
-
-	if product.Categories == nil {
-		product.Categories = previousProductData.Categories
-	}
-
-	if product.Price == 0 {
-		product.Price = previousProductData.Price
-	}
-
-	return product
 }

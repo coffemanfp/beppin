@@ -8,10 +8,10 @@ type Product struct {
 	UserID int64  `json:"userID,omitempty"`
 	Offer  *Offer `json:"offer,omitempty"`
 
-	Name        string   `json:"name"`
+	Name        string   `json:"name,omitempty"`
 	Description string   `json:"description,omitempty"`
 	Categories  []string `json:"categories,omitempty"`
-	Price       float64  `json:"price"`
+	Price       float64  `json:"price,omitempty"`
 
 	CreatedAt *time.Time `json:"createdAt,omitempty"`
 	UpdatedAt *time.Time `json:"updatedAt,omitempty"`

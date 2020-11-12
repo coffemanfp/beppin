@@ -60,13 +60,6 @@ func (dS defaultStorage) GetUsers(limit, offset int) (users models.Users, err er
 }
 
 func (dS defaultStorage) UpdateUser(userToUpdate, user models.User) (userUpdated models.User, err error) {
-	previousUserData, err := dbu.SelectUser(dS.db, userToUpdate)
-	if err != nil {
-		return
-	}
-
-	user = fillUserEmptyFields(user, previousUserData)
-
 	userUpdated, err = dbu.UpdateUser(dS.db, userToUpdate, user)
 	return
 }
@@ -95,39 +88,4 @@ func (dS defaultStorage) UpdateAvatar(avatarURL string, userToUpdate models.User
 func (dS defaultStorage) DeleteUser(userToDelete models.User) (id int, err error) {
 	id, err = dbu.DeleteUser(dS.db, userToDelete)
 	return
-}
-
-func fillUserEmptyFields(user, previousUserData models.User) models.User {
-	switch "" {
-	case user.Language:
-		user.Language = previousUserData.Language
-
-	case user.Username:
-		user.Username = previousUserData.Username
-
-	case user.Email:
-		user.Email = previousUserData.Email
-
-	case user.Password:
-		user.Password = previousUserData.Password
-
-	case user.Name:
-		user.Name = previousUserData.Name
-
-	case user.LastName:
-		user.LastName = previousUserData.LastName
-
-	case user.Theme:
-		user.Theme = previousUserData.Theme
-	case user.Currency:
-		user.Currency = previousUserData.Currency
-	}
-
-	//t := time.Time{}
-
-	if user.Birthday == nil {
-		user.Birthday = previousUserData.Birthday
-	}
-
-	return user
 }
