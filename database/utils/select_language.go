@@ -39,14 +39,13 @@ func SelectLanguage(db *sql.DB, languageToFind models.Language) (language models
 	}
 	defer stmt.Close()
 
-	// Helper value for null database retorning
-	var updatedAt *sql.NullTime
+	var nullData nullLanguageData
 
 	err = stmt.QueryRow(languageToFind.Code).Scan(
 		&language.Code,
 		&language.Status,
 		&language.CreatedAt,
-		&updatedAt,
+		&nullData.UpdatedAt,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -57,9 +56,6 @@ func SelectLanguage(db *sql.DB, languageToFind models.Language) (language models
 		err = fmt.Errorf("failed to select (%v) language: %v", identifier, err)
 	}
 
-	// Check if isn't empty to access its value
-	if updatedAt != nil {
-		language.CreatedAt = &updatedAt.Time
-	}
+	nullData.setResults(&language)
 	return
 }

@@ -42,7 +42,7 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.
 		WHERE 
 			id = $11 OR username = $12 OR email = $13
 		RETURNING
-			id
+			id, language, avatar, username, email, name, last_name, birthday, theme, currency, updated_at
 	`)
 
 	stmt, err := db.Prepare(query)
@@ -52,7 +52,7 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.
 	}
 	defer stmt.Close()
 
-	var id int64
+	var nullData nullUserData
 
 	err = stmt.QueryRow(
 		user.Language,
@@ -68,7 +68,20 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.
 		userToUpdate.ID,
 		userToUpdate.Username,
 		userToUpdate.Email,
-	).Scan(&id)
+	).Scan(
+		&userUpdated.ID,
+		&userUpdated.Language,
+		&nullData.AvatarURL,
+		&userUpdated.Username,
+		&userUpdated.Email,
+		&userUpdated.Password,
+		&nullData.Name,
+		&nullData.LastName,
+		&nullData.Birthday,
+		&userUpdated.Theme,
+		&userUpdated.Currency,
+		&nullData.UpdatedAt,
+	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			err = fmt.Errorf("failed to update (%v) user: %w (user)", identifier, errs.ErrNotExistentObject)
@@ -79,52 +92,6 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.
 		return
 	}
 
-	userUpdated = user
-	userUpdated.ID = id
-	return
-}
-
-// Helper function that sets the query values to put on the query,
-// if a field isn't empty, it use the user value.
-// Otherwise, use the field database name for don't changes.
-func getUpdateUserParams(user models.User) (values map[string]interface{}) {
-	values = make(map[string]interface{})
-
-	if user.Language != "" {
-		values["language"] = user.Language
-	} else {
-		values["language"] = "language"
-	}
-
-	if user.Avatar.URL != "" {
-		values["avatar"] = user.Avatar.URL
-	} else {
-		values["avatar"] = "avatar"
-	}
-
-	if user.Username != "" {
-		values["username"] = user.Username
-	} else {
-		values["username"] = "username"
-	}
-
-	if user.Password != "" {
-		values["password"] = user.Password
-	} else {
-		values["password"] = "password"
-	}
-
-	if user.Email != "" {
-		values["email"] = user.Email
-	} else {
-		values["email"] = "email"
-	}
-
-	if user.Birthday != nil {
-		values["birthday"] = user.Birthday
-	} else {
-		values["birthday"] = "birthday"
-	}
-
+	nullData.setResults(&user)
 	return
 }

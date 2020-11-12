@@ -49,9 +49,7 @@ func SelectProducts(db *sql.DB, limit, offset int) (products models.Products, er
 	}
 
 	var product models.Product
-
-	// Helper value for null database retorning
-	var updatedAt *sql.NullTime
+	var nullData nullProductData
 
 	for rows.Next() {
 		err = rows.Scan(
@@ -61,7 +59,7 @@ func SelectProducts(db *sql.DB, limit, offset int) (products models.Products, er
 			&product.Description,
 			pq.Array(&product.Categories),
 			&product.Price,
-			&updatedAt,
+			&nullData.UpdatedAt,
 			&product.CreatedAt,
 		)
 		if err != nil {
@@ -69,12 +67,9 @@ func SelectProducts(db *sql.DB, limit, offset int) (products models.Products, er
 			return
 		}
 
-		// Check if isn't empty to access its value
-		if updatedAt != nil {
-			product.UpdatedAt = &updatedAt.Time
-		}
-
+		nullData.setResults(&product)
 		products = append(products, product)
+
 		// Empty the value to avoid overwrite
 		product = models.Product{}
 	}

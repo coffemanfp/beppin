@@ -48,27 +48,21 @@ func SelectLanguages(db *sql.DB, limit, offset int) (languages models.Languages,
 	}
 
 	var language models.Language
-
-	// Helper value for null database retorning
-	var updatedAt *sql.NullTime
+	var nullData nullLanguageData
 
 	for rows.Next() {
 		err = rows.Scan(
 			&language.Code,
 			&language.Status,
 			&language.CreatedAt,
-			&updatedAt,
+			&nullData.UpdatedAt,
 		)
 		if err != nil {
 			err = fmt.Errorf("failed to scan language: %v", err)
 			return
 		}
 
-		// Check if isn't empty to access its value
-		if updatedAt != nil {
-			language.UpdatedAt = &updatedAt.Time
-		}
-
+		nullData.setResults(&language)
 		languages = append(languages, language)
 
 		// Empty the value to avoid overwrite

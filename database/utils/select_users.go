@@ -47,16 +47,8 @@ func SelectUsers(db *sql.DB, limit, offset int) (users models.Users, err error) 
 		return
 	}
 
-	// Helper value for null database retorning
-	nullData := struct {
-		AvatarURL *sql.NullString
-		Name      *sql.NullString
-		LastName  *sql.NullString
-		Birthday  *sql.NullTime
-		UpdatedAt *sql.NullTime
-	}{}
-
 	var user models.User
+	var nullData nullUserData
 
 	for rows.Next() {
 		err = rows.Scan(
@@ -78,24 +70,9 @@ func SelectUsers(db *sql.DB, limit, offset int) (users models.Users, err error) 
 			return
 		}
 
-		// Check if isn't empty to access its value
-		if nullData.AvatarURL != nil {
-			user.Avatar.URL = nullData.AvatarURL.String
-		}
-		if nullData.Name != nil {
-			user.Name = nullData.Name.String
-		}
-		if nullData.LastName != nil {
-			user.LastName = nullData.LastName.String
-		}
-		if nullData.Birthday != nil {
-			user.Birthday = &nullData.Birthday.Time
-		}
-		if nullData.UpdatedAt != nil {
-			user.UpdatedAt = &nullData.UpdatedAt.Time
-		}
-
+		nullData.setResults(&user)
 		users = append(users, user)
+
 		// Empty the value to avoid overwrite
 		user = models.User{}
 	}

@@ -60,17 +60,6 @@ func (dS defaultStorage) GetUsers(limit, offset int) (users models.Users, err er
 }
 
 func (dS defaultStorage) UpdateUser(userToUpdate, user models.User) (userUpdated models.User, err error) {
-	previousUserData, err := dbu.SelectUser(dS.db, userToUpdate)
-	if err != nil {
-		return
-	}
-
-	fmt.Println(previousUserData)
-
-	user = fillUserEmptyFields(user, previousUserData)
-
-	fmt.Println(user)
-
 	userUpdated, err = dbu.UpdateUser(dS.db, userToUpdate, user)
 	return
 }
@@ -99,45 +88,4 @@ func (dS defaultStorage) UpdateAvatar(avatarURL string, userToUpdate models.User
 func (dS defaultStorage) DeleteUser(userToDelete models.User) (id int, err error) {
 	id, err = dbu.DeleteUser(dS.db, userToDelete)
 	return
-}
-
-func fillUserEmptyFields(user, previousUserData models.User) models.User {
-	if user.ID == 0 {
-		user.ID = previousUserData.ID
-	}
-	if user.Language == "" {
-		user.Language = previousUserData.Language
-	}
-	if user.Username == "" {
-		user.Username = previousUserData.Username
-	}
-	if user.Email == "" {
-		user.Email = previousUserData.Email
-	}
-	if user.Password == "" {
-		user.Password = previousUserData.Password
-	}
-	if user.Name == "" {
-		user.Name = previousUserData.Name
-	}
-	if user.LastName == "" {
-		user.LastName = previousUserData.LastName
-	}
-	if user.Theme == "" {
-		user.Theme = previousUserData.Theme
-	}
-	if user.Currency == "" {
-		user.Currency = previousUserData.Currency
-	}
-	if user.Birthday == nil {
-		user.Birthday = previousUserData.Birthday
-	}
-	if user.CreatedAt == nil {
-		user.CreatedAt = previousUserData.CreatedAt
-	}
-	if user.UpdatedAt == nil {
-		user.UpdatedAt = previousUserData.UpdatedAt
-	}
-
-	return user
 }
