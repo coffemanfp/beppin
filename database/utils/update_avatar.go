@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/coffemanfp/beppin/models"
 	errs "github.com/coffemanfp/beppin/errors"
+	"github.com/coffemanfp/beppin/models"
 )
 
 // UpdateAvatar updates the avatar url.
@@ -26,7 +26,8 @@ func UpdateAvatar(db *sql.DB, avatarURL string, userToUpdate models.User) (id in
 		UPDATE
 			users
 		SET
-			avatar = $1
+			avatar = $1,
+			updated_at = NOW()
 		WHERE
 			id = $2 OR username = $3 OR email = $4
 		RETURNING

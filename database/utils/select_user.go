@@ -78,6 +78,7 @@ func SelectUser(db *sql.DB, userToFind models.User) (user models.User, err error
 
 	// Check if isn't empty to access its value
 	if nullData.AvatarURL != nil {
+		user.Avatar = new(models.Avatar)
 		user.Avatar.URL = nullData.AvatarURL.String
 	}
 	if nullData.Name != nil {

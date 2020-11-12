@@ -22,24 +22,26 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.
 		return
 	}
 
+	// This query sets the database fields to its last value if
+	// the param is empty. Otherwise, sets the param value.
 	query := fmt.Sprintf(`
 		UPDATE
 			users
 		SET
-			language = $1,
-			avatar = $2,
-			username = $3,
-			password = $4,
-			email = $5,
-			name = $6,
-			last_name = $7,
-			birthday = $8,
-			theme = $9,
-			currency = $10
+			language = CASE WHEN $1 = '' THEN language ELSE $1 END,
+			avatar = CASE WHEN $2 = '' THEN avatar ELSE $2 END,
+			username = CASE WHEN $3 = '' THEN username ELSE $3 END,
+			password = CASE WHEN $4 = '' THEN password ELSE $4 END,
+			email = CASE WHEN $5 = '' THEN email ELSE $5 END,
+			name = CASE WHEN $6 = '' THEN name ELSE $6 END,
+			last_name = CASE WHEN $7 = '' THEN last_name ELSE $7 END,
+			birthday = CASE WHEN $8::timestamp IS NULL THEN birthday ELSE $8 END,
+			theme = CASE WHEN $9 = '' THEN theme ELSE $9 END,
+			currency = CASE WHEN $10 = '' THEN currency ELSE $10 END,
 			updated_at = NOW()
 		WHERE 
 			id = $11 OR username = $12 OR email = $13
-		RETUNING
+		RETURNING
 			id
 	`)
 
@@ -79,5 +81,50 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.
 
 	userUpdated = user
 	userUpdated.ID = id
+	return
+}
+
+// Helper function that sets the query values to put on the query,
+// if a field isn't empty, it use the user value.
+// Otherwise, use the field database name for don't changes.
+func getUpdateUserParams(user models.User) (values map[string]interface{}) {
+	values = make(map[string]interface{})
+
+	if user.Language != "" {
+		values["language"] = user.Language
+	} else {
+		values["language"] = "language"
+	}
+
+	if user.Avatar.URL != "" {
+		values["avatar"] = user.Avatar.URL
+	} else {
+		values["avatar"] = "avatar"
+	}
+
+	if user.Username != "" {
+		values["username"] = user.Username
+	} else {
+		values["username"] = "username"
+	}
+
+	if user.Password != "" {
+		values["password"] = user.Password
+	} else {
+		values["password"] = "password"
+	}
+
+	if user.Email != "" {
+		values["email"] = user.Email
+	} else {
+		values["email"] = "email"
+	}
+
+	if user.Birthday != nil {
+		values["birthday"] = user.Birthday
+	} else {
+		values["birthday"] = "birthday"
+	}
+
 	return
 }

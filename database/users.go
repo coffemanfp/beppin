@@ -65,7 +65,11 @@ func (dS defaultStorage) UpdateUser(userToUpdate, user models.User) (userUpdated
 		return
 	}
 
+	fmt.Println(previousUserData)
+
 	user = fillUserEmptyFields(user, previousUserData)
+
+	fmt.Println(user)
 
 	userUpdated, err = dbu.UpdateUser(dS.db, userToUpdate, user)
 	return
@@ -98,35 +102,41 @@ func (dS defaultStorage) DeleteUser(userToDelete models.User) (id int, err error
 }
 
 func fillUserEmptyFields(user, previousUserData models.User) models.User {
-	switch "" {
-	case user.Language:
+	if user.ID == 0 {
+		user.ID = previousUserData.ID
+	}
+	if user.Language == "" {
 		user.Language = previousUserData.Language
-
-	case user.Username:
+	}
+	if user.Username == "" {
 		user.Username = previousUserData.Username
-
-	case user.Email:
+	}
+	if user.Email == "" {
 		user.Email = previousUserData.Email
-
-	case user.Password:
+	}
+	if user.Password == "" {
 		user.Password = previousUserData.Password
-
-	case user.Name:
+	}
+	if user.Name == "" {
 		user.Name = previousUserData.Name
-
-	case user.LastName:
+	}
+	if user.LastName == "" {
 		user.LastName = previousUserData.LastName
-
-	case user.Theme:
+	}
+	if user.Theme == "" {
 		user.Theme = previousUserData.Theme
-	case user.Currency:
+	}
+	if user.Currency == "" {
 		user.Currency = previousUserData.Currency
 	}
-
-	//t := time.Time{}
-
 	if user.Birthday == nil {
 		user.Birthday = previousUserData.Birthday
+	}
+	if user.CreatedAt == nil {
+		user.CreatedAt = previousUserData.CreatedAt
+	}
+	if user.UpdatedAt == nil {
+		user.UpdatedAt = previousUserData.UpdatedAt
 	}
 
 	return user

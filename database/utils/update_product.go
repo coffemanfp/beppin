@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/coffemanfp/beppin/models"
 	errs "github.com/coffemanfp/beppin/errors"
+	"github.com/coffemanfp/beppin/models"
 	"github.com/lib/pq"
 )
 
@@ -23,14 +23,16 @@ func UpdateProduct(db *sql.DB, productToUpdate, product models.Product) (id int,
 		return
 	}
 
+	// This query sets the database fields to its last value if
+	// the param is empty. Otherwise, sets the param value.
 	query := `
 		UPDATE
 			products
 		SET
-			name = $1,
-			description = $2,
-			categories = $3,
-			price = $4
+			name = CASE WHEN $1 = '' THEN name ELSE $1 END,
+			description = CASE WHEN $2 = '' THEN description ELSE $2 END,
+			categories = CASE WHEN $3::varchar[] IS NULL THEN categories ELSE $3 END,
+			price = CASE WHEN $4 = 0.0 THEN price ELSE $4 END,
 			updated_at = NOW()
 		WHERE 
 			id =  $5
