@@ -56,7 +56,7 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.
 
 	err = stmt.QueryRow(
 		user.Language,
-		user.Avatar.URL,
+		user.AvatarURL,
 		user.Username,
 		user.Password,
 		user.Email,
@@ -74,7 +74,6 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.
 		&nullData.AvatarURL,
 		&userUpdated.Username,
 		&userUpdated.Email,
-		&userUpdated.Password,
 		&nullData.Name,
 		&nullData.LastName,
 		&nullData.Birthday,
