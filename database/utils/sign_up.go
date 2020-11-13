@@ -31,7 +31,7 @@ func SignUp(db *sql.DB, user models.User) (newUser models.User, err error) {
 		VALUES
 			($1, $2, $3)
 		RETURNING
-			id, avatar, language, username, email, theme, currency
+			id, language, username, email, theme, currency
 	`
 
 	stmt, err := db.Prepare(query)
@@ -47,7 +47,6 @@ func SignUp(db *sql.DB, user models.User) (newUser models.User, err error) {
 		user.Email,
 	).Scan(
 		&newUser.ID,
-		&newUser.Avatar,
 		&newUser.Language,
 		&newUser.Username,
 		&newUser.Email,

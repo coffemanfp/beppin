@@ -35,13 +35,15 @@ func Login(db *sql.DB, userToLogin models.User) (user models.User, match bool, e
 	}
 	defer stmt.Close()
 
+	var nullData nullUserData
+
 	err = stmt.QueryRow(
 		userToLogin.Username,
 		userToLogin.Password,
 		userToLogin.Email,
 	).Scan(
 		&user.ID,
-		&user.Avatar,
+		&nullData.AvatarURL,
 		&user.Language,
 		&user.Username,
 		&user.Email,
@@ -57,5 +59,7 @@ func Login(db *sql.DB, userToLogin models.User) (user models.User, match bool, e
 
 		err = fmt.Errorf("failed to login (%s) user: %v", userToLogin.Username, err)
 	}
+
+	nullData.setResults(&user)
 	return
 }

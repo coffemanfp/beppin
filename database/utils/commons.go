@@ -28,8 +28,7 @@ type (
 
 func (n nullUserData) setResults(user *models.User) {
 	if n.AvatarURL != nil {
-		user.Avatar = new(models.Avatar)
-		user.Avatar.URL = n.AvatarURL.String
+		user.AvatarURL = n.AvatarURL.String
 	}
 	if n.Name != nil {
 		user.Name = n.Name.String

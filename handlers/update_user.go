@@ -35,9 +35,7 @@ func UpdateUser(c echo.Context) (err error) {
 		models.User{
 			ID: int64(userID),
 		},
-		models.User{
-			ID: int64(userID),
-		},
+		user,
 	)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {

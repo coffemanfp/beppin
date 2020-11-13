@@ -3,9 +3,7 @@ package handlers
 import (
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
-	"os"
 	"path"
 	"strconv"
 
@@ -42,53 +40,29 @@ func UpdateAvatar(c echo.Context) (err error) {
 	// Getting image from form input
 	file, err := c.FormFile("file")
 	if err != nil {
+		fmt.Println(err)
 		m.Error = fmt.Sprintf("%v: file", errs.ErrInvalidData)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	// If the avatar image is greater than 800kb, it's not valid
-	if file.Size > 800000 {
-		m.Error = fmt.Sprintf("%v: file", errs.ErrInvalidData)
-
-		return echo.NewHTTPError(http.StatusBadRequest, m)
-	}
-
-	src, err := file.Open()
-	if err != nil {
-		m.Error = fmt.Sprintf("%v: file", errs.ErrInvalidData)
-
-		return echo.NewHTTPError(http.StatusBadRequest, m)
-	}
-	defer src.Close()
-
-	// Destination
-	var dest *os.File
-
-	destPath := path.Join(
+	destination := path.Join(
 		config.GlobalSettings.Assets,
 		"avatars",
-		strconv.Itoa(userID)+path.Ext(file.Filename))
+		strconv.Itoa(userID)+path.Ext(file.Filename),
+	)
 
-	if exists, _ := utils.ExistsFile(destPath); exists {
-		dest, err = os.OpenFile(destPath, os.O_WRONLY, 0777)
-	} else {
-		dest, err = os.Create(destPath)
-	}
+	// Saving file on the filesystem
+	err = utils.SaveMultipartFile(file, destination, 800000)
 	if err != nil {
-		c.Logger().Error(err)
+		if errors.Is(err, errs.ErrInvalidData) {
+			m.Error = err.Error()
+
+			return echo.NewHTTPError(http.StatusBadRequest, m)
+		}
 		m.Error = http.StatusText(http.StatusInternalServerError)
 
-		return echo.NewHTTPError(http.StatusInternalServerError, m)
-	}
-	defer dest.Close()
-
-	_, err = io.Copy(dest, src)
-	if err != nil {
-		c.Logger().Error(err)
-		m.Error = http.StatusText(http.StatusInternalServerError)
-
-		return echo.NewHTTPError(http.StatusInternalServerError, m)
+		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
 	dbUser, err := Storage.UpdateUser(
@@ -96,9 +70,7 @@ func UpdateAvatar(c echo.Context) (err error) {
 			ID: int64(userID),
 		},
 		models.User{
-			Avatar: &models.Avatar{
-				URL: destPath,
-			},
+			AvatarURL: destination,
 		},
 	)
 	if err != nil {
