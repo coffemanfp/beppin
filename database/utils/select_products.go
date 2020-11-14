@@ -19,7 +19,7 @@ func SelectProducts(db *sql.DB, limit, offset int) (products models.Products, er
 
 	query := `
 	SELECT
-		id, user_id, name, description, categories, price, created_at, updated_at
+		id, user_id, name, description, categories, price, images, created_at, updated_at
 	FROM
 		products
 	ORDER BY
@@ -59,6 +59,7 @@ func SelectProducts(db *sql.DB, limit, offset int) (products models.Products, er
 			&product.Description,
 			pq.Array(&product.Categories),
 			&product.Price,
+			pq.Array(&product.Images),
 			&nullData.UpdatedAt,
 			&product.CreatedAt,
 		)

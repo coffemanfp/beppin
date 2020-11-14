@@ -12,6 +12,7 @@ type Product struct {
 	Description string   `json:"description,omitempty"`
 	Categories  []string `json:"categories,omitempty"`
 	Price       float64  `json:"price,omitempty"`
+	Images      []string `json:"images,omitempty"`
 
 	CreatedAt *time.Time `json:"createdAt,omitempty"`
 	UpdatedAt *time.Time `json:"updatedAt,omitempty"`

@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS products (
     description VARCHAR(3000),
     price NUMERIC(20, 2) NOT NULL, 
     categories VARCHAR[],
+    images VARCHAR[],
 
     created_at TIMESTAMP NOT NULl DEFAULT NOW(),
     updated_at TIMESTAMP,
@@ -86,3 +87,4 @@ CREATE TABLE IF NOT EXISTS categories (
 
     PRIMARY KEY (id)
 );
+
