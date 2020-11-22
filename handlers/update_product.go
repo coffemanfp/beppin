@@ -31,6 +31,41 @@ func UpdateProduct(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
+	// Check if exists the files
+	if len(product.Images) != 0 {
+		for _, image := range product.Images {
+			// Get old file info
+			oldFile, err := Storage.GetFile(models.File{ID: int64(image.ID)})
+			if err != nil {
+				if errors.Is(err, errs.ErrNotExistentObject) {
+					m.Error = fmt.Sprintf("%v: file", errs.ErrNotExistentObject)
+
+					return echo.NewHTTPError(http.StatusNotFound, m)
+				}
+				c.Logger().Error(err)
+				m.Error = http.StatusText(http.StatusInternalServerError)
+
+				return echo.NewHTTPError(http.StatusInternalServerError, m)
+			}
+
+			// Check if the file exists in the filesystem
+			exists, err := utils.ExistsFile(oldFile.Path)
+			if err != nil {
+				c.Logger().Error(err)
+				m.Error = http.StatusText(http.StatusInternalServerError)
+
+				return echo.NewHTTPError(http.StatusInternalServerError, m)
+			}
+
+			if !exists {
+				m.Error = fmt.Sprintf("%v: file", errs.ErrNotExistentObject)
+
+				return echo.NewHTTPError(http.StatusNotFound, m)
+			}
+
+		}
+	}
+
 	updatedProduct, err := Storage.UpdateProduct(
 		models.Product{
 			ID: int64(productID),

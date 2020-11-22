@@ -25,6 +25,9 @@ func (dS defaultStorage) CreateProduct(product models.Product) (createdProduct m
 	}
 
 	createdProduct, err = dbu.InsertProduct(dS.db, product)
+	if err != nil {
+		return
+	}
 	for _, file := range product.Images {
 		exists, err = dbu.ExistsFile(dS.db, models.File{ID: file.ID})
 		if err != nil {
