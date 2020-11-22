@@ -25,11 +25,12 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.
 	// This query sets the database fields to its last value if
 	// the param is empty. Otherwise, sets the param value.
 	query := fmt.Sprintf(`
+		WITH updated AS (
 		UPDATE
 			users
 		SET
 			language = CASE WHEN $1 = '' THEN language ELSE $1 END,
-			avatar = CASE WHEN $2 = '' THEN avatar ELSE $2 END,
+			avatar_id = CASE WHEN $2 = 0 THEN avatar_id ELSE $2 END,
 			username = CASE WHEN $3 = '' THEN username ELSE $3 END,
 			password = CASE WHEN $4 = '' THEN password ELSE $4 END,
 			email = CASE WHEN $5 = '' THEN email ELSE $5 END,
@@ -42,7 +43,16 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.
 		WHERE 
 			id = $11 OR username = $12 OR email = $13
 		RETURNING
-			id, language, avatar, username, email, name, last_name, birthday, theme, currency, updated_at
+			id, language, avatar_id, username, email, name, last_name, birthday, theme, currency, updated_at
+		)
+		SELECT
+			updated.*, files.path
+		FROM
+			updated
+		INNER JOIN
+			files
+		ON
+			updated.avatar_id = files.id
 	`)
 
 	stmt, err := db.Prepare(query)
@@ -56,7 +66,8 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.
 
 	err = stmt.QueryRow(
 		user.Language,
-		user.AvatarURL,
+		user.Avatar.ID,
+		user.Avatar.Path,
 		user.Username,
 		user.Password,
 		user.Email,
@@ -71,7 +82,8 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.
 	).Scan(
 		&userUpdated.ID,
 		&userUpdated.Language,
-		&nullData.AvatarURL,
+		&nullData.AvatarID,
+		&nullData.AvatarPath,
 		&userUpdated.Username,
 		&userUpdated.Email,
 		&nullData.Name,
@@ -79,7 +91,7 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.
 		&nullData.Birthday,
 		&userUpdated.Theme,
 		&userUpdated.Currency,
-		&nullData.UpdatedAt,
+		&userUpdated.UpdatedAt,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -92,5 +104,8 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.
 	}
 
 	nullData.setResults(&user)
+	if user.Avatar != nil {
+		user.Avatar.SetURL()
+	}
 	return
 }

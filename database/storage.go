@@ -7,6 +7,7 @@ type Storage interface {
 	LanguageStorage
 	ProductStorage
 	UserStorage
+	FileStorage
 
 	GetDB() *sql.DB
 	SetDB(db *sql.DB)

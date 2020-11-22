@@ -27,9 +27,7 @@ func CreateProduct(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	id, err := Storage.CreateProduct(
-		product,
-	)
+	createdProduct, err := Storage.CreateProduct(product)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {
 			m.Error = fmt.Sprintf("%v: user", errs.ErrNotExistentObject)
@@ -43,9 +41,7 @@ func CreateProduct(c echo.Context) (err error) {
 	}
 
 	m.Message = "Created."
-	m.Content = models.Product{
-		ID: int64(id),
-	}
+	m.Content = createdProduct
 	m.ContentType = models.TypeProduct
 	return c.JSON(http.StatusCreated, m)
 }

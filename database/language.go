@@ -3,12 +3,12 @@ package database
 import (
 	"fmt"
 
-	"github.com/coffemanfp/beppin/models"
 	dbu "github.com/coffemanfp/beppin/database/utils"
 	errs "github.com/coffemanfp/beppin/errors"
+	"github.com/coffemanfp/beppin/models"
 )
 
-func (dS defaultStorage) CreateLanguage(language models.Language) (id int, err error) {
+func (dS defaultStorage) CreateLanguage(language models.Language) (createdLanguage models.Language, err error) {
 	exists, err := dS.ExistsLanguage(language)
 	if err != nil {
 		return
@@ -19,7 +19,7 @@ func (dS defaultStorage) CreateLanguage(language models.Language) (id int, err e
 		return
 	}
 
-	id, err = dbu.InsertLanguage(dS.db, language)
+	createdLanguage, err = dbu.InsertLanguage(dS.db, language)
 	return
 }
 
@@ -28,7 +28,7 @@ func (dS defaultStorage) ExistsLanguage(language models.Language) (exists bool, 
 	return
 }
 
-func (dS defaultStorage) GetLanguage(languageToFind models.Language) (Language models.Language, err error) {
-	Language, err = dbu.SelectLanguage(dS.db, languageToFind)
+func (dS defaultStorage) GetLanguage(languageToFind models.Language) (language models.Language, err error) {
+	language, err = dbu.SelectLanguage(dS.db, languageToFind)
 	return
 }

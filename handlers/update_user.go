@@ -8,19 +8,30 @@ import (
 	errs "github.com/coffemanfp/beppin/errors"
 	"github.com/coffemanfp/beppin/models"
 	"github.com/coffemanfp/beppin/utils"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
 
 // UpdateUser - Updates a user.
 func UpdateUser(c echo.Context) (err error) {
-	userIDParam := c.Param("id")
 	var m models.ResponseMessage
+
+	userIDParam := c.Param("id")
+	userIDToken := c.Get("user").(*jwt.Token).Claims.(*models.Claim).User.ID
 
 	userID, err := utils.Atoi(userIDParam)
 	if err != nil || userID == 0 {
 		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
+	}
+
+	// If the user to update isn't equal to the current user,
+	// is not authorized
+	if userID != int(userIDToken) {
+		m.Error = http.StatusText(http.StatusUnauthorized)
+
+		return echo.NewHTTPError(http.StatusUnauthorized, m)
 	}
 
 	var user models.User

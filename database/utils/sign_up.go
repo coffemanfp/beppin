@@ -15,23 +15,13 @@ func SignUp(db *sql.DB, user models.User) (newUser models.User, err error) {
 		return
 	}
 
-	if user.Language != "" {
-		var language models.Language
-		language, err = SelectLanguage(db, models.Language{Code: user.Language})
-		if err != nil {
-			return
-		}
-
-		user.Language = language.Code
-	}
-
 	query := `
 		INSERT INTO
-			users(username, password, email)
+			users(username, password, email, name, last_name)
 		VALUES
-			($1, $2, $3)
+			($1, $2, $3, $4, $5)
 		RETURNING
-			id, language, username, email, theme, currency
+			id, language, username, theme, currency
 	`
 
 	stmt, err := db.Prepare(query)
@@ -45,11 +35,12 @@ func SignUp(db *sql.DB, user models.User) (newUser models.User, err error) {
 		user.Username,
 		user.Password,
 		user.Email,
+		user.Name,
+		user.LastName,
 	).Scan(
 		&newUser.ID,
 		&newUser.Language,
 		&newUser.Username,
-		&newUser.Email,
 		&newUser.Theme,
 		&newUser.Currency,
 	)

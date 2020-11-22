@@ -4,12 +4,12 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/coffemanfp/beppin/models"
 	errs "github.com/coffemanfp/beppin/errors"
+	"github.com/coffemanfp/beppin/models"
 )
 
 // InsertLanguage - Insert a language.
-func InsertLanguage(db *sql.DB, language models.Language) (id int, err error) {
+func InsertLanguage(db *sql.DB, language models.Language) (createdLanguage models.Language, err error) {
 	if db == nil {
 		err = errs.ErrClosedDatabase
 		return
@@ -29,7 +29,7 @@ func InsertLanguage(db *sql.DB, language models.Language) (id int, err error) {
 		ON CONFLICT DO
 			NOTHING
 		RETURNING
-			id
+			id, code, status, created_at
 	`
 
 	stmt, err := db.Prepare(query)
@@ -42,7 +42,12 @@ func InsertLanguage(db *sql.DB, language models.Language) (id int, err error) {
 	err = stmt.QueryRow(
 		language.Code,
 		language.Status,
-	).Scan(&id)
+	).Scan(
+		&createdLanguage.ID,
+		&createdLanguage.Code,
+		&createdLanguage.Status,
+		&createdLanguage.CreatedAt,
+	)
 	if err != nil {
 		err = fmt.Errorf("failed to execute insert (%v) language statement: %v", identifier, err)
 	}

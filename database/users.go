@@ -25,14 +25,20 @@ func (dS defaultStorage) SignUp(user models.User) (newUser models.User, err erro
 		return
 	}
 
-	if user.Language != "" {
-		var language models.Language
-		language, err = dbu.SelectLanguage(dS.db, models.Language{Code: user.Language})
+	if user.Avatar != nil && user.Avatar.ID != 0 {
+		exists, err = dS.ExistsFile(models.File{ID: user.Avatar.ID})
 		if err != nil {
 			return
 		}
 
-		user.Language = language.Code
+		if !exists {
+			err = fmt.Errorf(
+				"failed to check (%d) file: %w",
+				user.Avatar.ID,
+				errs.ErrNotExistentObject,
+			)
+			return
+		}
 	}
 
 	newUser, err = dbu.SignUp(dS.db, user)
@@ -60,32 +66,52 @@ func (dS defaultStorage) GetUsers(limit, offset int) (users models.Users, err er
 }
 
 func (dS defaultStorage) UpdateUser(userToUpdate, user models.User) (userUpdated models.User, err error) {
+	err = dS.checkUser(userToUpdate)
+	if err != nil {
+		return
+	}
+
+	var exists bool
+	if userToUpdate.Avatar != nil && userToUpdate.Avatar.ID != 0 {
+		exists, err = dS.ExistsFile(models.File{ID: userToUpdate.Avatar.ID})
+		if err != nil {
+			return
+		}
+
+		if !exists {
+			err = fmt.Errorf(
+				"failed to check (%d) file: %w",
+				userToUpdate.Avatar.ID,
+				errs.ErrNotExistentObject,
+			)
+			return
+		}
+	}
+
 	userUpdated, err = dbu.UpdateUser(dS.db, userToUpdate, user)
 	return
 }
 
-func (dS defaultStorage) UpdateAvatar(avatarURL string, userToUpdate models.User) (id int, err error) {
-	identifier := userToUpdate.GetIdentifier()
+func (dS defaultStorage) DeleteUser(userToDelete models.User) (id int, err error) {
+	id, err = dbu.DeleteUser(dS.db, userToDelete)
+	return
+}
+
+func (dS defaultStorage) checkUser(user models.User) (err error) {
+	identifier := user.GetIdentifier()
 	if identifier == nil {
 		err = fmt.Errorf("failed to check user: %w (user)", errs.ErrNotProvidedOrInvalidObject)
 		return
 	}
 
-	exists, err := dS.ExistsUser(userToUpdate)
+	exists, err := dS.ExistsUser(user)
 	if err != nil {
 		return
 	}
 
 	if !exists {
 		err = fmt.Errorf("failed to check (%v) user: %w (user)", identifier, errs.ErrNotExistentObject)
-		return
 	}
 
-	id, err = dbu.UpdateAvatar(dS.db, avatarURL, userToUpdate)
-	return
-}
-
-func (dS defaultStorage) DeleteUser(userToDelete models.User) (id int, err error) {
-	id, err = dbu.DeleteUser(dS.db, userToDelete)
 	return
 }

@@ -7,41 +7,53 @@ END$$;
 
 DO $$
 BEGIN
-    CREATE TYPE OFFER_TYPE AS ENUM ('percentage', 'promotion');
+    CREATE TYPE OFFER_TYPE AS ENUM ('%', 'x');
 EXCEPTION
     WHEN duplicate_object THEN null;
 END$$;
 
+CREATE TABLE IF NOT EXISTS files (
+    id SERIAL NOT NULL UNIQUE,
+
+    path VARCHAR NOT NULL UNIQUE,
+
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP,
+
+    PRIMARY KEY (id)
+);
+
 CREATE TABLE IF NOT EXISTS languages (
-    id SERIAL,
+    id SERIAL NOT NULL UNIQUE,
     code CHAR(5) NOT NULL UNIQUE,
     status LANGUAGE_STATUS DEFAULT 'unavailable',
 
-    created_at TIMESTAMP NOT NULl DEFAULT NOW(),
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP,
 
-    PRIMARY KEY (code)
+    PRIMARY KEY (id,code)
 );
 
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL NOT NULL UNIQUE,
     language CHAR(5) DEFAULT 'en-EN',
+    avatar_id INTEGER,
 
-    avatar VARCHAR UNIQUE,
     username VARCHAR(25) NOT NULL UNIQUE,
     password VARCHAR(75) NOT NULL,
     email VARCHAR(60) NOT NULL UNIQUE,
     name VARCHAR(25),
     last_name VARCHAR(25),
     birthday TIMESTAMP,
-    theme VARCHAR DEFAULT 'light',
-    currency VARCHAR DEFAULT 'USD',
+    theme VARCHAR NOT NULL DEFAULT 'light',
+    currency VARCHAR NOT NULL DEFAULT 'USD',
 
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP,
 
     PRIMARY KEY (id),
-    FOREIGN KEY (language) REFERENCES languages(code)
+    FOREIGN KEY (language) REFERENCES languages(code),
+    FOREIGN KEY (avatar_id) REFERENCES files(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS products (
@@ -51,14 +63,12 @@ CREATE TABLE IF NOT EXISTS products (
     name VARCHAR(80) NOT NULL,
     description VARCHAR(3000),
     price NUMERIC(20, 2) NOT NULL, 
-    categories VARCHAR[],
-    images VARCHAR[],
 
-    created_at TIMESTAMP NOT NULl DEFAULT NOW(),
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP,
 
     PRIMARY KEY (id),
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS offers (
@@ -66,21 +76,22 @@ CREATE TABLE IF NOT EXISTS offers (
     product_id INTEGER UNIQUE,
 
     type OFFER_TYPE NOT NULL,
-    value VARCHAR(8),
+    value VARCHAR(8) NOT NULL,
     description VARCHAR(2000),
 
     expirated_at TIMESTAMP,
-    created_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP,
 
     PRIMARY KEY (id),
-    FOREIGN KEY (id) REFERENCES products(id)
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS categories (
     id SERIAL NOT NULL UNIQUE,
 
-    name VARCHAR(25) UNIQUE,
+    name VARCHAR(25) NOT NULL UNIQUE,
+    description VARCHAR,
     related_categories VARCHAR[],
 
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -88,3 +99,26 @@ CREATE TABLE IF NOT EXISTS categories (
     PRIMARY KEY (id)
 );
 
+CREATE TABLE IF NOT EXISTS categories_products (
+    id SERIAL NOT NULL UNIQUE,
+    category_id INTEGER,
+    product_id INTEGER,
+
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS files_products (
+    id SERIAL NOT NULL UNIQUE,
+    file_id INTEGER,
+    product_id INTEGER,
+
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+
+    PRIMARY KEY (id),
+    FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);

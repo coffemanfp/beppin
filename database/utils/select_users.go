@@ -18,11 +18,15 @@ func SelectUsers(db *sql.DB, limit, offset int) (users models.Users, err error) 
 
 	query := `
 		SELECT
-			id, language, avatar, username, email, name, last_name, birthday, theme, currency, created_at, updated_at
+			users.id, language, files.id, files.path, username, email, name, last_name, birthday, theme, currency, users.created_at, users.updated_at
 		FROM	
 			users
+		LEFT JOIN
+			files
+		ON
+			users.avatar_id = files.id
 		ORDER BY
-			id
+			users.id
 		LIMIT
 			$1
 		OFFSET
@@ -54,7 +58,8 @@ func SelectUsers(db *sql.DB, limit, offset int) (users models.Users, err error) 
 		err = rows.Scan(
 			&user.ID,
 			&user.Language,
-			&nullData.AvatarURL,
+			&nullData.AvatarID,
+			&nullData.AvatarPath,
 			&user.Username,
 			&user.Email,
 			&nullData.Name,
@@ -71,6 +76,9 @@ func SelectUsers(db *sql.DB, limit, offset int) (users models.Users, err error) 
 		}
 
 		nullData.setResults(&user)
+		if user.Avatar != nil {
+			user.Avatar.SetURL()
+		}
 		users = append(users, user)
 
 		// Empty the value to avoid overwrite

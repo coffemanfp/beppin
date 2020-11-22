@@ -9,7 +9,6 @@ import (
 )
 
 func newRouter(e *echo.Echo) {
-
 	// API group
 	r := e.Group("/v1")
 
@@ -42,8 +41,12 @@ func newRouter(e *echo.Echo) {
 	r.GET("/users", handlers.GetUsers, jwtMiddleware)
 	r.GET("/users/:id", handlers.GetUser, jwtMiddleware)
 	r.PUT("/users/:id", handlers.UpdateUser, jwtMiddleware)
-	r.PUT("/users/:id/avatar", handlers.UpdateAvatar, jwtMiddleware)
 	r.DELETE("/users/:id", handlers.DeleteUser, jwtMiddleware)
+
+	// Files
+	r.POST("/files", handlers.UploadFile, jwtMiddleware)
+	r.PUT("/files/:id", handlers.UpdateFile, jwtMiddleware)
+	r.DELETE("/files/:id", handlers.DeleteFile, jwtMiddleware)
 
 	return
 }

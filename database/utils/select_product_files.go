@@ -9,8 +9,8 @@ import (
 	"github.com/coffemanfp/beppin/models"
 )
 
-// SelectProduct - Selects a product.
-func SelectProduct(db *sql.DB, productToFind models.Product) (product models.Product, err error) {
+// SelectProductFiles - Selects the files of a product.
+func SelectProductFiles(db *sql.DB, productToFind models.Product) (files models.Files, err error) {
 	if db == nil {
 		err = errs.ErrClosedDatabase
 		return
@@ -24,11 +24,19 @@ func SelectProduct(db *sql.DB, productToFind models.Product) (product models.Pro
 
 	query := `
 		SELECT
-			id, user_id, name, description, price, created_at, updated_at
+			files.id, path, files.created_at, files.updated_at
 		FROM
+			files
+		INNER JOIN
 			products
+		INNER JOIN
+			files_products
+		ON
+			files_products.product_id = products.id
+		ON
+			files_products.file_id = files.id
 		WHERE
-			id = $1
+			products.id = $1
 	`
 
 	stmt, err := db.Prepare(query)
@@ -39,17 +47,7 @@ func SelectProduct(db *sql.DB, productToFind models.Product) (product models.Pro
 	}
 	defer stmt.Close()
 
-	var nullData nullProductData
-
-	err = stmt.QueryRow(productToFind.ID).Scan(
-		&product.ID,
-		&product.UserID,
-		&product.Name,
-		&nullData.Description,
-		&product.Price,
-		&product.CreatedAt,
-		&nullData.UpdatedAt,
-	)
+	rows, err := stmt.Query(productToFind.ID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			err = fmt.Errorf("failed to select (%v) product: %w (product)", identifier, errs.ErrNotExistentObject)
@@ -59,6 +57,27 @@ func SelectProduct(db *sql.DB, productToFind models.Product) (product models.Pro
 		err = fmt.Errorf("failed to select (%v) product: %v", identifier, err)
 	}
 
-	nullData.setResults(&product)
+	var nullData nullFileData
+	var file models.File
+
+	for rows.Next() {
+		err = rows.Scan(
+			&file.ID,
+			&file.Path,
+			&file.CreatedAt,
+			&nullData.UpdatedAt,
+		)
+		if err != nil {
+			err = fmt.Errorf("failed to scan file: %v", err)
+			return
+		}
+
+		nullData.setResults(&file)
+		file.SetURL()
+		files = append(files, file)
+
+		// Empty the value to avoid overwrite
+		file = models.File{}
+	}
 	return
 }

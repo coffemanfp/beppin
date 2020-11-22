@@ -4,12 +4,12 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/coffemanfp/beppin/models"
 	errs "github.com/coffemanfp/beppin/errors"
+	"github.com/coffemanfp/beppin/models"
 )
 
 // InsertProduct - Insert a product.
-func InsertProduct(db *sql.DB, product models.Product) (id int, err error) {
+func InsertProduct(db *sql.DB, product models.Product) (createdProduct models.Product, err error) {
 	if db == nil {
 		err = errs.ErrClosedDatabase
 		return
@@ -17,11 +17,11 @@ func InsertProduct(db *sql.DB, product models.Product) (id int, err error) {
 
 	query := `
 		INSERT INTO
-			products(user_id, name, description)
+			products(user_id, name, description, price)
 		VALUES
-			($1, $2, $3)
+			($1, $2, $3, $4)
 		RETURNING
-			id
+			id, user_id, name, description, price, created_at
 	`
 
 	stmt, err := db.Prepare(query)
@@ -31,13 +31,25 @@ func InsertProduct(db *sql.DB, product models.Product) (id int, err error) {
 	}
 	defer stmt.Close()
 
+	var nullData nullProductData
+
 	err = stmt.QueryRow(
 		product.UserID,
 		product.Name,
 		product.Description,
-	).Scan(&id)
+		product.Price,
+	).Scan(
+		&createdProduct.ID,
+		&createdProduct.UserID,
+		&createdProduct.Name,
+		&nullData.Description,
+		&createdProduct.Price,
+		&createdProduct.CreatedAt,
+	)
 	if err != nil {
 		err = fmt.Errorf("failed to execute insert product statement: %v", err)
 	}
+
+	nullData.setResults(&createdProduct)
 	return
 }

@@ -31,7 +31,7 @@ func UpdateProduct(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	id, err := Storage.UpdateProduct(
+	updatedProduct, err := Storage.UpdateProduct(
 		models.Product{
 			ID: int64(productID),
 		},
@@ -50,9 +50,7 @@ func UpdateProduct(c echo.Context) (err error) {
 	}
 
 	m.Message = "Updated."
-	m.Content = models.Product{
-		ID: int64(id),
-	}
+	m.Content = updatedProduct
 	m.ContentType = models.TypeProduct
 	return c.JSON(http.StatusOK, m)
 }

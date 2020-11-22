@@ -8,7 +8,7 @@ import (
 	"github.com/coffemanfp/beppin/models"
 )
 
-func (dS defaultStorage) CreateProduct(product models.Product) (id int, err error) {
+func (dS defaultStorage) CreateProduct(product models.Product) (createdProduct models.Product, err error) {
 	exists, err := dS.ExistsUser(models.User{ID: product.UserID})
 	if err != nil {
 		return
@@ -19,22 +19,64 @@ func (dS defaultStorage) CreateProduct(product models.Product) (id int, err erro
 		return
 	}
 
-	id, err = dbu.InsertProduct(dS.db, product)
+	if product.Images == nil && len(product.Images) == 0 {
+		createdProduct, err = dbu.InsertProduct(dS.db, product)
+		return
+	}
+
+	createdProduct, err = dbu.InsertProduct(dS.db, product)
+	for _, file := range product.Images {
+		exists, err = dbu.ExistsFile(dS.db, models.File{ID: file.ID})
+		if err != nil {
+			return
+		}
+
+		if !exists {
+			err = fmt.Errorf("failed to check (%d) file: %w", file.ID, errs.ErrNotExistentObject)
+			return
+		}
+
+		err = dbu.InsertProductFile(dS.db, createdProduct.ID, file.ID)
+		if err != nil {
+			return
+		}
+	}
+
 	return
 }
 
 func (dS defaultStorage) GetProduct(productToFind models.Product) (product models.Product, err error) {
 	product, err = dbu.SelectProduct(dS.db, productToFind)
+	if err != nil {
+		return
+	}
+
+	files, err := dbu.SelectProductFiles(dS.db, productToFind)
+	if err != nil {
+		return
+	}
+
+	product.Images = files
 	return
 }
 
 func (dS defaultStorage) GetProducts(limit, offset int) (products models.Products, err error) {
 	products, err = dbu.SelectProducts(dS.db, limit, offset)
+
+	var files models.Files
+	for i := 0; i < len(products); i++ {
+		files, err = dbu.SelectProductFiles(dS.db, products[i])
+		if err != nil {
+			return
+		}
+
+		products[i].Images = files
+	}
 	return
 }
 
-func (dS defaultStorage) UpdateProduct(productToUpdate, product models.Product) (id int, err error) {
-	id, err = dbu.UpdateProduct(dS.db, productToUpdate, product)
+func (dS defaultStorage) UpdateProduct(productToUpdate, product models.Product) (updatedProduct models.Product, err error) {
+	updatedProduct, err = dbu.UpdateProduct(dS.db, productToUpdate, product)
 	return
 }
 
