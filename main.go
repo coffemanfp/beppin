@@ -38,7 +38,7 @@ func main() {
 
 	// Remove Trailing URL Slash
 	e.Pre(middleware.RemoveTrailingSlash())
-	e.Static("/static", "assets")
+	e.Static("/assets", "assets")
 
 	// Create routes
 	newRouter(e)

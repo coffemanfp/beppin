@@ -8,28 +8,28 @@ ON CONFLICT DO
 INSERT INTO
     files(path)
 VALUES
-    ('assets/1605514783069606833photo_2019-10-11_18-27-08.jpg')
-ON CONFLICT DO
-    NOTHING;
-
-INSERT INTO
-    files(path)
-VALUES
-    ('assets/3403453453069506832photo_2019-10-11_18-27-08.jpg')
-ON CONFLICT DO
-    NOTHING;
-
-INSERT INTO
-    files(path)
-VALUES
-    ('assets/4545349829387492837photo_2019-10-11_18-27-08.jpg')
-ON CONFLICT DO
-    NOTHING;
-
-INSERT INTO
-    files(path)
-VALUES
     ('assets/8987987237462387642photo_2019-10-11_18-27-08.jpg')
+ON CONFLICT DO
+    NOTHING;
+
+INSERT INTO
+    files(path)
+VALUES
+    ('assets/16055147830696068331.webp')
+ON CONFLICT DO
+    NOTHING;
+
+INSERT INTO
+    files(path)
+VALUES
+    ('assets/3403453453069506832s-1229.webp')
+ON CONFLICT DO
+    NOTHING;
+
+INSERT INTO
+    files(path)
+VALUES
+    ('assets/4545349829387492837q.webp')
 ON CONFLICT DO
     NOTHING;
 
@@ -85,14 +85,14 @@ ON CONFLICT DO
 INSERT INTO
     products(user_id, name, description, price)
 VALUES
-    (1, 'Cool t-shirt', 'Awesome t-shirt', 887654308.08)
+    (1, 'Cool shirt', 'Awesome shirt', 887654308.08)
 ON CONFLICT DO
     NOTHING;
 
 INSERT INTO
     products(user_id, name, description, price)
 VALUES
-    (1, 'Super cool pants', 'Yeah', 76)
+    (1, 'Super cool jacket', 'Yeah', 76)
 ON CONFLICT DO
     NOTHING;
 
@@ -183,20 +183,20 @@ ON CONFLICT DO
 INSERT INTO
     files_products(file_id, product_id)
 VALUES
-    (3, 2)
+    (6, 2)
 ON CONFLICT DO
     NOTHING;
 
 INSERT INTO
     files_products(file_id, product_id)
 VALUES
-    (4, 1)
+    (3, 1)
 ON CONFLICT DO
     NOTHING;
 
 INSERT INTO
     files_products(file_id, product_id)
 VALUES
-    (5, 3)
+    (4, 3)
 ON CONFLICT DO
     NOTHING;
