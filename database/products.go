@@ -19,11 +19,6 @@ func (dS defaultStorage) CreateProduct(product models.Product) (createdProduct m
 		return
 	}
 
-	if product.Images == nil && len(product.Images) == 0 {
-		createdProduct, err = dbu.InsertProduct(dS.db, product)
-		return
-	}
-
 	createdProduct, err = dbu.InsertProduct(dS.db, product)
 	if err != nil {
 		return
@@ -44,6 +39,22 @@ func (dS defaultStorage) CreateProduct(product models.Product) (createdProduct m
 			return
 		}
 	}
+	for _, category := range product.Categories {
+		exists, err = dbu.ExistsCategory(dS.db, models.Category{ID: category.ID})
+		if err != nil {
+			return
+		}
+
+		if !exists {
+			err = fmt.Errorf("failed to check (%d) category: %w", category.ID, errs.ErrNotExistentObject)
+			return
+		}
+
+		err = dbu.InsertProductCategory(dS.db, createdProduct.ID, category.ID)
+		if err != nil {
+			return
+		}
+	}
 
 	return
 }
@@ -59,7 +70,13 @@ func (dS defaultStorage) GetProduct(productToFind models.Product) (product model
 		return
 	}
 
+	categories, err := dbu.SelectProductCategories(dS.db, productToFind)
+	if err != nil {
+		return
+	}
+
 	product.Images = files
+	product.Categories = categories
 	return
 }
 
@@ -67,13 +84,20 @@ func (dS defaultStorage) GetProducts(limit, offset int) (products models.Product
 	products, err = dbu.SelectProducts(dS.db, limit, offset)
 
 	var files models.Files
+	var categories models.Categories
 	for i := 0; i < len(products); i++ {
 		files, err = dbu.SelectProductFiles(dS.db, products[i])
 		if err != nil {
 			return
 		}
 
+		categories, err = dbu.SelectProductCategories(dS.db, products[i])
+		if err != nil {
+			return
+		}
+
 		products[i].Images = files
+		products[i].Categories = categories
 	}
 	return
 }

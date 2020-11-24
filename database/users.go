@@ -66,14 +66,35 @@ func (dS defaultStorage) GetUsers(limit, offset int) (users models.Users, err er
 }
 
 func (dS defaultStorage) UpdateUser(userToUpdate, user models.User) (userUpdated models.User, err error) {
+	identifier := userToUpdate.GetIdentifier()
+	if identifier == nil {
+		err = fmt.Errorf("failed to check user: %w (user)", errs.ErrNotProvidedOrInvalidObject)
+		return
+	}
+
 	err = dS.checkUser(userToUpdate)
 	if err != nil {
 		return
 	}
 
 	var exists bool
-	if userToUpdate.Avatar != nil && userToUpdate.Avatar.ID != 0 {
-		exists, err = dS.ExistsFile(models.File{ID: userToUpdate.Avatar.ID})
+
+	// Check if the username or email is not busy
+	if user.Username != "" || user.Email != "" {
+		exists, err = dS.ExistsUser(user)
+		if err != nil {
+			return
+		}
+
+		if exists {
+			err = fmt.Errorf("failed to update (%v) user: %w (user)", identifier, errs.ErrExistentObject)
+			return
+
+		}
+	}
+
+	if user.Avatar != nil && user.Avatar.ID != 0 {
+		exists, err = dS.ExistsFile(models.File{ID: user.Avatar.ID})
 		if err != nil {
 			return
 		}

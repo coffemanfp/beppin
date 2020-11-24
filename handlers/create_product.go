@@ -8,6 +8,7 @@ import (
 	errs "github.com/coffemanfp/beppin/errors"
 	"github.com/coffemanfp/beppin/models"
 	"github.com/coffemanfp/beppin/utils"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
 
@@ -16,11 +17,15 @@ func CreateProduct(c echo.Context) (err error) {
 	var m models.ResponseMessage
 	var product models.Product
 
+	userIDToken := c.Get("user").(*jwt.Token).Claims.(*models.Claim).User.ID
+
 	if err = c.Bind(&product); err != nil {
 		m.Error = errs.ErrInvalidBody
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
+
+	product.UserID = userIDToken
 
 	if !product.Validate() {
 		m.Error = errs.ErrInvalidBody

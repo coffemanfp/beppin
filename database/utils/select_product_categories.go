@@ -9,8 +9,8 @@ import (
 	"github.com/coffemanfp/beppin/models"
 )
 
-// SelectProductFiles - Selects the files of a product.
-func SelectProductFiles(db *sql.DB, productToFind models.Product) (files models.Files, err error) {
+// SelectProductCategories - Selects the categories of a product.
+func SelectProductCategories(db *sql.DB, productToFind models.Product) (categories models.Categories, err error) {
 	if db == nil {
 		err = errs.ErrClosedDatabase
 		return
@@ -24,17 +24,17 @@ func SelectProductFiles(db *sql.DB, productToFind models.Product) (files models.
 
 	query := `
 		SELECT
-			files.id, path
+			categories.id, categories.name
 		FROM
-			files
+			categories
 		INNER JOIN
 			products
 		INNER JOIN
-			files_products
+			categories_products
 		ON
-			files_products.product_id = products.id
+			categories_products.product_id = products.id
 		ON
-			files_products.file_id = files.id
+			categories_products.category_id = categories.id
 		WHERE
 			products.id = $1
 	`
@@ -57,23 +57,22 @@ func SelectProductFiles(db *sql.DB, productToFind models.Product) (files models.
 		err = fmt.Errorf("failed to select (%v) product: %v", identifier, err)
 	}
 
-	var file models.File
+	var category models.Category
 
 	for rows.Next() {
 		err = rows.Scan(
-			&file.ID,
-			&file.Path,
+			&category.ID,
+			&category.Name,
 		)
 		if err != nil {
-			err = fmt.Errorf("failed to scan file: %v", err)
+			err = fmt.Errorf("failed to scan category: %v", err)
 			return
 		}
 
-		file.SetURL()
-		files = append(files, file)
+		categories = append(categories, category)
 
 		// Empty the value to avoid overwrite
-		file = models.File{}
+		category = models.Category{}
 	}
 	return
 }

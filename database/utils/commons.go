@@ -21,6 +21,10 @@ type (
 		Description *sql.NullString
 		UpdatedAt   *sql.NullTime
 	}
+	nullCategoryData struct {
+		Description *sql.NullString
+		UpdatedAt   *sql.NullTime
+	}
 	nullLanguageData struct {
 		UpdatedAt *sql.NullTime
 	}
@@ -79,5 +83,14 @@ func (n nullLanguageData) setResults(language *models.Language) {
 func (n nullFileData) setResults(file *models.File) {
 	if n.UpdatedAt != nil {
 		file.UpdatedAt = &n.UpdatedAt.Time
+	}
+}
+
+func (n nullCategoryData) setResults(category *models.Category) {
+	if n.Description != nil {
+		category.Description = n.Description.String
+	}
+	if n.UpdatedAt != nil {
+		category.UpdatedAt = &n.UpdatedAt.Time
 	}
 }

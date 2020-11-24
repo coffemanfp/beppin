@@ -52,8 +52,8 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP,
 
     PRIMARY KEY (id),
-    FOREIGN KEY (language) REFERENCES languages(code),
-    FOREIGN KEY (avatar_id) REFERENCES files(id) ON DELETE CASCADE
+    FOREIGN KEY (language) REFERENCES languages(code) ON DELETE SET NULL,
+    FOREIGN KEY (avatar_id) REFERENCES files(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS products (
@@ -92,9 +92,9 @@ CREATE TABLE IF NOT EXISTS categories (
 
     name VARCHAR(25) NOT NULL UNIQUE,
     description VARCHAR,
-    related_categories VARCHAR[],
 
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP,
 
     PRIMARY KEY (id)
 );

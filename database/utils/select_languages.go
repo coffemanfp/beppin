@@ -18,11 +18,11 @@ func SelectLanguages(db *sql.DB, limit, offset int) (languages models.Languages,
 
 	query := `
 	SELECT
-		code, status, created_at, updated_at
+		id, code, status, created_at, updated_at
 	FROM
 		languages
 	ORDER BY
-		code
+		id
 	LIMIT
 		$1
 	OFFSET
@@ -52,6 +52,7 @@ func SelectLanguages(db *sql.DB, limit, offset int) (languages models.Languages,
 
 	for rows.Next() {
 		err = rows.Scan(
+			&language.ID,
 			&language.Code,
 			&language.Status,
 			&language.CreatedAt,

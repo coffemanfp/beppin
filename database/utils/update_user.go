@@ -43,13 +43,13 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.
 		WHERE 
 			id = $11 OR username = $12 OR email = $13
 		RETURNING
-			id, language, avatar_id, username, email, name, last_name, birthday, theme, currency, updated_at
+			id, language, avatar_id, username, email, name, last_name, birthday, theme, currency, created_at, updated_at
 		)
 		SELECT
 			updated.*, files.path
 		FROM
 			updated
-		INNER JOIN
+		LEFT JOIN
 			files
 		ON
 			updated.avatar_id = files.id
@@ -64,10 +64,13 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.
 
 	var nullData nullUserData
 
+	if user.Avatar == nil {
+		user.Avatar = new(models.File)
+	}
+
 	err = stmt.QueryRow(
 		user.Language,
 		user.Avatar.ID,
-		user.Avatar.Path,
 		user.Username,
 		user.Password,
 		user.Email,
@@ -83,7 +86,6 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.
 		&userUpdated.ID,
 		&userUpdated.Language,
 		&nullData.AvatarID,
-		&nullData.AvatarPath,
 		&userUpdated.Username,
 		&userUpdated.Email,
 		&nullData.Name,
@@ -91,7 +93,9 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.
 		&nullData.Birthday,
 		&userUpdated.Theme,
 		&userUpdated.Currency,
+		&userUpdated.CreatedAt,
 		&userUpdated.UpdatedAt,
+		&nullData.AvatarPath,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -103,9 +107,9 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.
 		return
 	}
 
-	nullData.setResults(&user)
-	if user.Avatar != nil {
-		user.Avatar.SetURL()
+	nullData.setResults(&userUpdated)
+	if userUpdated.Avatar != nil {
+		userUpdated.Avatar.SetURL()
 	}
 	return
 }

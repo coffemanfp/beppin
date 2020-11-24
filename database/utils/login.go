@@ -23,7 +23,7 @@ func Login(db *sql.DB, userToLogin models.User) (user models.User, match bool, e
 			users.id, files.id, files.path, language, username, theme, currency
 		FROM
 			users
-		INNER JOIN
+		LEFT JOIN
 			files
 		ON
 			users.avatar_id = files.id

@@ -50,8 +50,11 @@ func UpdateUser(c echo.Context) (err error) {
 	)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {
-			m.Error = fmt.Sprintf("%v: user", errs.ErrExistentObject)
+			m.Error = fmt.Sprintf("%v: user", errs.ErrNotExistentObject)
 			return echo.NewHTTPError(http.StatusNotFound, m)
+		} else if errors.Is(err, errs.ErrExistentObject) {
+			m.Error = fmt.Sprintf("%v: user", errs.ErrExistentObject)
+			return echo.NewHTTPError(http.StatusConflict, m)
 		}
 		c.Logger().Error(err)
 		m.Error = http.StatusText(http.StatusInternalServerError)
@@ -60,7 +63,14 @@ func UpdateUser(c echo.Context) (err error) {
 	}
 
 	claim := models.Claim{
-		User: dbUser,
+		User: models.User{
+			ID:       dbUser.ID,
+			Language: dbUser.Language,
+			Avatar:   dbUser.Avatar,
+			Username: dbUser.Username,
+			Theme:    dbUser.Theme,
+			Currency: dbUser.Currency,
+		},
 	}
 
 	token, err := claim.GenerateJWT()

@@ -24,11 +24,11 @@ func SelectLanguage(db *sql.DB, languageToFind models.Language) (language models
 
 	query := `
 		SELECT
-			code, status, created_at, updated_at
+			id, code, status, created_at, updated_at
 		FROM
 			languages
 		WHERE
-			code = $1
+			id = $1 OR code = $1
 			
 	`
 
@@ -41,7 +41,11 @@ func SelectLanguage(db *sql.DB, languageToFind models.Language) (language models
 
 	var nullData nullLanguageData
 
-	err = stmt.QueryRow(languageToFind.Code).Scan(
+	err = stmt.QueryRow(
+		languageToFind.ID,
+		languageToFind.Code,
+	).Scan(
+		&language.ID,
 		&language.Code,
 		&language.Status,
 		&language.CreatedAt,
