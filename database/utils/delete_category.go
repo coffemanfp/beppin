@@ -10,8 +10,8 @@ import (
 )
 
 // DeleteCategory - Deletes a category.
-func DeleteCategory(db *sql.DB, category models.Category) (id int, err error) {
-	if db == nil {
+func DeleteCategory(dbtx DBTX, category models.Category) (id int, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -31,7 +31,7 @@ func DeleteCategory(db *sql.DB, category models.Category) (id int, err error) {
 			id
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the delete (%v) category statement: %v", identifier, err)
 		return

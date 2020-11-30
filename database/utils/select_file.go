@@ -10,8 +10,8 @@ import (
 )
 
 // SelectFile - Selects a file.
-func SelectFile(db *sql.DB, fileToFind models.File) (file models.File, err error) {
-	if db == nil {
+func SelectFile(dbtx DBTX, fileToFind models.File) (file models.File, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -32,7 +32,7 @@ func SelectFile(db *sql.DB, fileToFind models.File) (file models.File, err error
 			
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the select (%v) file statement: %v", identifier, err)
 		return

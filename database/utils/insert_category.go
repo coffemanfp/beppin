@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"database/sql"
 	"fmt"
 
 	errs "github.com/coffemanfp/beppin/errors"
@@ -9,8 +8,8 @@ import (
 )
 
 // InsertCategory - Inserts a category.
-func InsertCategory(db *sql.DB, category models.Category) (createdCategory models.Category, err error) {
-	if db == nil {
+func InsertCategory(dbtx DBTX, category models.Category) (createdCategory models.Category, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -24,7 +23,7 @@ func InsertCategory(db *sql.DB, category models.Category) (createdCategory model
 					id, name, description, created_at
     `
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the insert category statement: %v", err)
 		return

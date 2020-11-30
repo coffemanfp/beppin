@@ -10,8 +10,8 @@ import (
 )
 
 // SelectUser - Selects a user.
-func SelectUser(db *sql.DB, userToFind models.User) (user models.User, err error) {
-	if db == nil {
+func SelectUser(dbtx DBTX, userToFind models.User) (user models.User, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -36,7 +36,7 @@ func SelectUser(db *sql.DB, userToFind models.User) (user models.User, err error
 			
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the select (%v) user statement: %v", identifier, err)
 		return

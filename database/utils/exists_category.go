@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"database/sql"
 	"fmt"
 
 	errs "github.com/coffemanfp/beppin/errors"
@@ -9,8 +8,8 @@ import (
 )
 
 // ExistsCategory - Checks if exists a category.
-func ExistsCategory(db *sql.DB, category models.Category) (exists bool, err error) {
-	if db == nil {
+func ExistsCategory(dbtx DBTX, category models.Category) (exists bool, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -33,7 +32,7 @@ func ExistsCategory(db *sql.DB, category models.Category) (exists bool, err erro
 			)
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the exists (%v) category statement: %v", identifier, err)
 		return

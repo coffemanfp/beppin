@@ -1,15 +1,14 @@
 package utils
 
 import (
-	"database/sql"
 	"fmt"
 
 	errs "github.com/coffemanfp/beppin/errors"
 )
 
 // InsertProductCategory - Inserts a product category.
-func InsertProductCategory(db *sql.DB, productID int64, categoryID int64) (err error) {
-	if db == nil {
+func InsertProductCategory(dbtx DBTX, productID int64, categoryID int64) (err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -21,7 +20,7 @@ func InsertProductCategory(db *sql.DB, productID int64, categoryID int64) (err e
 			($1, $2)
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the insert category product statement: %v", err)
 		return

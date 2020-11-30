@@ -1,12 +1,11 @@
 package utils
 
 import (
-	"database/sql"
 	"fmt"
 )
 
 // TruncateOffers deletes all the offer records.
-func TruncateOffers(db *sql.DB, cascade bool) (err error) {
+func TruncateOffers(dbtx DBTX, cascade bool) (err error) {
 	var query string
 
 	if cascade {
@@ -22,7 +21,7 @@ func TruncateOffers(db *sql.DB, cascade bool) (err error) {
 		`
 	}
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the truncate table offers statement: %v", err)
 		return

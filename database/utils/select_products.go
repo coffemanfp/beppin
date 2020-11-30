@@ -10,8 +10,8 @@ import (
 )
 
 // SelectProducts - Select a products list.
-func SelectProducts(db *sql.DB, limit, offset int) (products models.Products, err error) {
-	if db == nil {
+func SelectProducts(dbtx DBTX, limit, offset int) (products models.Products, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -29,7 +29,7 @@ func SelectProducts(db *sql.DB, limit, offset int) (products models.Products, er
 		$2
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the select products statement: %v", err)
 		return

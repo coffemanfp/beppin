@@ -1,15 +1,14 @@
 package utils
 
 import (
-	"database/sql"
 	"fmt"
 
 	errs "github.com/coffemanfp/beppin/errors"
 )
 
 // InsertProductFile - Inserts a product file.
-func InsertProductFile(db *sql.DB, productID int64, fileID int64) (err error) {
-	if db == nil {
+func InsertProductFile(dbtx DBTX, productID int64, fileID int64) (err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -21,7 +20,7 @@ func InsertProductFile(db *sql.DB, productID int64, fileID int64) (err error) {
 			($1, $2)
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the insert file product statement: %v", err)
 		return

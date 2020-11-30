@@ -10,8 +10,8 @@ import (
 )
 
 // SelectLanguage - Selects a language.
-func SelectLanguage(db *sql.DB, languageToFind models.Language) (language models.Language, err error) {
-	if db == nil {
+func SelectLanguage(dbtx DBTX, languageToFind models.Language) (language models.Language, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -32,7 +32,7 @@ func SelectLanguage(db *sql.DB, languageToFind models.Language) (language models
 			
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the select (%v) language statement: %v", identifier, err)
 		return

@@ -10,8 +10,8 @@ import (
 )
 
 // DeleteLanguage - Deletes a language.
-func DeleteLanguage(db *sql.DB, language models.Language) (id int, err error) {
-	if db == nil {
+func DeleteLanguage(dbtx DBTX, language models.Language) (id int, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -31,7 +31,7 @@ func DeleteLanguage(db *sql.DB, language models.Language) (id int, err error) {
 			id
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the delete (%v) language statement: %v", identifier, err)
 		return

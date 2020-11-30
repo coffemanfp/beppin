@@ -10,8 +10,8 @@ import (
 )
 
 // DeleteUser - Deletes a user.
-func DeleteUser(db *sql.DB, user models.User) (id int, err error) {
-	if db == nil {
+func DeleteUser(dbtx DBTX, user models.User) (id int, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -31,7 +31,7 @@ func DeleteUser(db *sql.DB, user models.User) (id int, err error) {
 			id
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the delete (%v) user statement: %v", identifier, err)
 		return

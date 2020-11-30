@@ -6,6 +6,13 @@ import (
 	"github.com/coffemanfp/beppin/models"
 )
 
+// DBTX ...
+type DBTX interface {
+	Prepare(query string) (*sql.Stmt, error)
+	Query(query string, args ...interface{}) (*sql.Rows, error)
+	QueryRow(query string, args ...interface{}) *sql.Row
+}
+
 // Helper types for null database retorning
 
 type (

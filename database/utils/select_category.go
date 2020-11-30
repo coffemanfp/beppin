@@ -10,8 +10,8 @@ import (
 )
 
 // SelectCategory - Selects a category.
-func SelectCategory(db *sql.DB, categoryToFind models.Category) (category models.Category, err error) {
-	if db == nil {
+func SelectCategory(dbtx DBTX, categoryToFind models.Category) (category models.Category, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -32,7 +32,7 @@ func SelectCategory(db *sql.DB, categoryToFind models.Category) (category models
 			
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the select (%v) category statement: %v", identifier, err)
 		return

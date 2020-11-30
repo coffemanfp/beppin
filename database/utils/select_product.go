@@ -10,8 +10,8 @@ import (
 )
 
 // SelectProduct - Selects a product.
-func SelectProduct(db *sql.DB, productToFind models.Product) (product models.Product, err error) {
-	if db == nil {
+func SelectProduct(dbtx DBTX, productToFind models.Product) (product models.Product, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -31,7 +31,7 @@ func SelectProduct(db *sql.DB, productToFind models.Product) (product models.Pro
 			id = $1
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the select (%v) product statement: %v", identifier, err)
 

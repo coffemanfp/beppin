@@ -10,8 +10,8 @@ import (
 )
 
 // SelectUsers - Select a users list.
-func SelectUsers(db *sql.DB, limit, offset int) (users models.Users, err error) {
-	if db == nil {
+func SelectUsers(dbtx DBTX, limit, offset int) (users models.Users, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -33,7 +33,7 @@ func SelectUsers(db *sql.DB, limit, offset int) (users models.Users, err error) 
 			$2
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the select users statement:\n%s", err)
 		return

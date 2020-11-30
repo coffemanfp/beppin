@@ -59,6 +59,41 @@ func (dS defaultStorage) CreateProduct(product models.Product) (createdProduct m
 	return
 }
 
+func (dS defaultStorage) AddProductCategory(productID int64, categoryID int64) (err error) {
+	exists, err := dbu.ExistsProduct(dS.db, models.Product{ID: productID})
+	if err != nil {
+		return
+	}
+
+	if !exists {
+		err = fmt.Errorf("failed to check (%d) : %w", productID, errs.ErrNotExistentObject)
+		return
+	}
+
+	exists, err = dbu.ExistsCategory(dS.db, models.Category{ID: categoryID})
+	if err != nil {
+		return
+	}
+
+	if !exists {
+		err = fmt.Errorf("failed to check (%d) category: %w", categoryID, errs.ErrNotExistentObject)
+		return
+	}
+
+	exists, err = dbu.ExistsProductCategory(dS.db, productID, categoryID)
+	if err != nil {
+		return
+	}
+
+	if exists {
+		err = fmt.Errorf("failed to check product_category: %w", errs.ErrExistentObject)
+		return
+	}
+
+	err = dbu.InsertProductCategory(dS.db, productID, categoryID)
+	return
+}
+
 func (dS defaultStorage) GetProduct(productToFind models.Product) (product models.Product, err error) {
 	product, err = dbu.SelectProduct(dS.db, productToFind)
 	if err != nil {
@@ -104,6 +139,74 @@ func (dS defaultStorage) GetProducts(limit, offset int) (products models.Product
 
 func (dS defaultStorage) UpdateProduct(productToUpdate, product models.Product) (updatedProduct models.Product, err error) {
 	updatedProduct, err = dbu.UpdateProduct(dS.db, productToUpdate, product)
+	return
+}
+
+func (dS defaultStorage) UpdateProductCategories(productID int64, categories models.Categories) (err error) {
+	exists, err := dbu.ExistsProduct(dS.db, models.Product{ID: productID})
+	if err != nil {
+		return
+	}
+
+	if !exists {
+		err = fmt.Errorf("failed to check (%d) : %w", productID, errs.ErrNotExistentObject)
+		return
+	}
+
+	for _, category := range categories {
+		exists, err = dbu.ExistsCategory(dS.db, category)
+		if err != nil {
+			return
+		}
+
+		if !exists {
+			err = fmt.Errorf("failed to check (%d) category: %w", category.ID, errs.ErrNotExistentObject)
+			return
+		}
+	}
+
+	tx, err := dS.db.Begin()
+	if err != nil {
+		return
+	}
+
+	err = dbu.DeleteProductCategories(tx, productID)
+	if err != nil {
+		err2 := tx.Rollback()
+		if err2 != nil {
+			err = fmt.Errorf("%s\n%s", err2, err)
+		}
+		return
+	}
+
+	for _, category := range categories {
+		err = dbu.InsertProductCategory(tx, productID, category.ID)
+		if err != nil {
+			err2 := tx.Rollback()
+			if err2 != nil {
+				err = fmt.Errorf("%s\n%s", err2, err)
+			}
+			return
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		err2 := tx.Rollback()
+		if err2 != nil {
+			err = fmt.Errorf("%s\n%s", err2, err)
+		}
+	}
+	return
+}
+
+func (dS defaultStorage) DeleteProductCategories(productID int64) (err error) {
+	err = dbu.DeleteProductCategories(dS.db, productID)
+	return
+}
+
+func (dS defaultStorage) DeleteProductCategory(productID int64, categoryID int64) (err error) {
+	err = dbu.DeleteProductCategory(dS.db, productID, categoryID)
 	return
 }
 

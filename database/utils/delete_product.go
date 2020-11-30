@@ -10,8 +10,8 @@ import (
 )
 
 // DeleteProduct - Deletes a product.
-func DeleteProduct(db *sql.DB, product models.Product) (id int, err error) {
-	if db == nil {
+func DeleteProduct(dbtx DBTX, product models.Product) (id int, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -31,7 +31,7 @@ func DeleteProduct(db *sql.DB, product models.Product) (id int, err error) {
 			id
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the delete (%v) product statement: %v", identifier, err)
 		return

@@ -10,8 +10,8 @@ import (
 )
 
 // UpdateProduct - Updates a product.
-func UpdateProduct(db *sql.DB, productToUpdate, product models.Product) (updatedProduct models.Product, err error) {
-	if db == nil {
+func UpdateProduct(dbtx DBTX, productToUpdate, product models.Product) (updatedProduct models.Product, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -38,7 +38,7 @@ func UpdateProduct(db *sql.DB, productToUpdate, product models.Product) (updated
 			id, user_id, name, description, price, created_at, updated_at
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the update (%v) product statement: %v", identifier, err)
 		return

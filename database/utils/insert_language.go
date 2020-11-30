@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"database/sql"
 	"fmt"
 
 	errs "github.com/coffemanfp/beppin/errors"
@@ -9,8 +8,8 @@ import (
 )
 
 // InsertLanguage - Insert a language.
-func InsertLanguage(db *sql.DB, language models.Language) (createdLanguage models.Language, err error) {
-	if db == nil {
+func InsertLanguage(dbtx DBTX, language models.Language) (createdLanguage models.Language, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -32,7 +31,7 @@ func InsertLanguage(db *sql.DB, language models.Language) (createdLanguage model
 			id, code, status, created_at
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the insert (%v) language statement: %v", identifier, err)
 		return

@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"database/sql"
 	"fmt"
 
 	errs "github.com/coffemanfp/beppin/errors"
@@ -9,8 +8,8 @@ import (
 )
 
 // ExistsFile - Checks if exists a file.
-func ExistsFile(db *sql.DB, file models.File) (exists bool, err error) {
-	if db == nil {
+func ExistsFile(dbtx DBTX, file models.File) (exists bool, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -33,7 +32,7 @@ func ExistsFile(db *sql.DB, file models.File) (exists bool, err error) {
 			)
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the exists (%v) file statement: %v", identifier, err)
 		return

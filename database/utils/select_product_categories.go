@@ -10,8 +10,8 @@ import (
 )
 
 // SelectProductCategories - Selects the categories of a product.
-func SelectProductCategories(db *sql.DB, productToFind models.Product) (categories models.Categories, err error) {
-	if db == nil {
+func SelectProductCategories(dbtx DBTX, productToFind models.Product) (categories models.Categories, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -39,7 +39,7 @@ func SelectProductCategories(db *sql.DB, productToFind models.Product) (categori
 			products.id = $1
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the select (%v) product statement: %v", identifier, err)
 

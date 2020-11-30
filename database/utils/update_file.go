@@ -10,8 +10,8 @@ import (
 )
 
 // UpdateFile - Updates a file.
-func UpdateFile(db *sql.DB, fileToUpdate, file models.File) (updatedFile models.File, err error) {
-	if db == nil {
+func UpdateFile(dbtx DBTX, fileToUpdate, file models.File) (updatedFile models.File, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -36,7 +36,7 @@ func UpdateFile(db *sql.DB, fileToUpdate, file models.File) (updatedFile models.
 			id, path, created_at, updated_at
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the update (%v) file statement: %v", identifier, err)
 		return

@@ -10,8 +10,8 @@ import (
 )
 
 // Login - Select a user by his username and password, and checks if exists.
-func Login(db *sql.DB, userToLogin models.User) (user models.User, match bool, err error) {
-	if db == nil {
+func Login(dbtx DBTX, userToLogin models.User) (user models.User, match bool, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -31,7 +31,7 @@ func Login(db *sql.DB, userToLogin models.User) (user models.User, match bool, e
 			username = $1 AND password = $2 OR email = $3 AND password = $2
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the login (%s) user statement: %v", userToLogin.Username, err)
 		return

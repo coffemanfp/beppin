@@ -10,8 +10,8 @@ import (
 )
 
 // SelectProductFiles - Selects the files of a product.
-func SelectProductFiles(db *sql.DB, productToFind models.Product) (files models.Files, err error) {
-	if db == nil {
+func SelectProductFiles(dbtx DBTX, productToFind models.Product) (files models.Files, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -39,7 +39,7 @@ func SelectProductFiles(db *sql.DB, productToFind models.Product) (files models.
 			products.id = $1
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the select (%v) product statement: %v", identifier, err)
 

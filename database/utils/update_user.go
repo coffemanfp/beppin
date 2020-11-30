@@ -10,8 +10,8 @@ import (
 )
 
 // UpdateUser - Updates a user.
-func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.User, err error) {
-	if db == nil {
+func UpdateUser(dbtx DBTX, userToUpdate, user models.User) (userUpdated models.User, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -55,7 +55,7 @@ func UpdateUser(db *sql.DB, userToUpdate, user models.User) (userUpdated models.
 			updated.avatar_id = files.id
 	`)
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the update (%v) user statement: %v", identifier, err)
 		return

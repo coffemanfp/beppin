@@ -10,8 +10,8 @@ import (
 )
 
 // UpdateLanguage - Updates a language.
-func UpdateLanguage(db *sql.DB, languageToUpdate, language models.Language) (updatedLanguage models.Language, err error) {
-	if db == nil {
+func UpdateLanguage(dbtx DBTX, languageToUpdate, language models.Language) (updatedLanguage models.Language, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -37,7 +37,7 @@ func UpdateLanguage(db *sql.DB, languageToUpdate, language models.Language) (upd
 			id, code, status, created_at, updated_at
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the update (%v) language statement: %v", identifier, err)
 		return

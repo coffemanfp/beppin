@@ -6,6 +6,7 @@ import "database/sql"
 type Storage interface {
 	LanguageStorage
 	ProductStorage
+	CategoriesStorage
 	UserStorage
 	FileStorage
 

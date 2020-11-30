@@ -10,8 +10,8 @@ import (
 )
 
 // SelectCategories - Select a categories list.
-func SelectCategories(db *sql.DB, limit, offset int) (categories models.Categories, err error) {
-	if db == nil {
+func SelectCategories(dbtx DBTX) (categories models.Categories, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -23,20 +23,16 @@ func SelectCategories(db *sql.DB, limit, offset int) (categories models.Categori
 		categories
 	ORDER BY
 		id
-	LIMIT
-		$1
-	OFFSET
-		$2
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the select categories statement: %v", err)
 		return
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(limit, offset)
+	rows, err := stmt.Query()
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			err = fmt.Errorf("failed to select categories: %w", errs.ErrNotExistentObject)

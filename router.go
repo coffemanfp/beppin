@@ -23,6 +23,9 @@ func newRouter(e *echo.Echo) {
 	r.GET("/products", handlers.GetProducts)
 	r.GET("/products/:id", handlers.GetProduct)
 
+	// Categories
+	r.GET("/categories", handlers.GetCategories)
+
 	// JWT Middleware
 	jwtConfig := middleware.JWTConfig{
 		Claims:      &models.Claim{},
@@ -36,6 +39,12 @@ func newRouter(e *echo.Echo) {
 	r.POST("/products", handlers.CreateProduct, jwtMiddleware)
 	r.PUT("/products/:id", handlers.UpdateProduct, jwtMiddleware)
 	r.DELETE("/products/:id", handlers.DeleteProduct, jwtMiddleware)
+
+	// Product Categories
+	// TODO
+	//r.POST("/products/categories", handlers.AddProductCategories, jwtMiddleware)
+	//r.PUT("/products/categories", handlers.UpdateProductCategories, jwtMiddleware)
+	r.DELETE("/products/:productid/categories/:categoryid", handlers.DeleteProductCategory, jwtMiddleware)
 
 	// Users
 	r.GET("/users", handlers.GetUsers, jwtMiddleware)

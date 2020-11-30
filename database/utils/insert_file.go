@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"database/sql"
 	"fmt"
 
 	errs "github.com/coffemanfp/beppin/errors"
@@ -9,8 +8,8 @@ import (
 )
 
 // InsertFile - Inserts a file.
-func InsertFile(db *sql.DB, file models.File) (createdFile models.File, err error) {
-	if db == nil {
+func InsertFile(dbtx DBTX, file models.File) (createdFile models.File, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -24,7 +23,7 @@ func InsertFile(db *sql.DB, file models.File) (createdFile models.File, err erro
 					id, path, created_at
     `
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the insert file statement: %v", err)
 		return

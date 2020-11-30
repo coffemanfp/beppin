@@ -10,8 +10,8 @@ import (
 )
 
 // DeleteFile - Deletes a file.
-func DeleteFile(db *sql.DB, file models.File) (id int, err error) {
-	if db == nil {
+func DeleteFile(dbtx DBTX, file models.File) (id int, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -31,7 +31,7 @@ func DeleteFile(db *sql.DB, file models.File) (id int, err error) {
 			id
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the delete (%v) file statement: %v", identifier, err)
 		return

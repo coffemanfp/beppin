@@ -10,8 +10,8 @@ import (
 )
 
 // UpdateCategory - Updates a category.
-func UpdateCategory(db *sql.DB, categoryToUpdate, category models.Category) (updatedCategory models.Category, err error) {
-	if db == nil {
+func UpdateCategory(dbtx DBTX, categoryToUpdate, category models.Category) (updatedCategory models.Category, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -37,7 +37,7 @@ func UpdateCategory(db *sql.DB, categoryToUpdate, category models.Category) (upd
 			id, path, created_at, updated_at
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the update (%v) category statement: %v", identifier, err)
 		return

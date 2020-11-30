@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"database/sql"
 	"fmt"
 
 	errs "github.com/coffemanfp/beppin/errors"
@@ -9,8 +8,8 @@ import (
 )
 
 // SignUp - Inserts a basic user and returns the token data.
-func SignUp(db *sql.DB, user models.User) (newUser models.User, err error) {
-	if db == nil {
+func SignUp(dbtx DBTX, user models.User) (newUser models.User, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -24,7 +23,7 @@ func SignUp(db *sql.DB, user models.User) (newUser models.User, err error) {
 			id, language, username, theme, currency
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the insert user statement: %v", err)
 		return

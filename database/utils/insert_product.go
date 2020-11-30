@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"database/sql"
 	"fmt"
 
 	errs "github.com/coffemanfp/beppin/errors"
@@ -9,8 +8,8 @@ import (
 )
 
 // InsertProduct - Insert a product.
-func InsertProduct(db *sql.DB, product models.Product) (createdProduct models.Product, err error) {
-	if db == nil {
+func InsertProduct(dbtx DBTX, product models.Product) (createdProduct models.Product, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -24,7 +23,7 @@ func InsertProduct(db *sql.DB, product models.Product) (createdProduct models.Pr
 			id, user_id, name, description, price, created_at
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the insert product statement: %v", err)
 		return
