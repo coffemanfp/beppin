@@ -1,6 +1,8 @@
 package config
 
 import (
+	"os"
+
 	"github.com/spf13/viper"
 )
 
@@ -27,6 +29,11 @@ func SetSettingsByEnv() (err error) {
 		"db_sslMode",
 		"db_url",
 	)
+
+	// Compatibility with others PaaS
+	if viper.Get("port") == nil || viper.Get("port") == 8080 {
+		viper.Set("port", os.Getenv("PORT"))
+	}
 
 	err = viper.Unmarshal(&GlobalSettings)
 	if err != nil {
