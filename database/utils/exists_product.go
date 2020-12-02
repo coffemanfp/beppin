@@ -1,16 +1,15 @@
 package utils
 
 import (
-	"database/sql"
 	"fmt"
 
-	"github.com/coffemanfp/beppin/models"
 	errs "github.com/coffemanfp/beppin/errors"
+	"github.com/coffemanfp/beppin/models"
 )
 
 // ExistsProduct - Checks if exists a product.
-func ExistsProduct(db *sql.DB, product models.Product) (exists bool, err error) {
-	if db == nil {
+func ExistsProduct(dbtx DBTX, product models.Product) (exists bool, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -33,7 +32,7 @@ func ExistsProduct(db *sql.DB, product models.Product) (exists bool, err error) 
 			)
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the exists (%v) product statement: %v", identifier, err)
 		return

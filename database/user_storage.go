@@ -10,6 +10,5 @@ type UserStorage interface {
 	GetUser(userToFind models.User) (models.User, error)
 	GetUsers(limit, offset int) (models.Users, error)
 	UpdateUser(userToUpdate, user models.User) (models.User, error)
-	UpdateAvatar(avatarURL string, user models.User) (int, error)
 	DeleteUser(userToDelete models.User) (int, error)
 }

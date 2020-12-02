@@ -1,12 +1,11 @@
 package utils
 
 import (
-	"database/sql"
 	"fmt"
 )
 
 // TruncateLanguages deletes all the language records.
-func TruncateLanguages(db *sql.DB, cascade bool) (err error) {
+func TruncateLanguages(dbtx DBTX, cascade bool) (err error) {
 	var query string
 
 	if cascade {
@@ -22,7 +21,7 @@ func TruncateLanguages(db *sql.DB, cascade bool) (err error) {
 		`
 	}
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the truncate table languages statement: %v", err)
 		return

@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 // Product - Product for the app.
 type Product struct {
@@ -8,10 +10,11 @@ type Product struct {
 	UserID int64  `json:"userID,omitempty"`
 	Offer  *Offer `json:"offer,omitempty"`
 
-	Name        string   `json:"name,omitempty"`
-	Description string   `json:"description,omitempty"`
-	Categories  []string `json:"categories,omitempty"`
-	Price       float64  `json:"price,omitempty"`
+	Name        string     `json:"name,omitempty"`
+	Description string     `json:"description,omitempty"`
+	Price       float64    `json:"price,omitempty"`
+	Categories  Categories `json:"categories,omitempty"`
+	Images      Files      `json:"images,omitempty"`
 
 	CreatedAt *time.Time `json:"createdAt,omitempty"`
 	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
@@ -24,7 +27,7 @@ type Products []Product
 func (p Product) Validate() (valid bool) {
 	valid = true
 
-	if p.Name == "" || p.Description == "" {
+	if p.Name == "" {
 		valid = false
 	}
 

@@ -7,12 +7,11 @@ import (
 
 	errs "github.com/coffemanfp/beppin/errors"
 	"github.com/coffemanfp/beppin/models"
-	"github.com/lib/pq"
 )
 
 // UpdateProduct - Updates a product.
-func UpdateProduct(db *sql.DB, productToUpdate, product models.Product) (id int, err error) {
-	if db == nil {
+func UpdateProduct(dbtx DBTX, productToUpdate, product models.Product) (updatedProduct models.Product, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -31,29 +30,37 @@ func UpdateProduct(db *sql.DB, productToUpdate, product models.Product) (id int,
 		SET
 			name = CASE WHEN $1 = '' THEN name ELSE $1 END,
 			description = CASE WHEN $2 = '' THEN description ELSE $2 END,
-			categories = CASE WHEN $3::varchar[] IS NULL THEN categories ELSE $3 END,
-			price = CASE WHEN $4 = 0.0 THEN price ELSE $4 END,
+			price = CASE WHEN $3 = 0.0 THEN price ELSE $3 END,
 			updated_at = NOW()
 		WHERE 
-			id =  $5
+			id =  $4
 		RETURNING
-			id
+			id, user_id, name, description, price, created_at, updated_at
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the update (%v) product statement: %v", identifier, err)
 		return
 	}
 	defer stmt.Close()
 
+	var nullData nullProductData
+
 	err = stmt.QueryRow(
 		product.Name,
 		product.Description,
-		pq.Array(product.Categories),
 		product.Price,
 		productToUpdate.ID,
-	).Scan(&id)
+	).Scan(
+		&updatedProduct.ID,
+		&updatedProduct.UserID,
+		&updatedProduct.Name,
+		&nullData.Description,
+		&updatedProduct.Price,
+		&updatedProduct.CreatedAt,
+		&updatedProduct.UpdatedAt,
+	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			err = fmt.Errorf("failed to update (%v) product: %w (product)", identifier, errs.ErrNotExistentObject)
@@ -63,5 +70,6 @@ func UpdateProduct(db *sql.DB, productToUpdate, product models.Product) (id int,
 		err = fmt.Errorf("failed to update (%v) product: %v", identifier, err)
 		return
 	}
+	nullData.setResults(&updatedProduct)
 	return
 }

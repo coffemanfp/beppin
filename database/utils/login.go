@@ -10,8 +10,8 @@ import (
 )
 
 // Login - Select a user by his username and password, and checks if exists.
-func Login(db *sql.DB, userToLogin models.User) (user models.User, match bool, err error) {
-	if db == nil {
+func Login(dbtx DBTX, userToLogin models.User) (user models.User, match bool, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -20,15 +20,18 @@ func Login(db *sql.DB, userToLogin models.User) (user models.User, match bool, e
 
 	query := `
 		SELECT
-			id, avatar, language, username, email, theme, currency
+			users.id, files.id, files.path, language, username, theme, currency
 		FROM
 			users
+		LEFT JOIN
+			files
+		ON
+			users.avatar_id = files.id
 		WHERE
 			username = $1 AND password = $2 OR email = $3 AND password = $2
-			
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the login (%s) user statement: %v", userToLogin.Username, err)
 		return
@@ -43,10 +46,10 @@ func Login(db *sql.DB, userToLogin models.User) (user models.User, match bool, e
 		userToLogin.Email,
 	).Scan(
 		&user.ID,
-		&nullData.AvatarURL,
+		&nullData.AvatarID,
+		&nullData.AvatarPath,
 		&user.Language,
 		&user.Username,
-		&user.Email,
 		&user.Theme,
 		&user.Currency,
 	)
@@ -61,5 +64,8 @@ func Login(db *sql.DB, userToLogin models.User) (user models.User, match bool, e
 	}
 
 	nullData.setResults(&user)
+	if user.Avatar != nil {
+		user.Avatar.SetURL()
+	}
 	return
 }

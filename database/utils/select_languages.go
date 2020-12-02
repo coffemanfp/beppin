@@ -10,26 +10,26 @@ import (
 )
 
 // SelectLanguages - Select a languages list.
-func SelectLanguages(db *sql.DB, limit, offset int) (languages models.Languages, err error) {
-	if db == nil {
+func SelectLanguages(dbtx DBTX, limit, offset int) (languages models.Languages, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
 
 	query := `
 	SELECT
-		code, status, created_at, updated_at
+		id, code, status, created_at, updated_at
 	FROM
 		languages
 	ORDER BY
-		code
+		id
 	LIMIT
 		$1
 	OFFSET
 		$2
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the select languages statement: %v", err)
 		return
@@ -52,6 +52,7 @@ func SelectLanguages(db *sql.DB, limit, offset int) (languages models.Languages,
 
 	for rows.Next() {
 		err = rows.Scan(
+			&language.ID,
 			&language.Code,
 			&language.Status,
 			&language.CreatedAt,

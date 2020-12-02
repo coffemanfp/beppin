@@ -31,7 +31,7 @@ func GetProduct(c echo.Context) (err error) {
 	)
 	if err != nil {
 		if errors.Is(err, errs.ErrNotExistentObject) {
-			m.Error = fmt.Sprintf("%v: product", errs.ErrExistentObject)
+			m.Error = fmt.Sprintf("%v: product", errs.ErrNotExistentObject)
 
 			return echo.NewHTTPError(http.StatusNotFound, m)
 		}

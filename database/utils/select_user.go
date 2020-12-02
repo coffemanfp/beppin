@@ -10,8 +10,8 @@ import (
 )
 
 // SelectUser - Selects a user.
-func SelectUser(db *sql.DB, userToFind models.User) (user models.User, err error) {
-	if db == nil {
+func SelectUser(dbtx DBTX, userToFind models.User) (user models.User, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -24,13 +24,19 @@ func SelectUser(db *sql.DB, userToFind models.User) (user models.User, err error
 
 	query := `
 		SELECT
-			id, language, avatar, username, email, name, last_name, birthday, theme, currency, created_at, updated_at FROM users
+			users.id, language, files.id, files.path, username, email, name, last_name, birthday, theme, currency, users.created_at, users.updated_at
+		FROM
+			users
+		LEFT JOIN
+			files
+		ON
+			users.avatar_id = files.id
 		WHERE
-			id = $1 OR username = $2 OR email = $3
+			users.id = $1 OR username = $2 OR email = $3
 			
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the select (%v) user statement: %v", identifier, err)
 		return
@@ -46,7 +52,8 @@ func SelectUser(db *sql.DB, userToFind models.User) (user models.User, err error
 	).Scan(
 		&user.ID,
 		&user.Language,
-		&nullData.AvatarURL,
+		&nullData.AvatarID,
+		&nullData.AvatarPath,
 		&user.Username,
 		&user.Email,
 		&nullData.Name,
@@ -68,5 +75,8 @@ func SelectUser(db *sql.DB, userToFind models.User) (user models.User, err error
 	}
 
 	nullData.setResults(&user)
+	if user.Avatar != nil {
+		user.Avatar.SetURL()
+	}
 	return
 }

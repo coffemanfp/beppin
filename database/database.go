@@ -6,6 +6,7 @@ import (
 
 	"github.com/coffemanfp/beppin/config"
 	errs "github.com/coffemanfp/beppin/errors"
+	_ "github.com/lib/pq"
 )
 
 var storage Storage

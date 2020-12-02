@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"database/sql"
 	"fmt"
 
 	errs "github.com/coffemanfp/beppin/errors"
@@ -9,32 +8,22 @@ import (
 )
 
 // SignUp - Inserts a basic user and returns the token data.
-func SignUp(db *sql.DB, user models.User) (newUser models.User, err error) {
-	if db == nil {
+func SignUp(dbtx DBTX, user models.User) (newUser models.User, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
 
-	if user.Language != "" {
-		var language models.Language
-		language, err = SelectLanguage(db, models.Language{Code: user.Language})
-		if err != nil {
-			return
-		}
-
-		user.Language = language.Code
-	}
-
 	query := `
 		INSERT INTO
-			users(username, password, email)
+			users(username, password, email, name, last_name)
 		VALUES
-			($1, $2, $3)
+			($1, $2, $3, $4, $5)
 		RETURNING
-			id, language, username, email, theme, currency
+			id, language, username, theme, currency
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the insert user statement: %v", err)
 		return
@@ -45,11 +34,12 @@ func SignUp(db *sql.DB, user models.User) (newUser models.User, err error) {
 		user.Username,
 		user.Password,
 		user.Email,
+		user.Name,
+		user.LastName,
 	).Scan(
 		&newUser.ID,
 		&newUser.Language,
 		&newUser.Username,
-		&newUser.Email,
 		&newUser.Theme,
 		&newUser.Currency,
 	)

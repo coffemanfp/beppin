@@ -17,7 +17,7 @@ func SetDefaultSettings() (err error) {
 			viper.GetInt("port"),
 		),
 	)
-	viper.SetDefault("assets", "assets/")
+	viper.SetDefault("assets", "assets")
 	viper.SetDefault("logsFile", "logs/server.log")
 	viper.SetDefault("secretKey", "Security")
 	viper.SetDefault("maxElementsPerPagination", 20)

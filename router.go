@@ -9,7 +9,6 @@ import (
 )
 
 func newRouter(e *echo.Echo) {
-
 	// API group
 	r := e.Group("/v1")
 
@@ -23,6 +22,9 @@ func newRouter(e *echo.Echo) {
 	// Products
 	r.GET("/products", handlers.GetProducts)
 	r.GET("/products/:id", handlers.GetProduct)
+
+	// Categories
+	r.GET("/categories", handlers.GetCategories)
 
 	// JWT Middleware
 	jwtConfig := middleware.JWTConfig{
@@ -38,12 +40,22 @@ func newRouter(e *echo.Echo) {
 	r.PUT("/products/:id", handlers.UpdateProduct, jwtMiddleware)
 	r.DELETE("/products/:id", handlers.DeleteProduct, jwtMiddleware)
 
+	// Product Categories
+	r.POST("/products/:id/categories", handlers.AddProductCategories, jwtMiddleware)
+	r.POST("/products/:productid/categories/:categoryid", handlers.AddProductCategory, jwtMiddleware)
+	r.PUT("/products/:id/categories", handlers.UpdateProductCategories, jwtMiddleware)
+	r.DELETE("/products/:productid/categories/:categoryid", handlers.DeleteProductCategory, jwtMiddleware)
+
 	// Users
 	r.GET("/users", handlers.GetUsers, jwtMiddleware)
 	r.GET("/users/:id", handlers.GetUser, jwtMiddleware)
 	r.PUT("/users/:id", handlers.UpdateUser, jwtMiddleware)
-	r.PUT("/users/:id/avatar", handlers.UpdateAvatar, jwtMiddleware)
 	r.DELETE("/users/:id", handlers.DeleteUser, jwtMiddleware)
+
+	// Files
+	r.POST("/files", handlers.UploadFile, jwtMiddleware)
+	r.PUT("/files/:id", handlers.UpdateFile, jwtMiddleware)
+	r.DELETE("/files/:id", handlers.DeleteFile, jwtMiddleware)
 
 	return
 }

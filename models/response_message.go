@@ -19,6 +19,9 @@ const (
 	TypeUsers = "users"
 	TypeUser  = "user"
 
+	TypeFiles = "files"
+	TypeFile  = "file"
+
 	TypeToken = "token"
 )
 

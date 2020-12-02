@@ -7,12 +7,11 @@ import (
 
 	errs "github.com/coffemanfp/beppin/errors"
 	"github.com/coffemanfp/beppin/models"
-	"github.com/lib/pq"
 )
 
 // SelectProduct - Selects a product.
-func SelectProduct(db *sql.DB, productToFind models.Product) (product models.Product, err error) {
-	if db == nil {
+func SelectProduct(dbtx DBTX, productToFind models.Product) (product models.Product, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -25,14 +24,14 @@ func SelectProduct(db *sql.DB, productToFind models.Product) (product models.Pro
 
 	query := `
 		SELECT
-			id, user_id, name, description, categories, price, created_at, updated_at
+			id, user_id, name, description, price, created_at, updated_at
 		FROM
 			products
 		WHERE
 			id = $1
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the select (%v) product statement: %v", identifier, err)
 
@@ -46,8 +45,7 @@ func SelectProduct(db *sql.DB, productToFind models.Product) (product models.Pro
 		&product.ID,
 		&product.UserID,
 		&product.Name,
-		&product.Description,
-		(*pq.StringArray)(&product.Categories),
+		&nullData.Description,
 		&product.Price,
 		&product.CreatedAt,
 		&nullData.UpdatedAt,

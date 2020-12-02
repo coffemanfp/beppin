@@ -10,8 +10,8 @@ import (
 )
 
 // SelectLanguage - Selects a language.
-func SelectLanguage(db *sql.DB, languageToFind models.Language) (language models.Language, err error) {
-	if db == nil {
+func SelectLanguage(dbtx DBTX, languageToFind models.Language) (language models.Language, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -24,15 +24,15 @@ func SelectLanguage(db *sql.DB, languageToFind models.Language) (language models
 
 	query := `
 		SELECT
-			code, status, created_at, updated_at
+			id, code, status, created_at, updated_at
 		FROM
 			languages
 		WHERE
-			code = $1
+			id = $1 OR code = $1
 			
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the select (%v) language statement: %v", identifier, err)
 		return
@@ -41,7 +41,11 @@ func SelectLanguage(db *sql.DB, languageToFind models.Language) (language models
 
 	var nullData nullLanguageData
 
-	err = stmt.QueryRow(languageToFind.Code).Scan(
+	err = stmt.QueryRow(
+		languageToFind.ID,
+		languageToFind.Code,
+	).Scan(
+		&language.ID,
 		&language.Code,
 		&language.Status,
 		&language.CreatedAt,

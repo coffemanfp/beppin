@@ -6,7 +6,9 @@ import "database/sql"
 type Storage interface {
 	LanguageStorage
 	ProductStorage
+	CategoriesStorage
 	UserStorage
+	FileStorage
 
 	GetDB() *sql.DB
 	SetDB(db *sql.DB)

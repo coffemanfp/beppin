@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"database/sql"
 	"fmt"
 
 	errs "github.com/coffemanfp/beppin/errors"
@@ -9,8 +8,8 @@ import (
 )
 
 // ExistsLanguage - Checks if exists a language.
-func ExistsLanguage(db *sql.DB, language models.Language) (exists bool, err error) {
-	if db == nil {
+func ExistsLanguage(dbtx DBTX, language models.Language) (exists bool, err error) {
+	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
 	}
@@ -33,7 +32,7 @@ func ExistsLanguage(db *sql.DB, language models.Language) (exists bool, err erro
 			)
 	`
 
-	stmt, err := db.Prepare(query)
+	stmt, err := dbtx.Prepare(query)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare the exists (%v) language statement: %v", identifier, err)
 		return
