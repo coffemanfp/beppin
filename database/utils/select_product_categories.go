@@ -30,11 +30,11 @@ func SelectProductCategories(dbtx DBTX, productToFind models.Product) (categorie
 		INNER JOIN
 			products
 		INNER JOIN
-			categories_products
+			product_categories
 		ON
-			categories_products.product_id = products.id
+			product_categories.product_id = products.id
 		ON
-			categories_products.category_id = categories.id
+			product_categories.category_id = categories.id
 		WHERE
 			products.id = $1
 	`

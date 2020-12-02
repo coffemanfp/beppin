@@ -12,46 +12,25 @@ import (
 	"github.com/labstack/echo"
 )
 
-// UpdateProductCategories - Updates all the categories related with a product.
-func UpdateProductCategories(c echo.Context) (err error) {
-	productIDParam := c.Param("id")
+// AddProductCategory - Adds a product category relation.
+func AddProductCategory(c echo.Context) (err error) {
 	var m models.ResponseMessage
+	var productID, categoryID int
 
 	userIDToken := c.Get("user").(*jwt.Token).Claims.(*models.Claim).User.ID
+	productIDParam := c.Param("productid")
+	categoryIDParam := c.Param("categoryid")
 
-	productID, err := utils.Atoi(productIDParam)
-	if err != nil || productID == 0 {
+	if productID, err = utils.Atoi(productIDParam); err != nil || productID == 0 {
 		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
 	}
 
-	var categories models.Categories
-
-	if err = c.Bind(&categories); err != nil {
-		m.Error = errs.ErrInvalidBody
+	if categoryID, err = utils.Atoi(categoryIDParam); err != nil || categoryID == 0 {
+		m.Error = fmt.Sprintf("%v: id", errs.ErrInvalidParam)
 
 		return echo.NewHTTPError(http.StatusBadRequest, m)
-	}
-
-	// Check if it even has a value
-	if len(categories) < 1 {
-		m.Message = "A product must have at least a category."
-		m.Error = errs.ErrInvalidBody
-
-		return echo.NewHTTPError(http.StatusBadRequest, m)
-	}
-
-	// Omit any value repeated
-	categoriesMap := make(map[int64]bool)
-
-	for _, category := range categories {
-		categoriesMap[category.ID] = true
-	}
-
-	categories = models.Categories{}
-	for categoryID := range categoriesMap {
-		categories = append(categories, models.Category{ID: categoryID})
 	}
 
 	// Get old product info
@@ -74,12 +53,10 @@ func UpdateProductCategories(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusUnauthorized, m)
 	}
 
-	err = Storage.UpdateProductCategories(
-		int64(productID),
-		categories,
-	)
+	err = Storage.AddProductCategory(int64(productID), int64(categoryID))
 	if err != nil {
-		if errors.Is(err, errs.ErrNotExistentObject) {
+		if errors.Is(err, errs.ErrNotExistentObject) ||
+			errors.Is(err, errs.ErrExistentObject) {
 			m.Error = err.Error()
 
 			return echo.NewHTTPError(http.StatusNotFound, m)
@@ -90,11 +67,6 @@ func UpdateProductCategories(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusInternalServerError, m)
 	}
 
-	m.Message = "Updated."
-	m.Content = models.Product{
-		ID:         int64(productID),
-		Categories: categories,
-	}
-	m.ContentType = models.TypeProduct
-	return c.JSON(http.StatusOK, m)
+	m.Message = "Created."
+	return c.JSON(http.StatusCreated, m)
 }

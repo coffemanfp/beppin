@@ -6,8 +6,8 @@ import (
 	errs "github.com/coffemanfp/beppin/errors"
 )
 
-// ExistsProductCategory - Checks if a product have a category.
-func ExistsProductCategory(dbtx DBTX, productID int64, categoryID int64) (exists bool, err error) {
+// SelectProductCategoriesCount - Selects the product categories relations count.
+func SelectProductCategoriesCount(dbtx DBTX, productID int64) (count int, err error) {
 	if dbtx == nil {
 		err = errs.ErrClosedDatabase
 		return
@@ -17,21 +17,14 @@ func ExistsProductCategory(dbtx DBTX, productID int64, categoryID int64) (exists
 		err = fmt.Errorf("failed to check product: %w (product)", errs.ErrNotProvidedOrInvalidObject)
 		return
 	}
-	if categoryID == 0 {
-		err = fmt.Errorf("failed to check category: %w (category)", errs.ErrNotProvidedOrInvalidObject)
-		return
-	}
 
 	query := `
-		SELECT
-			EXISTS(
 				SELECT
-					1
+					COUNT(*)
 				FROM
 					product_categories
 				WHERE
-					product_id = $1 AND category_id = $2
-			)
+					product_id = $1
 	`
 
 	stmt, err := dbtx.Prepare(query)
@@ -41,12 +34,9 @@ func ExistsProductCategory(dbtx DBTX, productID int64, categoryID int64) (exists
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(
-		productID,
-		categoryID,
-	).Scan(&exists)
+	err = stmt.QueryRow(productID).Scan(&count)
 	if err != nil {
-		err = fmt.Errorf("failed to select the exists product_category statement: %v", err)
+		err = fmt.Errorf("failed to select the exists product_categories statement: %v", err)
 	}
 	return
 }

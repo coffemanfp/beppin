@@ -15,21 +15,21 @@ func InsertProductCategory(dbtx DBTX, productID int64, categoryID int64) (err er
 
 	query := `
 		INSERT INTO
-			categories_products(category_id, product_id)
+			product_categories(category_id, product_id)
 		VALUES
 			($1, $2)
 	`
 
 	stmt, err := dbtx.Prepare(query)
 	if err != nil {
-		err = fmt.Errorf("failed to prepare the insert category product statement: %v", err)
+		err = fmt.Errorf("failed to prepare the insert product_category statement: %v", err)
 		return
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(categoryID, productID)
 	if err != nil {
-		err = fmt.Errorf("failed to execute insert category product statement: %v", err)
+		err = fmt.Errorf("failed to execute insert product_category statement: %v", err)
 	}
 	return
 }

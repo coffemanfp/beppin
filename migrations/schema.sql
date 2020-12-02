@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS categories (
     PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS categories_products (
+CREATE TABLE IF NOT EXISTS product_categories (
     id SERIAL NOT NULL UNIQUE,
     category_id INTEGER,
     product_id INTEGER,

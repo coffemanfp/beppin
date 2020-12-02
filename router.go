@@ -41,9 +41,9 @@ func newRouter(e *echo.Echo) {
 	r.DELETE("/products/:id", handlers.DeleteProduct, jwtMiddleware)
 
 	// Product Categories
-	// TODO
-	//r.POST("/products/categories", handlers.AddProductCategories, jwtMiddleware)
-	//r.PUT("/products/categories", handlers.UpdateProductCategories, jwtMiddleware)
+	r.POST("/products/:id/categories", handlers.AddProductCategories, jwtMiddleware)
+	r.POST("/products/:productid/categories/:categoryid", handlers.AddProductCategory, jwtMiddleware)
+	r.PUT("/products/:id/categories", handlers.UpdateProductCategories, jwtMiddleware)
 	r.DELETE("/products/:productid/categories/:categoryid", handlers.DeleteProductCategory, jwtMiddleware)
 
 	// Users

@@ -17,7 +17,7 @@ func DeleteProductCategories(dbtx DBTX, productID int64) (err error) {
 
 	query := `
 		DELETE FROM
-			categories_products
+			product_categories
 		WHERE
 			product_id = $1
 		RETURNING

@@ -153,21 +153,21 @@ ON CONFLICT DO
     NOTHING;
 
 INSERT INTO
-    categories_products(category_id, product_id)
+    product_categories(category_id, product_id)
 VALUES
     (2, 1)
 ON CONFLICT DO
     NOTHING;
 
 INSERT INTO
-    categories_products(category_id, product_id)
+    product_categories(category_id, product_id)
 VALUES
     (2, 2)
 ON CONFLICT DO
     NOTHING;
 
 INSERT INTO
-    categories_products(category_id, product_id)
+    product_categories(category_id, product_id)
 VALUES
     (3, 3)
 ON CONFLICT DO
