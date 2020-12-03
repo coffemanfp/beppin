@@ -25,5 +25,6 @@ assets/
 *.out
 
 # Sensitive data
+.env
 config.yaml
 migrations/config.yaml
